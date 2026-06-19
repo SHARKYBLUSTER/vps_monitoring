@@ -102,6 +102,90 @@
 
 ---
 
+## 🐳 Déploiement avec Docker
+
+### Prérequis
+- Docker installé sur votre machine
+- Docker Compose (v1.29+)
+
+### Installation rapide
+
+1. **Cloner le dépôt** :
+   ```bash
+   git clone https://github.com/SHARKYBLUSTER/vps_monitoring.git
+   cd vps_monitoring
+   ```
+
+2. **Configurer l'environnement** (optionnel) :
+   Modifiez les variables dans `docker-compose.yml` ou créez un fichier `.env` :
+   ```bash
+   cp .env.example .env
+   nano .env  # Modifier selon vos besoins
+   ```
+
+3. **Construire et démarrer le conteneur** :
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. **Accéder au dashboard** :
+   Ouvrez votre navigateur et allez sur :
+   ```
+   http://localhost:3000
+   ```
+
+### Commandes Docker utiles
+
+| Commande | Description |
+|----------|-------------|
+| `docker-compose up -d` | Démarrer le conteneur en arrière-plan |
+| `docker-compose down` | Arrêter le conteneur |
+| `docker-compose logs -f` | Voir les logs en temps réel |
+| `docker-compose build --no-cache` | Reconstruire l'image sans cache |
+| `docker-compose pull` | Mettre à jour l'image |
+| `docker exec -it vps-monitoring sh` | Accéder au shell du conteneur |
+
+### Configuration avancée
+
+#### Changer le port
+Modifiez dans `docker-compose.yml` :
+```yaml
+ports:
+  - "8080:3000"  # Accès sur http://localhost:8080
+```
+
+#### Persistance des données
+Les données historiques sont automatiquement persistées dans le répertoire `./data` sur votre hôte.
+
+#### Variables d'environnement
+Vous pouvez personnaliser la configuration via le fichier `.env` ou directement dans `docker-compose.yml` :
+
+| Variable | Description | Valeur par défaut |
+|----------|-------------|------------------|
+| `PORT` | Port du serveur | 3000 |
+| `CPU_THRESHOLD` | Seuil d'alerte CPU (%) | 80 |
+| `MEMORY_THRESHOLD` | Seuil d'alerte RAM (%) | 85 |
+| `DISK_THRESHOLD` | Seuil d'alerte disque (%) | 90 |
+| `ADMIN_USER` | Utilisateur admin | admin |
+| `ADMIN_PASSWORD` | Mot de passe admin | changer_mot_de_passe |
+| `SESSION_SECRET` | Clé secrète pour les sessions | - |
+| `LOG_LEVEL` | Niveau de logging | info |
+
+### Résolution des problèmes
+
+#### Erreur de permissions pour les processus
+Si vous voyez des erreurs liées à la surveillance des processus, assurez-vous que :
+1. Le conteneur a les capabilities `SYS_PTRACE` et `DAC_READ_SEARCH` (déjà configuré dans docker-compose.yml)
+2. Ou utilisez le mode privilégié (décommentez `privileged: true` dans docker-compose.yml)
+
+#### Problèmes de port
+Vérifiez qu'aucun autre service n'utilise le port 3000 :
+```bash
+netstat -tuln | grep 3000
+```
+
+---
+
 ## 🔐 Permissions pour la surveillance des processus
 
 > ⚠️ **Important** : La surveillance des processus nécessite des permissions élevées.
@@ -164,6 +248,9 @@ vps_monitoring/
 ├── frontend/
 │   └── index.html          # Interface utilisateur complète
 ├── data/                  # Données historiques (créé automatiquement)
+├── Dockerfile             # Configuration du conteneur Docker
+├── docker-compose.yml     # Orchestration Docker Compose
+├── .dockerignore          # Fichiers à exclure du build Docker
 │   ├── metrics_history.json
 │   └── alerts_history.json
 ├── package.json

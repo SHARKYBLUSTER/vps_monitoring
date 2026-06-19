@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  vps-monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vps-monitoring
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Configuration des seuils d'alerte
+      - CPU_THRESHOLD=80
+      - MEMORY_THRESHOLD=85
+      - DISK_THRESHOLD=90
+      # Authentification (à modifier !)
+      - ADMIN_USER=admin
+      - ADMIN_PASSWORD=changer_mot_de_passe
+      - SESSION_SECRET=changez_ci_pour_une_cle_secrete_aleatoire
+      # Niveau de logging
+      - LOG_LEVEL=info
+    volumes:
+      # Persister les données historiques
+      - ./data:/app/data
+    # Capabilities nécessaires pour surveiller les processus
+    # REQUIRED: SYS_PTRACE pour lire les infos des processus
+    cap_add:
+      - SYS_PTRACE
+      - DAC_READ_SEARCH
+    # Mode privilégié (alternative si les capabilities ne suffisent pas)
+    # privileged: true
+    networks:
+      - monitoring-net
+
+networks:
+  monitoring-net:
+    driver: bridge

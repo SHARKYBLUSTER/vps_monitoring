@@ -1,0 +1,46 @@
+# Fichiers à ignorer lors du build Docker
+
+# Dépendances locales
+node_modules/
+
+# Fichiers de développement
+.nodemon.json
+
+# Fichiers git
+.git/
+.gitignore
+
+# Fichiers de documentation
+README.md
+ROADMAP.md
+LICENSE
+
+# Fichiers d'environnement (sauf .env.example)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
