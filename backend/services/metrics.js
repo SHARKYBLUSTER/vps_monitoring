@@ -178,20 +178,34 @@ async function getAlerts() {
  */
 async function getTopProcesses(limit = 5) {
   try {
-    const processes = await si.processes();
+    // si.processes() retourne un objet avec une propriété 'list'
+    const result = await si.processes();
+    
+    // Vérifier si on a bien un objet avec la propriété list
+    const processes = result.list || result || [];
+    
+    if (!Array.isArray(processes) || processes.length === 0) {
+      console.warn('⚠️ Aucun processus retourné. Vérifiez les permissions (root ou cap_sys_ptrace).');
+      console.warn('   Result:', result);
+      return [];
+    }
+    
     return processes
-      .filter(p => p.pid && p.name) // Filtrer les processus valides
-      .sort((a, b) => b.cpu - a.cpu) // Tri par CPU (décroissant)
+      .filter(p => p && p.pid && p.name && p.cpu !== undefined) // Filtrer les processus valides
+      .sort((a, b) => (b.cpu || 0) - (a.cpu || 0)) // Tri par CPU (décroissant)
       .slice(0, limit)
       .map(p => ({
         pid: p.pid,
-        name: p.name,
-        cpu: p.cpu,
-        mem: p.mem, // en %
+        name: p.name || 'unknown',
+        cpu: p.cpu ? parseFloat(p.cpu.toFixed(1)) : 0,
+        mem: p.mem ? parseFloat(p.mem.toFixed(1)) : 0, // en %
         user: p.user || 'unknown',
       }));
   } catch (error) {
-    console.error('❌ Erreur processus :', error);
+    console.error('❌ Erreur processus :', error.message);
+    console.warn('💡 Pour activer la surveillance des processus :');
+    console.warn('   - Exécutez avec sudo : sudo node backend/app.js');
+    console.warn('   - Ou donnez les permissions : sudo setcap cap_sys_ptrace,cap_dac_read_search+ep /usr/bin/node');
     return [];
   }
 }
