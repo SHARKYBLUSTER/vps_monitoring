@@ -217,7 +217,7 @@ app.get('/logout', (req, res) => {
 // Routes API (REST)
 // ====================
 
-app.get('/api/metrics', authMiddleware.requireApiAuth, async (req, res) => {
+app.get('/api/metrics', async (req, res) => {
   try {
     const metrics = await metricsService.getAllMetrics();
     res.json({
@@ -231,7 +231,7 @@ app.get('/api/metrics', authMiddleware.requireApiAuth, async (req, res) => {
   }
 });
 
-app.get('/api/network', authMiddleware.requireApiAuth, async (req, res) => {
+app.get('/api/network', async (req, res) => {
   try {
     const networkMetrics = await metricsService.getNetworkMetrics();
     res.json({
@@ -245,7 +245,7 @@ app.get('/api/network', authMiddleware.requireApiAuth, async (req, res) => {
   }
 });
 
-app.get('/api/alerts', authMiddleware.requireApiAuth, async (req, res) => {
+app.get('/api/alerts', async (req, res) => {
   try {
     const alerts = await metricsService.getAlerts();
     res.json({
@@ -272,7 +272,7 @@ app.get('/api/health', (req, res) => {
 // Routes API - Historique
 // ====================
 
-app.get('/api/history', authMiddleware.requireApiAuth, async (req, res) => {
+app.get('/api/history', async (req, res) => {
   try {
     const options = {
       limit: parseInt(req.query.limit) || 100,
@@ -287,7 +287,7 @@ app.get('/api/history', authMiddleware.requireApiAuth, async (req, res) => {
   }
 });
 
-app.get('/api/history/:metric', authMiddleware.requireApiAuth, async (req, res) => {
+app.get('/api/history/:metric', async (req, res) => {
   try {
     const { metric } = req.params;
     const options = { limit: parseInt(req.query.limit) || 50 };
@@ -299,7 +299,7 @@ app.get('/api/history/:metric', authMiddleware.requireApiAuth, async (req, res) 
   }
 });
 
-app.get('/api/history/alerts', authMiddleware.requireApiAuth, async (req, res) => {
+app.get('/api/history/alerts', async (req, res) => {
   try {
     const options = {
       limit: parseInt(req.query.limit) || 100,
@@ -313,7 +313,7 @@ app.get('/api/history/alerts', authMiddleware.requireApiAuth, async (req, res) =
   }
 });
 
-app.post('/api/history/cleanup', authMiddleware.requireApiAuth, async (req, res) => {
+app.post('/api/history/cleanup', async (req, res) => {
   try {
     const days = parseInt(req.body.days) || 30;
     const result = await historyService.cleanupHistory(days);
@@ -409,7 +409,7 @@ function generateHtml(metrics, alerts, username = null) {
   `;
 }
 
-app.get('/', authMiddleware.requireAuth, async (req, res) => {
+app.get('/', async (req, res) => {
   try {
     const metrics = await metricsService.getAllMetrics();
     const alerts = metricsService.checkAlerts(metrics);
