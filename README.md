@@ -40,6 +40,13 @@
 - Tri dynamique par CPU ou mémoire
 - Visualisation avec barres de progression
 
+### 🔌 **Sécurité des ports**
+- **Surveillance des ports ouverts** : Liste des ports TCP en écoute
+- **Indicateur visuel** : 🟢 (local) ou 🟠 (externe)
+- **Identification des services** : Base de données de 25+ ports connus (SSH, HTTP, MySQL, etc.)
+- **Niveau de sécurité** : Notation en étoiles (⭐⭐⭐, ⭐⭐☆, ⭐☆☆)
+- **Classification automatique** : Ports système, enregistrés, dynamiques
+
 ---
 
 ## 🚀 Installation
@@ -133,6 +140,7 @@ Le backend expose plusieurs endpoints pour récupérer les données :
 | GET | `/api/network` | Métriques réseau détaillées |
 | GET | `/api/alerts` | Alertes actives |
 | GET | `/api/processes` | Top 5 processus consommateurs |
+| GET | `/api/ports` | Liste des ports ouverts en écoute |
 | GET | `/api/health` | État de santé du serveur |
 | GET | `/api/history` | Historique des métriques |
 | GET | `/api/history/:metric` | Données pour graphique (cpu, memory, disk) |
@@ -233,6 +241,40 @@ vps_monitoring/
       "cpu": 12.1,
       "mem": 8.3,
       "user": "root"
+    }
+  ],
+  "timestamp": "2025-06-19T12:00:00.000Z"
+}
+```
+
+### `/api/ports`
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "port": 22,
+      "address": "0.0.0.0",
+      "pid": 1234,
+      "process": "sshd",
+      "protocol": "TCP",
+      "state": "LISTEN"
+    },
+    {
+      "port": 80,
+      "address": "0.0.0.0",
+      "pid": 5678,
+      "process": "nginx",
+      "protocol": "TCP",
+      "state": "LISTEN"
+    },
+    {
+      "port": 3000,
+      "address": "127.0.0.1",
+      "pid": 9012,
+      "process": "node",
+      "protocol": "TCP",
+      "state": "LISTEN"
     }
   ],
   "timestamp": "2025-06-19T12:00:00.000Z"
