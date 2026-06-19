@@ -2,37 +2,121 @@
  * Point d'entrée principal du frontend (Vanilla JS)
  * Projet : VPS Monitoring Dashboard
  * 
- * NOTE : Les métriques sont maintenant générées côté serveur et intégrées directement dans le HTML.
- * Ce fichier gère uniquement l'affichage dynamique et les interactions utilisateur.
+ * Architecture :
+ * - Récupération des métriques via l'API REST (/api/metrics)
+ * - Rafraîchissement automatique toutes les 5 secondes
+ * - Mise à jour dynamique du DOM
  */
+
+// Configuration
+const REFRESH_INTERVAL = 5000; // 5 secondes
 
 // Initialisation de l'application
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ VPS Monitoring Dashboard initialisé');
   
+  // Initialiser les seuils d'alerte (définis dans le HTML ou par défaut)
+  window.ALERT_THRESHOLDS = window.ALERT_THRESHOLDS || {
+    cpu: 80,
+    memory: 85,
+    disk: 90,
+  };
+  
+  // Charger les métriques initialement
+  fetchMetrics();
+  
+  // Rafraîchir les métriques périodiquement
+  setInterval(fetchMetrics, REFRESH_INTERVAL);
+  
   // Mettre à jour l'horodatage
   updateTimestamp();
   setInterval(updateTimestamp, 1000);
-  
-  // Vérifier les alertes initiales (les données sont déjà dans le HTML)
-  const metrics = {
-    cpu: {
-      usage: parseFloat(document.getElementById('cpu-usage').textContent.replace('%', '')) || 0,
-    },
-    memory: {
-      usagePercent: parseFloat(document.getElementById('mem-usage').textContent.replace('%', '')) || 0,
-    },
-    disk: {
-      usagePercent: parseFloat(document.getElementById('disk-usage').textContent.replace('%', '')) || 0,
-    },
-  };
-  
-  // Mettre à jour les barres de progression
-  updateProgressBars(metrics);
-  
-  // Vérifier les alertes
-  checkAlerts(metrics);
 });
+
+/**
+ * Récupère les métriques depuis l'API
+ */
+async function fetchMetrics() {
+  try {
+    const response = await fetch('/api/metrics');
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    if (data.success && data.data) {
+      const metrics = data.data;
+      
+      // Mettre à jour les métriques dans le DOM
+      updateMetricsInDOM(metrics);
+      
+      // Mettre à jour les barres de progression
+      updateProgressBars(metrics);
+      
+      // Vérifier les alertes
+      checkAlerts(metrics);
+    }
+  } catch (error) {
+    console.error('❌ Erreur lors de la récupération des métriques:', error);
+    showError('Impossible de récupérer les métriques. Vérifiez la connexion au serveur.');
+  }
+}
+
+/**
+ * Met à jour les métriques dans le DOM
+ * @param {Object} metrics - Données des métriques
+ */
+function updateMetricsInDOM(metrics) {
+  if (!metrics) return;
+
+  // Mettre à jour le CPU
+  if (metrics.cpu) {
+    const cpuUsageEl = document.getElementById('cpu-usage');
+    const cpuCoresEl = document.getElementById('cpu-cores');
+    const cpuModelEl = document.getElementById('cpu-model');
+    
+    if (cpuUsageEl) cpuUsageEl.textContent = `${metrics.cpu.usage.toFixed(1)}%`;
+    if (cpuCoresEl) cpuCoresEl.textContent = metrics.cpu.cores || '--';
+    if (cpuModelEl) cpuModelEl.textContent = metrics.cpu.model || '--';
+  }
+
+  // Mettre à jour la RAM
+  if (metrics.memory) {
+    const memUsageEl = document.getElementById('mem-usage');
+    const memUsedEl = document.getElementById('mem-used');
+    const memTotalEl = document.getElementById('mem-total');
+    
+    if (memUsageEl) memUsageEl.textContent = `${metrics.memory.usagePercent.toFixed(1)}%`;
+    if (memUsedEl) memUsedEl.textContent = `${formatBytes(metrics.memory.used)} GB`;
+    if (memTotalEl) memTotalEl.textContent = `${formatBytes(metrics.memory.total)} GB`;
+  }
+
+  // Mettre à jour le Disque
+  if (metrics.disk) {
+    const diskUsageEl = document.getElementById('disk-usage');
+    const diskUsedEl = document.getElementById('disk-used');
+    const diskTotalEl = document.getElementById('disk-total');
+    
+    if (diskUsageEl) diskUsageEl.textContent = `${metrics.disk.usagePercent.toFixed(1)}%`;
+    if (diskUsedEl) diskUsedEl.textContent = `${formatBytes(metrics.disk.used)} GB`;
+    if (diskTotalEl) diskTotalEl.textContent = `${formatBytes(metrics.disk.total)} GB`;
+  }
+
+  // Mettre à jour le Réseau
+  if (metrics.network) {
+    const networkStatusEl = document.getElementById('network-status');
+    const networkDownloadEl = document.getElementById('network-download');
+    const networkUploadEl = document.getElementById('network-upload');
+    
+    if (networkStatusEl) {
+      networkStatusEl.innerHTML = metrics.network.status === 'OK' 
+        ? '<span class="status-badge online">En ligne</span>' 
+        : '<span class="status-badge offline">Hors ligne</span>';
+    }
+    if (networkDownloadEl) networkDownloadEl.textContent = `${(metrics.network.download).toFixed(1)} KB/s`;
+    if (networkUploadEl) networkUploadEl.textContent = `${(metrics.network.upload).toFixed(1)} KB/s`;
+  }
+}
 
 /**
  * Met à jour les barres de progression pour CPU, RAM et Disque
@@ -43,21 +127,21 @@ function updateProgressBars(metrics) {
   const cpuProgress = document.getElementById('cpu-progress');
   if (cpuProgress && metrics.cpu) {
     cpuProgress.style.width = `${metrics.cpu.usage}%`;
-    cpuProgress.setAttribute('data-tooltip', `Utilisation CPU: ${metrics.cpu.usage}%`);
+    cpuProgress.setAttribute('data-tooltip', `Utilisation CPU: ${metrics.cpu.usage.toFixed(1)}%`);
   }
   
   // Barre de progression RAM
   const memProgress = document.getElementById('mem-progress');
   if (memProgress && metrics.memory) {
     memProgress.style.width = `${metrics.memory.usagePercent}%`;
-    memProgress.setAttribute('data-tooltip', `Utilisation RAM: ${metrics.memory.usagePercent}%`);
+    memProgress.setAttribute('data-tooltip', `Utilisation RAM: ${metrics.memory.usagePercent.toFixed(1)}%`);
   }
   
   // Barre de progression Disque
   const diskProgress = document.getElementById('disk-progress');
   if (diskProgress && metrics.disk) {
     diskProgress.style.width = `${metrics.disk.usagePercent}%`;
-    diskProgress.setAttribute('data-tooltip', `Utilisation Disque: ${metrics.disk.usagePercent}%`);
+    diskProgress.setAttribute('data-tooltip', `Utilisation Disque: ${metrics.disk.usagePercent.toFixed(1)}%`);
   }
 }
 
@@ -78,12 +162,14 @@ function checkAlerts(metrics) {
  */
 function showError(message) {
   const alertsContainer = document.getElementById('alerts-list');
-  alertsContainer.innerHTML = `
-    <div class="alert danger">
-      <span>${message}</span>
-      <span class="time">Maintenant</span>
-    </div>
-  `;
+  if (alertsContainer) {
+    alertsContainer.innerHTML = `
+      <div class="alert danger">
+        <span>❌ ${message}</span>
+        <span class="time">Maintenant</span>
+      </div>
+    `;
+  }
 }
 
 /**
@@ -93,13 +179,32 @@ function updateTimestamp() {
   const now = new Date();
   const timeString = now.toLocaleTimeString('fr-FR');
   const dateString = now.toLocaleDateString('fr-FR');
-  document.getElementById('last-update').textContent = `Dernière mise à jour : ${dateString} ${timeString}`;
+  const lastUpdateEl = document.getElementById('last-update');
+  if (lastUpdateEl) {
+    lastUpdateEl.textContent = `Dernière mise à jour : ${dateString} ${timeString}`;
+  }
+}
+
+/**
+ * Formate les octets en GB, MB, KB, etc.
+ * @param {number} bytes - Valeur en octets
+ * @returns {string} - Valeur formatée
+ */
+function formatBytes(bytes) {
+  if (bytes === 0) return '0';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return (bytes / Math.pow(k, i)).toFixed(1);
 }
 
 // Exporter les fonctions pour les utiliser dans d'autres modules
 window.vpsMonitoring = {
+  fetchMetrics,
+  updateMetricsInDOM,
+  updateProgressBars,
   checkAlerts,
   showError,
   updateTimestamp,
-  updateProgressBars,
+  formatBytes,
 };

@@ -125,6 +125,24 @@ function checkAlerts(metrics) {
   }
 }
 
+/**
+ * Récupère les alertes depuis l'API
+ * @returns {Promise<Array>} - Liste des alertes
+ */
+async function fetchAlerts() {
+  try {
+    const response = await fetch('/api/alerts');
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.success ? data.data : [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des alertes:', error);
+    return [];
+  }
+}
+
 // Exporter les fonctions pour les utiliser dans d'autres modules
 window.vpsMonitoringAlerts = {
   checkAlerts,
@@ -132,4 +150,5 @@ window.vpsMonitoringAlerts = {
   isAboveThreshold,
   isCritical,
   DEFAULT_THRESHOLDS,
+  fetchAlerts,
 };
