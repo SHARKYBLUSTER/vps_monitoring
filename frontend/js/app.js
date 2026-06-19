@@ -27,9 +27,39 @@ document.addEventListener('DOMContentLoaded', () => {
     },
   };
   
+  // Mettre à jour les barres de progression
+  updateProgressBars(metrics);
+  
   // Vérifier les alertes
   checkAlerts(metrics);
 });
+
+/**
+ * Met à jour les barres de progression pour CPU, RAM et Disque
+ * @param {Object} metrics - Données des métriques
+ */
+function updateProgressBars(metrics) {
+  // Barre de progression CPU
+  const cpuProgress = document.getElementById('cpu-progress');
+  if (cpuProgress && metrics.cpu) {
+    cpuProgress.style.width = `${metrics.cpu.usage}%`;
+    cpuProgress.setAttribute('data-tooltip', `Utilisation CPU: ${metrics.cpu.usage}%`);
+  }
+  
+  // Barre de progression RAM
+  const memProgress = document.getElementById('mem-progress');
+  if (memProgress && metrics.memory) {
+    memProgress.style.width = `${metrics.memory.usagePercent}%`;
+    memProgress.setAttribute('data-tooltip', `Utilisation RAM: ${metrics.memory.usagePercent}%`);
+  }
+  
+  // Barre de progression Disque
+  const diskProgress = document.getElementById('disk-progress');
+  if (diskProgress && metrics.disk) {
+    diskProgress.style.width = `${metrics.disk.usagePercent}%`;
+    diskProgress.setAttribute('data-tooltip', `Utilisation Disque: ${metrics.disk.usagePercent}%`);
+  }
+}
 
 /**
  * Vérifie les alertes en fonction des seuils
@@ -71,4 +101,5 @@ window.vpsMonitoring = {
   checkAlerts,
   showError,
   updateTimestamp,
+  updateProgressBars,
 };

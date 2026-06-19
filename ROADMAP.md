@@ -12,10 +12,11 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 
 ## 📌 Statut Actuel
 
-- **Version** : `0.1.0` (Début du projet)
-- **Statut** : 🟡 *En développement initial*
+- **Version** : `0.1.5`
+- **Statut** : 🟢 *Phase 1 terminée*
 - **Dernière mise à jour** : 19 juin 2025
 - **Stack technique** : **Backend** (Node.js + Express) | **Frontend** (Vanilla JS + HTML + CSS)
+- **Architecture** : Génération HTML côté serveur (SSR) avec rafraîchissement automatique.
 
 ---
 
@@ -24,6 +25,7 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 ### 🔹 **Phase 1 : Fondations** *(Priorité : Haute)*
 **Objectif** : Mise en place de l'infrastructure de base pour la collecte et l'affichage des métriques.
 **Stack technique** : Backend (Node.js + Express) | Frontend (Vanilla JS + HTML + CSS)
+**Architecture** : Génération HTML côté serveur (SSR) avec rafraîchissement automatique (pas d'API REST pour l'instant).
 
 | ID | Tâche | Statut | Priorité | Estimations |
 |----|-------|--------|----------|-------------|
@@ -32,9 +34,9 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 | F-003 | ✅ Initialiser le projet Node.js (`package.json`, dépendances : `express`, `systeminformation`) | ✅ Done | ⭐⭐⭐ | 1j |
 | F-004 | ✅ Implémenter le collecteur de métriques avec `systeminformation` (CPU, RAM, Disk) | ✅ Done | ⭐⭐⭐ | 2j |
 | F-005 | Intégrer les métriques dans le HTML (sans API) | ✅ Done | ⭐⭐⭐ | 1j |
-| F-006 | Développer l'interface HTML/CSS de base (structure + styles) | ⬜ Todo | ⭐⭐ | 2j |
-| F-007 | Connecter le frontend à l'API (fetch + affichage dynamique des métriques) | ⬜ Todo | ⭐⭐ | 2j |
-| F-008 | Ajouter un système de logging (ex: `winston` ou `morgan` pour Express) | ⬜ Todo | ⭐⭐ | 1j |
+| F-006 | Développer l'interface HTML/CSS de base (structure + styles) | ✅ Done | ⭐⭐ | 2j |
+| F-007 | Intégrer les métriques dynamiques dans le HTML (backend) et ajouter le rafraîchissement automatique | ✅ Done | ⭐⭐ | 1j |
+| F-008 | Ajouter un système de logging (`morgan` pour Express) | ✅ Done | ⭐⭐ | 1j |
 
 ---
 
@@ -124,12 +126,15 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
    - [x] ✅ Créer la structure du projet (`backend/` et `frontend/`).
    - [x] ✅ Initialiser le projet Node.js avec les dépendances (`express`, `systeminformation`).
    - [x] ✅ Implémenter le collecteur de métriques (CPU, RAM, Disk).
-   - [x] ✅ Intégrer les métriques dans le HTML (sans API).
-   - [ ] Développer l'interface HTML/CSS de base.
-   - [ ] Rafraîchir automatiquement les métriques (sans API).
+   - [x] ✅ Intégrer les métriques dans le HTML (backend).
+   - [x] ✅ Développer l'interface HTML/CSS de base (barres de progression, animations, responsive design).
+   - [x] ✅ Rafraîchir automatiquement les métriques (via `<meta http-equiv="refresh" content="5">`).
+   - [x] ✅ Ajouter un système de logging (`morgan` pour Express).
 
 2. **Préparer la Phase 2** :
-   - [ ] Concevoir le système d'alertes (seuils CPU/RAM/Disk).
+   - [ ] **Option 1** : Ajouter une **API REST** pour les métriques (recommandé pour la Phase 2).
+   - [ ] **Option 2** : Adapter les tâches de la Phase 2 pour fonctionner sans API (ex: stocker l'historique en mémoire ou dans des fichiers JSON).
+   - [ ] Concevoir le système d'alertes avancées (notifications, seuils personnalisables).
    - [ ] Choisir la base de données pour l'historique (ex: SQLite, MongoDB).
 
 ---
@@ -162,7 +167,9 @@ Les contributions sont les bienvenues ! Voici comment aider :
 | 0.1.0 | 19 juin 2025 | Création du dépôt et de la roadmap initiale. |
 | 0.1.1 | 19 juin 2025 | Mise à jour de l'architecture : **Backend (Node.js + Express)** + **Frontend (Vanilla JS + HTML + CSS)**. Ajout des tâches détaillées pour la Phase 1. |
 | 0.1.2 | 19 juin 2025 | **F-002** : Structure du projet créée (`backend/`, `frontend/`, `package.json`). **F-003** : Projet Node.js initialisé (dépendances définies). |
-| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). **F-005** : Intégration des métriques dans le HTML (sans API). |
+| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). **F-005** : Intégration des métriques dans le HTML (backend). |
+| 0.1.4 | 19 juin 2025 | **F-006** : Interface HTML/CSS de base finalisée (barres de progression, animations, responsive design, styles pour les graphiques). |
+| 0.1.5 | 19 juin 2025 | **F-007** : Rafraîchissement automatique des métriques (5s) via `<meta http-equiv="refresh">`. **F-008** : Système de logging ajouté (`morgan`). |
 
 ---
 
@@ -174,4 +181,4 @@ Les contributions sont les bienvenues ! Voici comment aider :
 
 ---
 
-> *Ce document est mis à jour régulièrement. Dernière révision : **19 juin 2025** (Version 0.1.3).*
+> *Ce document est mis à jour régulièrement. Dernière révision : **19 juin 2025** (Version 0.1.5).*
