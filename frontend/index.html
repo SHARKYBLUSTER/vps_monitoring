@@ -436,9 +436,9 @@
             <tr>
               <th>Port</th>
               <th>Adresse</th>
-              <th>PID</th>
-              <th>Processus</th>
-              <th>Protocole</th>
+              <th>Service</th>
+              <th>Type</th>
+              <th>Sécurité</th>
             </tr>
           </thead>
           <tbody id="ports-list">
@@ -632,6 +632,64 @@
       renderProcesses(currentSort);
     }
 
+    // Base de données des ports connus
+    const knownPorts = {
+      20: { name: 'FTP', type: 'Transfert de fichiers', security: 2 },
+      21: { name: 'FTP', type: 'Transfert de fichiers', security: 2 },
+      22: { name: 'SSH', type: 'Connexion sécurisée', security: 3 },
+      23: { name: 'Telnet', type: 'Connexion non sécurisée', security: 1 },
+      25: { name: 'SMTP', type: 'Email (envoi)', security: 2 },
+      53: { name: 'DNS', type: 'Résolution de noms', security: 3 },
+      80: { name: 'HTTP', type: 'Web', security: 2 },
+      110: { name: 'POP3', type: 'Email (réception)', security: 2 },
+      123: { name: 'NTP', type: 'Synchronisation horaire', security: 3 },
+      143: { name: 'IMAP', type: 'Email', security: 2 },
+      443: { name: 'HTTPS', type: 'Web sécurisé', security: 3 },
+      465: { name: 'SMTPS', type: 'Email sécurisé (envoi)', security: 3 },
+      587: { name: 'SMTP', type: 'Email (soumission)', security: 2 },
+      993: { name: 'IMAPS', type: 'Email sécurisé', security: 3 },
+      995: { name: 'POP3S', type: 'Email sécurisé (réception)', security: 3 },
+      1433: { name: 'MySQL', type: 'Base de données', security: 3 },
+      1434: { name: 'MySQL', type: 'Base de données', security: 3 },
+      1521: { name: 'Oracle DB', type: 'Base de données', security: 3 },
+      2701: { name: 'MongoDB', type: 'Base de données NoSQL', security: 2 },
+      3306: { name: 'MySQL', type: 'Base de données', security: 3 },
+      3389: { name: 'RDP', type: 'Bureau à distance', security: 1 },
+      5432: { name: 'PostgreSQL', type: 'Base de données', security: 3 },
+      5900: { name: 'VNC', type: 'Bureau à distance', security: 1 },
+      6379: { name: 'Redis', type: 'Cache', security: 3 },
+      8080: { name: 'HTTP Alt', type: 'Web alternatif', security: 2 },
+      8443: { name: 'HTTPS Alt', type: 'Web sécurisé alternatif', security: 3 },
+      9200: { name: 'Elasticsearch', type: 'Moteur de recherche', security: 2 },
+      27017: { name: 'MongoDB', type: 'Base de données NoSQL', security: 2 }
+    };
+
+    // Fonction pour obtenir les infos d'un port
+    function getPortInfo(port) {
+      if (!port) return { name: 'Unknown', type: 'Inconnu', security: 0 };
+      
+      const portNum = parseInt(port);
+      if (knownPorts[portNum]) {
+        return knownPorts[portNum];
+      }
+      
+      // Ports courants non listés
+      if (portNum >= 1024 && portNum <= 49151) {
+        return { name: 'Custom', type: 'Application personnalisée', security: 2 };
+      } else if (portNum >= 49152 && portNum <= 65535) {
+        return { name: 'Dynamic', type: 'Port dynamique/éphémère', security: 1 };
+      }
+      
+      return { name: 'Unknown', type: 'Inconnu', security: 0 };
+    }
+
+    // Fonction pour obtenir le niveau de sécurité en étoiles
+    function getSecurityStars(securityLevel) {
+      const stars = '⭐'.repeat(securityLevel);
+      const empty = '☆'.repeat(3 - securityLevel);
+      return stars + empty;
+    }
+
     // Fonction pour déterminer si un port est local ou externe
     function getPortStatusIcon(address) {
       if (!address) return '<span class="port-status unknown" title="Inconnu">❓</span>';
@@ -688,18 +746,16 @@
           portsList.innerHTML = data.data.map(port => {
             const icon = getPortStatusIcon(port.address);
             const formattedAddress = formatPortAddress(port.address, port.port);
-            
-            // Si le processus est Unknown, on n'affiche pas la colonne PID (inutile)
-            const processInfo = port.process && port.process !== 'Unknown' ? 
-              `<td>${port.pid || '--'}</td><td>${port.process}</td>` :
-              `<td colspan="2">--</td>`;
+            const portInfo = getPortInfo(port.port);
+            const securityStars = getSecurityStars(portInfo.security);
             
             return `
               <tr>
                 <td>${icon} ${port.port || '--'}</td>
                 <td>${formattedAddress}</td>
-                ${processInfo}
-                <td>${port.protocol || '--'}</td>
+                <td>${portInfo.name}</td>
+                <td>${portInfo.type}</td>
+                <td title="Niveau de sécurité : ${portInfo.security}/3">${securityStars}</td>
               </tr>
             `;
           }).join('');
