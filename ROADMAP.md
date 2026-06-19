@@ -31,7 +31,7 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 | F-002 | ✅ Créer la structure du projet (dossiers `backend/` et `frontend/`) | ✅ Done | ⭐⭐⭐ | 1j |
 | F-003 | ✅ Initialiser le projet Node.js (`package.json`, dépendances : `express`, `systeminformation`) | ✅ Done | ⭐⭐⭐ | 1j |
 | F-004 | ✅ Implémenter le collecteur de métriques avec `systeminformation` (CPU, RAM, Disk) | ✅ Done | ⭐⭐⭐ | 2j |
-| F-005 | Créer les endpoints API (`/api/metrics`, `/api/health`) | ⬜ Todo | ⭐⭐⭐ | 2j |
+| F-005 | Intégrer les métriques dans le HTML (sans API) | ✅ Done | ⭐⭐⭐ | 1j |
 | F-006 | Développer l'interface HTML/CSS de base (structure + styles) | ⬜ Todo | ⭐⭐ | 2j |
 | F-007 | Connecter le frontend à l'API (fetch + affichage dynamique des métriques) | ⬜ Todo | ⭐⭐ | 2j |
 | F-008 | Ajouter un système de logging (ex: `winston` ou `morgan` pour Express) | ⬜ Todo | ⭐⭐ | 1j |
@@ -124,9 +124,9 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
    - [x] ✅ Créer la structure du projet (`backend/` et `frontend/`).
    - [x] ✅ Initialiser le projet Node.js avec les dépendances (`express`, `systeminformation`).
    - [x] ✅ Implémenter le collecteur de métriques (CPU, RAM, Disk).
-   - [ ] Créer les endpoints API (`/api/metrics`, `/api/health`).
+   - [x] ✅ Intégrer les métriques dans le HTML (sans API).
    - [ ] Développer l'interface HTML/CSS de base.
-   - [ ] Connecter le frontend à l'API (affichage dynamique).
+   - [ ] Rafraîchir automatiquement les métriques (sans API).
 
 2. **Préparer la Phase 2** :
    - [ ] Concevoir le système d'alertes (seuils CPU/RAM/Disk).
@@ -162,7 +162,7 @@ Les contributions sont les bienvenues ! Voici comment aider :
 | 0.1.0 | 19 juin 2025 | Création du dépôt et de la roadmap initiale. |
 | 0.1.1 | 19 juin 2025 | Mise à jour de l'architecture : **Backend (Node.js + Express)** + **Frontend (Vanilla JS + HTML + CSS)**. Ajout des tâches détaillées pour la Phase 1. |
 | 0.1.2 | 19 juin 2025 | **F-002** : Structure du projet créée (`backend/`, `frontend/`, `package.json`). **F-003** : Projet Node.js initialisé (dépendances définies). |
-| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). Routes API (`/api/metrics`) et contrôleur créés. |
+| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). **F-005** : Intégration des métriques dans le HTML (sans API). |
 
 ---
 
