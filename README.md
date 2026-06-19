@@ -94,7 +94,52 @@
    npm start
    ```
 
-6. **Accéder au dashboard** :
+6. **Utiliser PM2 (Recommandé pour la production)** :
+   
+   **PM2** est un gestionnaire de processus Node.js très populaire pour gérer des applications en production.
+   
+   **Installation** (si ce n'est pas déjà fait) :
+   ```bash
+   npm install -g pm2
+   ```
+   
+   **Lancer le serveur** :
+   ```bash
+   pm2 start backend/app.js --name "vps_monitoring"
+   ```
+   
+   **Options utiles** :
+   - `--name` : Donne un nom personnalisé à votre processus.
+   - `--watch` : Redémarre automatiquement en cas de modification des fichiers (utile en développement).
+   - `--max-memory-restart 300M` : Redémarre si la mémoire dépasse 300 Mo.
+   
+   **Commandes utiles avec PM2** :
+   
+   | Commande | Description |
+   |----------|-------------|
+   | `pm2 list` | Liste les processus en cours. |
+   | `pm2 logs vps_monitoring` | Affiche les logs en temps réel. |
+   | `pm2 logs --lines 100` | Affiche les 100 dernières lignes de logs. |
+   | `pm2 restart vps_monitoring` | Redémarre le processus. |
+   | `pm2 stop vps_monitoring` | Arrête le processus. |
+   | `pm2 delete vps_monitoring` | Supprime le processus de la liste. |
+   | `pm2 save` | Sauvegarde la liste des processus. |
+   | `pm2 startup` | Génère une commande pour lancer PM2 au démarrage du serveur. |
+   
+   **Exemple complet** :
+   ```bash
+   pm2 start backend/app.js --name "vps_monitoring" --watch
+   pm2 save
+   pm2 startup
+   ```
+   
+   **Avantages** :
+   - Gestion avancée des logs.
+   - Redémarrage automatique en cas de crash.
+   - Monitoring intégré (CPU, mémoire).
+   - Persistance au redémarrage du serveur.
+
+7. **Accéder au dashboard** :
    Ouvrez votre navigateur et allez sur :
    ```
    http://localhost:3000
@@ -121,12 +166,14 @@ node backend/app.js
 ```
 
 ### Option 3 : Utiliser PM2 avec sudo
+Pour une gestion optimale en production, utilisez PM2 avec les permissions nécessaires :
 ```bash
 sudo npm install -g pm2
 sudo pm2 start backend/app.js --name vps_monitoring
 sudo pm2 save
 sudo pm2 startup
 ```
+> **Note** : Pour plus de détails sur PM2, consultez la section **[Utiliser PM2 (Recommandé pour la production)](#6-utiliser-pm2-recommandé-pour-la-production)**.
 
 ---
 
