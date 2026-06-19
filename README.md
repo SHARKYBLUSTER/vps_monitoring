@@ -98,6 +98,11 @@
    
    **PM2** est un gestionnaire de processus Node.js très populaire pour gérer des applications en production.
    
+   **Prérequis** : Avant de lancer PM2, assurez-vous que Node.js a les permissions nécessaires pour surveiller les processus :
+   ```bash
+   sudo setcap cap_sys_ptrace,cap_dac_read_search+ep /usr/bin/node
+   ```
+   
    **Installation** (si ce n'est pas déjà fait) :
    ```bash
    npm install -g pm2
