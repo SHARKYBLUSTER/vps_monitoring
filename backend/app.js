@@ -101,36 +101,6 @@ app.get('/api/processes', async (req, res) => {
   }
 });
 
-// Endpoint pour la température CPU
-app.get('/api/cpu-temp', async (req, res) => {
-  try {
-    const temps = await metricsService.getCpuTemperature();
-    res.json({
-      success: true,
-      data: temps,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error('❌ Erreur API /api/cpu-temp :', error);
-    res.status(500).json({ success: false, error: 'Impossible de récupérer la température CPU' });
-  }
-});
-
-// Endpoint pour la température GPU
-app.get('/api/gpu-temp', async (req, res) => {
-  try {
-    const temps = await metricsService.getGpuTemperature();
-    res.json({
-      success: true,
-      data: temps,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error('❌ Erreur API /api/gpu-temp :', error);
-    res.status(500).json({ success: false, error: 'Impossible de récupérer la température GPU' });
-  }
-});
-
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -212,8 +182,6 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/network       (Métriques réseau)`);
   console.log(`   - GET /api/alerts        (Alertes actives)`);
   console.log(`   - GET /api/processes     (Top 5 processus consommateurs)`);
-  console.log(`   - GET /api/cpu-temp      (Température CPU)`);
-  console.log(`   - GET /api/gpu-temp      (Température GPU)`);
   console.log(`   - GET /api/health        (État de santé)`);
   console.log(`   - GET /api/history       (Historique des métriques)`);
   console.log(`   - GET /api/history/:metric (Données pour graphique)`);
