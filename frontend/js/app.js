@@ -6,9 +6,6 @@
  * Ce fichier gère uniquement l'affichage dynamique et les interactions utilisateur.
  */
 
-// Variables globales
-let metricsInterval;
-
 // Initialisation de l'application
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ VPS Monitoring Dashboard initialisé');
