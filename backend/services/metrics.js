@@ -172,6 +172,34 @@ async function getAlerts() {
 }
 
 /**
+ * Récupère les ports ouverts en écoute
+ * @returns {Promise<Array>} - Liste des ports TCP en écoute
+ */
+async function getOpenPorts() {
+  try {
+    const connections = await si.networkConnections('tcp');
+    
+    if (!connections || connections.length === 0) {
+      return [];
+    }
+    
+    return connections
+      .filter(p => p.state === 'LISTEN' || p.state === 'listen')
+      .map(p => ({
+        port: p.localPort,
+        address: p.localAddress || '0.0.0.0',
+        pid: p.pid || null,
+        process: p.processName || 'Unknown',
+        protocol: p.protocol || 'TCP',
+        state: p.state
+      }));
+  } catch (error) {
+    console.error('❌ Erreur ports ouverts :', error.message);
+    return [];
+  }
+}
+
+/**
  * Récupère les processus les plus consommateurs
  * @param {number} limit - Nombre de processus à retourner (par défaut 5)
  * @returns {Promise<Array>} - Liste des processus triés par consommation CPU
@@ -216,4 +244,5 @@ module.exports = {
   checkAlerts,
   getAlerts,
   getTopProcesses,
+  getOpenPorts,
 };

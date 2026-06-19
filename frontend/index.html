@@ -271,6 +271,49 @@
       transition: width 0.3s ease;
     }
 
+    /* Section Ports */
+    .ports-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .ports-section h2 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+
+    .ports-table-container {
+      overflow-x: auto;
+    }
+
+    .ports-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .ports-table th,
+    .ports-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .ports-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .ports-table tr:hover {
+      background: #f8f9fa;
+    }
+
     @media (max-width: 768px) {
       .metrics-grid {
         grid-template-columns: 1fr;
@@ -360,6 +403,28 @@
           <tbody id="processes-list">
             <tr>
               <td colspan="5" class="no-data">Chargement des processus...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="ports-section">
+      <h2>🔌 Ports ouverts</h2>
+      <div class="ports-table-container">
+        <table class="ports-table">
+          <thead>
+            <tr>
+              <th>Port</th>
+              <th>Adresse</th>
+              <th>PID</th>
+              <th>Processus</th>
+              <th>Protocole</th>
+            </tr>
+          </thead>
+          <tbody id="ports-list">
+            <tr>
+              <td colspan="5" class="no-data">Chargement des ports...</td>
             </tr>
           </tbody>
         </table>
@@ -548,15 +613,46 @@
       renderProcesses(currentSort);
     }
 
+    // Fonction pour mettre à jour les ports ouverts
+    async function updatePorts() {
+      try {
+        const response = await fetch('/api/ports');
+        if (!response.ok) throw new Error('Impossible de charger les ports');
+        
+        const data = await response.json();
+        const portsList = document.getElementById('ports-list');
+        
+        if (data.success && data.data && data.data.length > 0) {
+          portsList.innerHTML = data.data.map(port => `
+            <tr>
+              <td>${port.port || '--'}</td>
+              <td>${port.address || '--'}</td>
+              <td>${port.pid || '--'}</td>
+              <td>${port.process || '--'}</td>
+              <td>${port.protocol || '--'}</td>
+            </tr>
+          `).join('');
+        } else {
+          portsList.innerHTML = '<tr><td colspan="5" class="no-data">Aucun port ouvert trouvé</td></tr>';
+        }
+      } catch (error) {
+        console.error('Erreur ports:', error);
+        document.getElementById('ports-list').innerHTML = 
+          '<tr><td colspan="5" class="no-data">Impossible de charger les ports ouverts</td></tr>';
+      }
+    }
+
     // Initialisation
     document.addEventListener('DOMContentLoaded', () => {
       // Premier chargement immédiat
       updateMetrics();
       updateProcesses();
+      updatePorts();
       
       // Rafraîchir toutes les 5 secondes (sans recharger la page)
       setInterval(updateMetrics, 5000);
       setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
+      setInterval(updatePorts, 30000); // Rafraîchir les ports toutes les 30 secondes
     });
   </script>
 </body>

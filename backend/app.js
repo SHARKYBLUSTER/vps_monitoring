@@ -101,6 +101,21 @@ app.get('/api/processes', async (req, res) => {
   }
 });
 
+// Endpoint pour les ports ouverts
+app.get('/api/ports', async (req, res) => {
+  try {
+    const ports = await metricsService.getOpenPorts();
+    res.json({
+      success: true,
+      data: ports,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/ports :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les ports ouverts' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -182,6 +197,7 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/network       (Métriques réseau)`);
   console.log(`   - GET /api/alerts        (Alertes actives)`);
   console.log(`   - GET /api/processes     (Top 5 processus consommateurs)`);
+  console.log(`   - GET /api/ports         (Ports ouverts en écoute)`);
   console.log(`   - GET /api/health        (État de santé)`);
   console.log(`   - GET /api/history       (Historique des métriques)`);
   console.log(`   - GET /api/history/:metric (Données pour graphique)`);
