@@ -10,32 +10,15 @@
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
-const session = require('express-session');
 const dotenv = require('dotenv');
-const authMiddleware = require('./middleware/auth');
 const metricsService = require('./services/metrics');
 const historyService = require('./services/history');
-const config = require('./config/config');
 
 // Charger les variables d'environnement
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Initialiser l'utilisateur admin (pour l'authentification future)
-authMiddleware.initializeAdminUser();
-
-// Configuration de la session (désactivée temporairement pour les tests)
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'vps_monitoring_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000,
-  },
-}));
 
 // Démarrer la collecte automatique de l'historique
 historyService.startAutoCollect();
@@ -55,34 +38,6 @@ app.use((req, res, next) => {
 
 // Middleware pour servir les fichiers statiques (frontend)
 app.use(express.static(path.join(__dirname, '../frontend')));
-
-// ====================
-// Routes Authentification (désactivées temporairement)
-// ====================
-
-/**
- * GET /login
- * Affiche le formulaire de login (désactivé)
- */
-app.get('/login', (req, res) => {
-  res.redirect('/');
-});
-
-/**
- * POST /login
- * Traite la connexion (désactivé)
- */
-app.post('/login', (req, res) => {
-  res.redirect('/');
-});
-
-/**
- * GET /logout
- * Déconnecte l'utilisateur (désactivé)
- */
-app.get('/logout', (req, res) => {
-  res.redirect('/');
-});
 
 // ====================
 // Routes API (REST)
@@ -201,10 +156,6 @@ app.post('/api/history/cleanup', async (req, res) => {
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-app.get('/health', (req, res) => {
-  res.send('Serveur VPS Monitoring en cours d\'exécution');
 });
 
 // Démarrer le serveur
