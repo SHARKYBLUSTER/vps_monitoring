@@ -9,6 +9,8 @@
 const db = require('./db');
 const metricsService = require('./metrics');
 const config = require('../config/config');
+const fs = require('fs');
+const path = require('path');
 
 // Intervalle de sauvegarde (en ms) - par défaut 5 minutes
 const SAVE_INTERVAL = process.env.HISTORY_SAVE_INTERVAL || 300000; // 5 minutes
@@ -16,8 +18,50 @@ const SAVE_INTERVAL = process.env.HISTORY_SAVE_INTERVAL || 300000; // 5 minutes
 // TTL pour les données réseau : 91 jours (3 mois + 1 jour)
 const NETWORK_DATA_TTL = 91;
 
+// Fichier pour stocker les dernières valeurs réseau (pour calculer les deltas)
+const NETWORK_STATE_FILE = path.join(__dirname, '../../data/network_state.json');
+
+// État réseau précédent (pour calculer les deltas)
+let previousNetworkState = {
+  rx_bytes: 0,
+  tx_bytes: 0,
+  timestamp: null,
+};
+
 // Démarrer le collecteur automatique
 let historyInterval = null;
+
+/**
+ * Charge l'état réseau précédent depuis le fichier
+ */
+function loadNetworkState() {
+  try {
+    if (fs.existsSync(NETWORK_STATE_FILE)) {
+      const data = fs.readFileSync(NETWORK_STATE_FILE, 'utf8');
+      previousNetworkState = JSON.parse(data);
+    }
+  } catch (error) {
+    console.warn('⚠️ Impossible de charger l\'état réseau précédent:', error.message);
+    previousNetworkState = { rx_bytes: 0, tx_bytes: 0, timestamp: null };
+  }
+}
+
+/**
+ * Sauvegarde l'état réseau actuel
+ * @param {Object} state - État réseau à sauvegarder
+ */
+function saveNetworkState(state) {
+  try {
+    const dir = path.dirname(NETWORK_STATE_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(NETWORK_STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+    previousNetworkState = { ...state };
+  } catch (error) {
+    console.error('❌ Erreur lors de la sauvegarde de l\'état réseau:', error.message);
+  }
+}
 
 /**
  * Démarre la collecte automatique des métriques
@@ -26,6 +70,9 @@ function startAutoCollect() {
   if (historyInterval) {
     clearInterval(historyInterval);
   }
+
+  // Charger l'état réseau précédent au démarrage
+  loadNetworkState();
 
   // Sauvegarder immédiatement au démarrage
   saveMetricsToHistory();
@@ -54,12 +101,44 @@ async function saveMetricsToHistory() {
     const metrics = await metricsService.getAllMetrics();
     const alerts = metricsService.checkAlerts(metrics);
 
-    // Sauvegarder les métriques
+    // Calculer les deltas réseau si on a des données précédentes
+    if (previousNetworkState.timestamp && metrics.network && metrics.network.interface) {
+      // Récupérer les stats réseau brutes pour calculer les deltas
+      const networkStats = await metricsService.getNetworkMetrics();
+      const activeInterface = networkStats.interfaces.find(i => i.name === metrics.network.interface);
+      
+      if (activeInterface) {
+        // Calculer les deltas (en octets)
+        const deltaRx = activeInterface.rx_bytes - previousNetworkState.rx_bytes;
+        const deltaTx = activeInterface.tx_bytes - previousNetworkState.tx_bytes;
+        
+        // Convertir en KB (et prendre la valeur absolue si négative = reset du compteur)
+        const deltaDownloadKB = Math.max(0, deltaRx / 1024);
+        const deltaUploadKB = Math.max(0, deltaTx / 1024);
+        
+        // Mettre à jour les métriques avec les deltas
+        metrics.network.download = deltaDownloadKB;
+        metrics.network.upload = deltaUploadKB;
+      }
+    }
+
+    // Sauvegarder les métriques (avec les deltas réseau)
     await db.insertMetrics(metrics);
 
     // Sauvegarder les alertes
     for (const alert of alerts) {
       await db.insertAlert(alert);
+    }
+
+    // Sauvegarder l'état réseau actuel pour la prochaine collecte
+    const networkStats = await metricsService.getNetworkMetrics();
+    const activeInterface = networkStats.interfaces.find(i => i.name === metrics.network.interface);
+    if (activeInterface) {
+      saveNetworkState({
+        rx_bytes: activeInterface.rx_bytes,
+        tx_bytes: activeInterface.tx_bytes,
+        timestamp: new Date().toISOString(),
+      });
     }
 
     console.log('✅ Métriques sauvegardées dans l\'historique');
@@ -201,6 +280,7 @@ async function getNetworkHistory(options = {}) {
              entry.network_upload !== undefined;
     });
 
+    // Les données sont déjà des deltas (calculés au moment de la collecte)
     // Agrège les données par intervalle (heure/jour selon la période)
     const aggregatedData = aggregateNetworkData(filteredData, period);
 
@@ -219,6 +299,8 @@ async function getNetworkHistory(options = {}) {
     };
   }
 }
+
+
 
 /**
  * Agrège les données réseau par intervalle (heure/jour)
