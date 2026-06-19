@@ -314,6 +314,21 @@
       background: #f8f9fa;
     }
 
+    /* Icônes de statut des ports */
+    .port-status {
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 1.1em;
+    }
+
+    .port-status.local {
+      color: #28a745;
+    }
+
+    .port-status.external {
+      color: #ffc107;
+    }
+
     @media (max-width: 768px) {
       .metrics-grid {
         grid-template-columns: 1fr;
@@ -613,6 +628,21 @@
       renderProcesses(currentSort);
     }
 
+    // Fonction pour déterminer si un port est local ou externe
+    function getPortStatusIcon(address) {
+      // Adresses locales : 127.0.0.1, ::1, localhost, 0.0.0.0 (toutes interfaces)
+      const localAddresses = ['127.0.0.1', '::1', 'localhost', '0.0.0.0', '::'];
+      
+      if (localAddresses.includes(address)) {
+        return '<span class="port-status local" title="Local">🟢</span>';
+      } else if (address === '*' || address.includes('*')) {
+        return '<span class="port-status external" title="Toutes interfaces">🟠</span>';
+      } else {
+        // Si c'est une IP spécifique qui n'est pas locale, c'est externe
+        return '<span class="port-status external" title="Externe">🟠</span>';
+      }
+    }
+
     // Fonction pour mettre à jour les ports ouverts
     async function updatePorts() {
       try {
@@ -625,7 +655,7 @@
         if (data.success && data.data && data.data.length > 0) {
           portsList.innerHTML = data.data.map(port => `
             <tr>
-              <td>${port.port || '--'}</td>
+              <td>${getPortStatusIcon(port.address)} ${port.port || '--'}</td>
               <td>${port.address || '--'}</td>
               <td>${port.pid || '--'}</td>
               <td>${port.process || '--'}</td>
