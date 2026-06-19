@@ -97,8 +97,10 @@ function updateMetricsUI(metrics) {
  * @param {Object} metrics - Données des métriques
  */
 function checkAlerts(metrics) {
-  // À implémenter dans le fichier alerts.js
-  // Cette fonction sera appelée après la mise à jour des métriques
+  // Utilise le module d'alertes du frontend
+  if (window.vpsMonitoringAlerts && window.vpsMonitoringAlerts.checkAlerts) {
+    window.vpsMonitoringAlerts.checkAlerts(metrics);
+  }
 }
 
 /**

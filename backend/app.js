@@ -19,11 +19,9 @@ app.use(morgan('dev'));
 // Middleware pour servir les fichiers statiques (frontend)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Routes API (à importer plus tard)
-// const metricsRouter = require('./routes/metrics');
-// const alertsRouter = require('./routes/alerts');
-// app.use('/api/metrics', metricsRouter);
-// app.use('/api/alerts', alertsRouter);
+// Routes API
+const metricsRouter = require('./routes/metrics');
+app.use('/api/metrics', metricsRouter);
 
 // Route de base pour tester le serveur
 app.get('/', (req, res) => {
