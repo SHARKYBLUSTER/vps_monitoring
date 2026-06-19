@@ -3,7 +3,7 @@
  * Projet : VPS Monitoring Dashboard
  * 
  * Architecture :
- * - SSR (Server-Side Rendering) pour la page principale (/)
+ * - Frontend statique (frontend/index.html)
  * - API REST pour les données JSON (/api/*)
  */
 
@@ -23,10 +23,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialiser l'utilisateur admin
+// Initialiser l'utilisateur admin (pour l'authentification future)
 authMiddleware.initializeAdminUser();
 
-// Configuration de la session
+// Configuration de la session (désactivée temporairement pour les tests)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'vps_monitoring_secret',
   resave: false,
@@ -49,168 +49,31 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ====================
-// Routes Authentification
+// Routes Authentification (désactivées temporairement)
 // ====================
 
 /**
  * GET /login
- * Affiche le formulaire de login
+ * Affiche le formulaire de login (désactivé)
  */
 app.get('/login', (req, res) => {
-  if (req.session && req.session.authenticated) {
-    return res.redirect('/');
-  }
-  
-  const loginHtml = `
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Connexion - VPS Monitoring Dashboard</title>
-      <link rel="stylesheet" href="/css/style.css">
-      <style>
-        body {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-        }
-        .login-container {
-          background: white;
-          border-radius: 12px;
-          padding: 40px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          width: 100%;
-          max-width: 400px;
-          text-align: center;
-        }
-        .login-container h1 {
-          color: #2c3e50;
-          margin-bottom: 20px;
-          font-size: 1.8rem;
-        }
-        .login-form {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .form-group {
-          text-align: left;
-        }
-        .form-group label {
-          display: block;
-          margin-bottom: 8px;
-          color: #2c3e50;
-          font-weight: 600;
-        }
-        .form-group input {
-          width: 100%;
-          padding: 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          font-size: 1rem;
-          transition: border-color 0.3s;
-        }
-        .form-group input:focus {
-          outline: none;
-          border-color: #3498db;
-        }
-        .login-button {
-          background: linear-gradient(135deg, #3498db, #2980b9);
-          color: white;
-          border: none;
-          padding: 12px 20px;
-          border-radius: 8px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s;
-          margin-top: 10px;
-        }
-        .login-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .error-message {
-          color: #e74c3c;
-          margin-top: 10px;
-          font-size: 0.9rem;
-        }
-        .footer-link {
-          margin-top: 20px;
-          font-size: 0.9rem;
-          color: #7f8c8d;
-        }
-        .footer-link a {
-          color: #3498db;
-          text-decoration: none;
-        }
-        .footer-link a:hover {
-          text-decoration: underline;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="login-container">
-        <h1>🔒 Connexion</h1>
-        <p style="color: #7f8c8d; margin-bottom: 20px;">VPS Monitoring Dashboard</p>
-        ${req.query.error ? '<p class="error-message">❌ Identifiants incorrects</p>' : ''}
-        <form class="login-form" method="POST" action="/login">
-          <div class="form-group">
-            <label for="username">Utilisateur</label>
-            <input type="text" id="username" name="username" required autofocus>
-          </div>
-          <div class="form-group">
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password" name="password" required>
-          </div>
-          <button type="submit" class="login-button">Se connecter</button>
-        </form>
-        <p class="footer-link"><a href="/">Retour à l'accueil</a></p>
-      </div>
-    </body>
-    </html>
-  `;
-  res.send(loginHtml);
+  res.redirect('/');
 });
 
 /**
  * POST /login
- * Traite la soumission du formulaire de login
+ * Traite la connexion (désactivé)
  */
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.redirect('/login?error=1');
-  }
-  try {
-    const isValid = await authMiddleware.validateCredentials(username, password);
-    if (isValid) {
-      req.session.authenticated = true;
-      req.session.username = username;
-      const returnTo = req.session.returnTo || '/';
-      delete req.session.returnTo;
-      return res.redirect(returnTo);
-    } else {
-      return res.redirect('/login?error=1');
-    }
-  } catch (error) {
-    console.error('❌ Erreur lors de l\'authentification:', error);
-    return res.redirect('/login?error=1');
-  }
+app.post('/login', (req, res) => {
+  res.redirect('/');
 });
 
 /**
  * GET /logout
- * Déconnecte l'utilisateur
+ * Déconnecte l'utilisateur (désactivé)
  */
 app.get('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) console.error('❌ Erreur lors de la déconnexion:', err);
-    res.redirect('/login');
-  });
+  res.redirect('/');
 });
 
 // ====================
@@ -325,100 +188,11 @@ app.post('/api/history/cleanup', async (req, res) => {
 });
 
 // ====================
-// Routes SSR (HTML)
+// Route principale : Servir le frontend
 // ====================
 
-function generateHtml(metrics, alerts, username = null) {
-  const formatBytes = (bytes) => (bytes / (1024 ** 3)).toFixed(1);
-
-  const metricsHtml = `
-    <div class="metric-card">
-      <h2>🧠 CPU</h2>
-      <div class="metric-value"><span id="cpu-usage">${metrics.cpu.usage.toFixed(1)}%</span></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="cpu-progress" style="width: ${metrics.cpu.usage}%" data-tooltip="Utilisation CPU: ${metrics.cpu.usage}%"></div>
-      </div>
-      <p class="metric-details">Cœurs: <span id="cpu-cores">${metrics.cpu.cores}</span> | Modèle: <span id="cpu-model">${metrics.cpu.model}</span></p>
-    </div>
-    <div class="metric-card">
-      <h2>💾 Mémoire (RAM)</h2>
-      <div class="metric-value"><span id="mem-usage">${metrics.memory.usagePercent.toFixed(1)}%</span></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="mem-progress" style="width: ${metrics.memory.usagePercent}%" data-tooltip="Utilisation RAM: ${metrics.memory.usagePercent}%"></div>
-      </div>
-      <p class="metric-details">Utilisée: <span id="mem-used">${formatBytes(metrics.memory.used)} GB</span> / <span id="mem-total">${formatBytes(metrics.memory.total)} GB</span></p>
-    </div>
-    <div class="metric-card">
-      <h2>💽 Disque</h2>
-      <div class="metric-value"><span id="disk-usage">${metrics.disk.usagePercent.toFixed(1)}%</span></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="disk-progress" style="width: ${metrics.disk.usagePercent}%" data-tooltip="Utilisation Disque: ${metrics.disk.usagePercent}%"></div>
-      </div>
-      <p class="metric-details">Utilisé: <span id="disk-used">${formatBytes(metrics.disk.used)} GB</span> / <span id="disk-total">${formatBytes(metrics.disk.total)} GB</span></p>
-    </div>
-    <div class="metric-card">
-      <h2>🌐 Réseau</h2>
-      <div class="metric-value">
-        <span id="network-status">${metrics.network.status === 'OK' ? '<span class="status-badge online">En ligne</span>' : '<span class="status-badge offline">Hors ligne</span>'}</span>
-      </div>
-      <p class="metric-details">Téléchargement: <span id="network-download">${metrics.network.download.toFixed(1)} KB/s</span> | Upload: <span id="network-upload">${metrics.network.upload.toFixed(1)} KB/s</span></p>
-    </div>
-  `;
-
-  let alertsHtml = '<p class="no-alerts">✅ Aucune alerte active.</p>';
-  if (alerts.length > 0) {
-    alertsHtml = alerts.map(alert => `
-      <div class="alert ${alert.type}"><span>${alert.message}</span><span class="time">Maintenant</span></div>
-    `).join('');
-  }
-
-  return `
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>VPS Monitoring Dashboard</title>
-      <link rel="stylesheet" href="/css/style.css">
-      <script>window.ALERT_THRESHOLDS = { cpu: ${config.alerts.cpuThreshold}, memory: ${config.alerts.memoryThreshold}, disk: ${config.alerts.diskThreshold} };</script>
-    </head>
-    <body>
-      <header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div><h1>🖥️ VPS Monitoring Dashboard</h1><p class="subtitle">Surveillance en temps réel de votre serveur</p></div>
-          <div style="text-align: right;">${username ? `<p style="color: #2c3e50; font-weight: 600;">Connecté: ${username}</p>` : ''}<a href="/logout" style="color: #e74c3c; text-decoration: none; font-weight: 600;">🔒 Déconnexion</a></div>
-        </div>
-      </header>
-      <main>
-        <section class="metrics-container">${metricsHtml}</section>
-        <section class="alerts-container" id="alerts-container">
-          <h2>⚠️ Alertes</h2>
-          <div id="alerts-list">${alertsHtml}</div>
-        </section>
-        <section class="charts-container">
-          <h2>📈 Historique</h2>
-          <div id="charts"><p class="coming-soon">Fonctionnalité à venir...</p></div>
-        </section>
-      </main>
-      <footer><p>VPS Monitoring Dashboard v0.2.0 | <span id="last-update">Dernière mise à jour : ${new Date().toLocaleDateString('fr-FR')} ${new Date().toLocaleTimeString('fr-FR')}</span></p></footer>
-      <script src="/js/components/alerts.js"></script>
-      <script src="/js/components/metrics.js"></script>
-      <script src="/js/app.js"></script>
-    </body>
-    </html>
-  `;
-}
-
-app.get('/', async (req, res) => {
-  try {
-    const metrics = await metricsService.getAllMetrics();
-    const alerts = metricsService.checkAlerts(metrics);
-    const html = generateHtml(metrics, alerts, req.session.username);
-    res.send(html);
-  } catch (error) {
-    console.error('❌ Erreur lors de la génération de la page :', error);
-    res.status(500).send('Erreur lors de la récupération des métriques.');
-  }
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 app.get('/health', (req, res) => {
