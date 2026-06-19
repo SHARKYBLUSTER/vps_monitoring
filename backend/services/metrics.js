@@ -172,6 +172,58 @@ async function getAlerts() {
 }
 
 /**
+ * Récupère la température du CPU
+ * @returns {Promise<Array>} - Liste des températures par cœur
+ */
+async function getCpuTemperature() {
+  try {
+    const temps = await si.cpuTemperature();
+    
+    // Normaliser les données (certains systèmes retournent un tableau, d'autres un objet)
+    const tempArray = Array.isArray(temps) ? temps : [temps];
+    
+    return tempArray
+      .filter(t => t && (t.temp !== undefined || t.value !== undefined))
+      .map(t => ({
+        core: t.core || t.package || 'global',
+        temp: t.temp || t.value || 0,
+        unit: t.unit || '°C',
+        critical: t.critical || null,
+        max: t.max || null
+      }));
+  } catch (error) {
+    console.error('❌ Erreur température CPU :', error.message);
+    console.warn('💡 La lecture de la température CPU peut nécessiter des permissions supplémentaires.');
+    console.warn('   Essayez : sudo setcap cap_sys_rawio+ep /usr/bin/node');
+    return [];
+  }
+}
+
+/**
+ * Récupère la température du GPU
+ * @returns {Promise<Array>} - Liste des températures GPU
+ */
+async function getGpuTemperature() {
+  try {
+    const gpus = await si.gpuTemperature();
+    
+    if (!gpus || gpus.length === 0) {
+      return [];
+    }
+    
+    return gpus.map(gpu => ({
+      model: gpu.model || 'GPU',
+      temp: gpu.temp || gpu.value || 0,
+      unit: gpu.unit || '°C',
+      controller: gpu.controller || null
+    }));
+  } catch (error) {
+    console.error('❌ Erreur température GPU :', error.message);
+    return [];
+  }
+}
+
+/**
  * Récupère les processus les plus consommateurs
  * @param {number} limit - Nombre de processus à retourner (par défaut 5)
  * @returns {Promise<Array>} - Liste des processus triés par consommation CPU
@@ -216,4 +268,6 @@ module.exports = {
   checkAlerts,
   getAlerts,
   getTopProcesses,
+  getCpuTemperature,
+  getGpuTemperature,
 };
