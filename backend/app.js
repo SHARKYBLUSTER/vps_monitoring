@@ -85,6 +85,22 @@ app.get('/api/alerts', async (req, res) => {
   }
 });
 
+// Endpoint pour les processus (Top consommateurs)
+app.get('/api/processes', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 5;
+    const processes = await metricsService.getTopProcesses(limit);
+    res.json({
+      success: true,
+      data: processes,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/processes :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les processus' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -165,6 +181,7 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/metrics       (Toutes les métriques)`);
   console.log(`   - GET /api/network       (Métriques réseau)`);
   console.log(`   - GET /api/alerts        (Alertes actives)`);
+  console.log(`   - GET /api/processes     (Top 5 processus consommateurs)`);
   console.log(`   - GET /api/health        (État de santé)`);
   console.log(`   - GET /api/history       (Historique des métriques)`);
   console.log(`   - GET /api/history/:metric (Données pour graphique)`);

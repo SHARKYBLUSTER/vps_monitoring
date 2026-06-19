@@ -171,9 +171,35 @@ async function getAlerts() {
   return checkAlerts(metrics);
 }
 
+/**
+ * Récupère les processus les plus consommateurs
+ * @param {number} limit - Nombre de processus à retourner (par défaut 5)
+ * @returns {Promise<Array>} - Liste des processus triés par consommation CPU
+ */
+async function getTopProcesses(limit = 5) {
+  try {
+    const processes = await si.processes();
+    return processes
+      .filter(p => p.pid && p.name) // Filtrer les processus valides
+      .sort((a, b) => b.cpu - a.cpu) // Tri par CPU (décroissant)
+      .slice(0, limit)
+      .map(p => ({
+        pid: p.pid,
+        name: p.name,
+        cpu: p.cpu,
+        mem: p.mem, // en %
+        user: p.user || 'unknown',
+      }));
+  } catch (error) {
+    console.error('❌ Erreur processus :', error);
+    return [];
+  }
+}
+
 module.exports = {
   getAllMetrics,
   getNetworkMetrics,
   checkAlerts,
   getAlerts,
+  getTopProcesses,
 };

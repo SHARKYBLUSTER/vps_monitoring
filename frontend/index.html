@@ -175,7 +175,102 @@
     .last-update {
       font-weight: bold;
     }
-    
+
+    /* Section des processus */
+    .processes-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .processes-section h2 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+
+    .processes-controls {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sort-btn {
+      padding: 8px 16px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      color: #495057;
+    }
+
+    .sort-btn:hover {
+      background: #e9ecef;
+    }
+
+    .sort-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .processes-table-container {
+      overflow-x: auto;
+    }
+
+    .processes-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .processes-table th,
+    .processes-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .processes-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .processes-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #6c757d;
+      font-style: italic;
+      padding: 20px;
+    }
+
+    /* Barres de progression pour CPU/RAM dans le tableau */
+    .process-bar {
+      display: inline-block;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .process-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
     @media (max-width: 768px) {
       .metrics-grid {
         grid-template-columns: 1fr;
@@ -242,6 +337,32 @@
       <h2>⚠️ Alertes</h2>
       <div id="alerts-list">
         <p class="no-alerts">✅ Aucune alerte active.</p>
+      </div>
+    </div>
+
+    <div class="processes-section">
+      <h2>🔍 Top 5 Processus</h2>
+      <div class="processes-controls">
+        <button onclick="sortProcesses('cpu')" class="sort-btn active" id="sort-cpu">Tri par CPU ▼</button>
+        <button onclick="sortProcesses('mem')" class="sort-btn" id="sort-mem">Tri par RAM ▼</button>
+      </div>
+      <div class="processes-table-container">
+        <table class="processes-table">
+          <thead>
+            <tr>
+              <th>PID</th>
+              <th>Nom</th>
+              <th>Utilisateur</th>
+              <th>CPU %</th>
+              <th>RAM %</th>
+            </tr>
+          </thead>
+          <tbody id="processes-list">
+            <tr>
+              <td colspan="5" class="no-data">Chargement des processus...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -345,13 +466,91 @@
       }
     }
 
+    // Variables pour le tri des processus
+    let currentProcesses = [];
+    let currentSort = 'cpu';
+
+    // Fonction pour formater un nombre avec 1 décimale
+    function formatNumber(num) {
+      if (num === undefined || num === null) return '--';
+      return num.toFixed(1);
+    }
+
+    // Fonction pour créer une barre de progression
+    function createProgressBar(value) {
+      if (value === undefined || value === null) return '';
+      const width = Math.min(value, 100);
+      return `<span class="process-bar"><span class="process-bar-fill" style="width: ${width}%"></span></span>`;
+    }
+
+    // Fonction pour mettre à jour les processus
+    async function updateProcesses() {
+      try {
+        const response = await fetch('/api/processes');
+        if (!response.ok) throw new Error('Impossible de charger les processus');
+        
+        const data = await response.json();
+        if (data.success && data.data) {
+          currentProcesses = data.data;
+          renderProcesses(currentSort);
+        } else {
+          document.getElementById('processes-list').innerHTML = 
+            '<tr><td colspan="5" class="no-data">Aucun processus trouvé</td></tr>';
+        }
+      } catch (error) {
+        console.error('Erreur processus:', error);
+        document.getElementById('processes-list').innerHTML = 
+          '<tr><td colspan="5" class="no-data">Impossible de charger les processus</td></tr>';
+      }
+    }
+
+    // Fonction pour rendre les processus
+    function renderProcesses(sortBy) {
+      const processesList = document.getElementById('processes-list');
+      
+      if (!currentProcesses || currentProcesses.length === 0) {
+        processesList.innerHTML = '<tr><td colspan="5" class="no-data">Aucun processus trouvé</td></tr>';
+        return;
+      }
+
+      // Trier les processus
+      const sorted = [...currentProcesses].sort((a, b) => {
+        if (sortBy === 'cpu') return b.cpu - a.cpu;
+        if (sortBy === 'mem') return b.mem - a.mem;
+        return 0;
+      });
+
+      // Générer le HTML
+      processesList.innerHTML = sorted.map(p => `
+        <tr>
+          <td>${p.pid || '--'}</td>
+          <td>${p.name || '--'}</td>
+          <td>${p.user || '--'}</td>
+          <td>${formatNumber(p.cpu)}%${createProgressBar(p.cpu)}</td>
+          <td>${formatNumber(p.mem)}%${createProgressBar(p.mem)}</td>
+        </tr>
+      `).join('');
+
+      // Mettre à jour les boutons de tri
+      document.getElementById('sort-cpu').className = sortBy === 'cpu' ? 'sort-btn active' : 'sort-btn';
+      document.getElementById('sort-mem').className = sortBy === 'mem' ? 'sort-btn active' : 'sort-btn';
+    }
+
+    // Fonction pour changer le tri
+    function sortProcesses(sortBy) {
+      currentSort = sortBy;
+      renderProcesses(currentSort);
+    }
+
     // Initialisation
     document.addEventListener('DOMContentLoaded', () => {
       // Premier chargement immédiat
       updateMetrics();
+      updateProcesses();
       
       // Rafraîchir toutes les 5 secondes (sans recharger la page)
       setInterval(updateMetrics, 5000);
+      setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
     });
   </script>
 </body>
