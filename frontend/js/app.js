@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 async function fetchMetrics() {
   try {
+    console.log('🔄 Appel API /api/metrics...');
     const response = await fetch('/api/metrics');
     
     // Rediriger vers /login si 401 (non autorisé)
@@ -51,9 +52,11 @@ async function fetchMetrics() {
     }
     
     const data = await response.json();
+    console.log('📥 Données reçues de /api/metrics:', data);
     
     if (data.success && data.data) {
       const metrics = data.data;
+      console.log('📊 Métriques extraites:', metrics);
       
       // Mettre à jour les métriques dans le DOM
       updateMetricsInDOM(metrics);
@@ -63,6 +66,8 @@ async function fetchMetrics() {
       
       // Vérifier les alertes
       checkAlerts(metrics);
+    } else {
+      console.error('❌ Réponse API invalide:', data);
     }
   } catch (error) {
     console.error('❌ Erreur lors de la récupération des métriques:', error);
