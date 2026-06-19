@@ -1,14 +1,9 @@
 /**
  * Module pour la gestion des alertes
  * Projet : VPS Monitoring Dashboard
+ * 
+ * NOTE : Les seuils d'alerte sont définis côté serveur et passés via window.ALERT_THRESHOLDS.
  */
-
-// Seuils d'alerte (peuvent être récupérés depuis le backend plus tard)
-const ALERT_THRESHOLDS = {
-  cpu: 80,    // %
-  memory: 85, // %
-  disk: 90,   // %
-};
 
 /**
  * Vérifie si une métrique dépasse un seuil d'alerte
@@ -17,7 +12,9 @@ const ALERT_THRESHOLDS = {
  * @returns {boolean} - True si alerte nécessaire
  */
 function isAboveThreshold(metricType, value) {
-  return value > ALERT_THRESHOLDS[metricType];
+  // Utiliser les seuils centralisés depuis le backend
+  const thresholds = window.ALERT_THRESHOLDS || { cpu: 80, memory: 85, disk: 90 };
+  return value > thresholds[metricType];
 }
 
 /**

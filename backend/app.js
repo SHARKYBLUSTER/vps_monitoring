@@ -193,10 +193,19 @@ function generateHtml(metrics, alerts) {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="refresh" content="5"> <!-- Rafraîchissement automatique toutes les 5 secondes -->
       <title>VPS Monitoring Dashboard</title>
       <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
+      <!-- Seuils d'alerte pour le frontend -->
+      <script>
+        window.ALERT_THRESHOLDS = {
+          cpu: ${config.alerts.cpuThreshold},
+          memory: ${config.alerts.memoryThreshold},
+          disk: ${config.alerts.diskThreshold}
+        };
+      </script>
       <header>
         <h1>🖥️ VPS Monitoring Dashboard</h1>
         <p class="subtitle">Surveillance en temps réel de votre serveur</p>
