@@ -177,14 +177,15 @@ async function getAlerts() {
  */
 async function getOpenPorts() {
   try {
-    const connections = await si.networkConnections('tcp');
+    // Nouvelle API : networkConnections retourne un objet avec méthode list()
+    const connections = await si.networkConnections();
     
-    if (!connections || connections.length === 0) {
+    if (!connections || !connections.length) {
       return [];
     }
     
     return connections
-      .filter(p => p.state === 'LISTEN' || p.state === 'listen')
+      .filter(p => p && (p.state === 'LISTEN' || p.state === 'listen'))
       .map(p => ({
         port: p.localPort,
         address: p.localAddress || '0.0.0.0',
@@ -195,7 +196,40 @@ async function getOpenPorts() {
       }));
   } catch (error) {
     console.error('❌ Erreur ports ouverts :', error.message);
-    return [];
+    console.warn('💡 Erreur avec networkConnections. Essayons une méthode alternative...');
+    
+    // Méthode alternative : utiliser netstat via child_process
+    try {
+      const { exec } = require('child_process');
+      const result = await new Promise((resolve, reject) => {
+        exec('ss -tlnp', (error, stdout, stderr) => {
+          if (error) reject(error);
+          else resolve(stdout);
+        });
+      });
+      
+      const ports = [];
+      const lines = result.trim().split('\n').slice(1); // Skip header
+      
+      for (const line of lines) {
+        const parts = line.trim().split(/\s+/);
+        if (parts.length >= 4) {
+          ports.push({
+            port: parseInt(parts[1].split(':').pop()) || parts[1],
+            address: parts[3] || '0.0.0.0',
+            pid: null,
+            process: 'Unknown',
+            protocol: parts[0] || 'TCP',
+            state: 'LISTEN'
+          });
+        }
+      }
+      
+      return ports;
+    } catch (altError) {
+      console.error('❌ Erreur méthode alternative :', altError.message);
+      return [];
+    }
   }
 }
 
