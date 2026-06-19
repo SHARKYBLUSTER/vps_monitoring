@@ -44,7 +44,6 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | **P1-002** | **Base de données SQLite** | Remplacer le stockage JSON par **SQLite** pour l'historique (meilleure performance, requêtes avancées). | 🟢 Élevé | 3 jours |
 | **P1-003** | **Page de configuration** | Interface pour modifier les **seuils d'alerte** et les paramètres du dashboard. | 🟢 Élevé | 2 jours |
 | **P1-004** | **Mode sombre** | Ajouter un thème sombre avec un bouton de bascule (CSS + JavaScript). | 🟢 Élevé | 2 jours |
-| **P1-005** | **Sécurisation des routes API** | Appliquer le middleware d'authentification sur **toutes les routes API**. | 🟢 Élevé | 1 jour |
 | **P1-006** | **Amélioration de l'UI** | Refonte du design (animations fluides, icônes). | 🟡 Moyen | 3 jours |
 
 ---
@@ -53,12 +52,12 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | ID | Tâche | Description | Impact | Estimation |
 |----|-------|-------------|--------|------------|
 | **P2-001** | **Surveillance des services** | Vérifier l'état des services (HTTP, MySQL, Redis, SSH, etc.) via des **ping/port checks**. | 🟢 Élevé | 3 jours |
-| **P2-002** | **Surveillance Docker** | Lister les conteneurs Docker en cours d'exécution, leurs stats (CPU, RAM, statut) et leur état (running/stopped). | 🟢 Élevé | 4 jours |
 | **P2-003** | **Support multi-langues (Français/Anglais)** | Internationalisation (i18n) avec des fichiers JSON pour les traductions. | 🟢 Élevé | 3 jours |
 | **P2-004** | **Implémentation complète du login** | Finaliser l'authentification (intégration du middleware sur toutes les pages, gestion des sessions). | 🟢 Élevé | 2 jours |
 | **P2-005** | **Notifications en temps réel** | Envoyer des alertes par **email** ou **webhook** (Discord/Slack). | 🟢 Élevé | 4 jours |
 | **P2-006** | **Tableau de bord personnalisable** | Permettre aux utilisateurs de **choisir les widgets** à afficher. | 🟡 Moyen | 5 jours |
 | **P2-007** | **Export des données** | Exporter l'historique en **CSV/JSON** pour analyse externe. | 🟡 Moyen | 2 jours |
+| **P1-005** | **Sécurisation des routes API** | Appliquer le middleware d'authentification sur **toutes les routes API**. | 🟢 Élevé | 1 jour |
 
 ---
 
@@ -76,6 +75,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | ID | Tâche | Description | Impact | Estimation |
 |----|-------|-------------|--------|------------|
 | **P4-001** | **Dockerisation** | Créer un **Dockerfile** et un **docker-compose.yml** pour un déploiement facile. | 🟢 Élevé | 2 jours |
+| **P2-002** | **Surveillance Docker** | Lister les conteneurs Docker en cours d'exécution, leurs stats (CPU, RAM, statut) et leur état (running/stopped). | 🟢 Élevé | 4 jours |
 | **P4-002** | **Pipeline CI/CD** | Configurer **GitHub Actions** pour les tests et le déploiement. | 🟢 Élevé | 2 jours |
 | **P4-003** | **Script d'installation automatique** | Script Bash pour installer et configurer le projet en une commande. | 🟡 Moyen | 1 jour |
 | **P4-004** | **Documentation utilisateur** | Guide d'installation et de configuration complet. | 🟡 Moyen | 2 jours |
@@ -94,17 +94,17 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📅 **Calendrier Prévisionnel**
 | Phase | Objectif | Début | Durée |
 |-------|----------|-------|-------|
-| **Phase 1** | Améliorations immédiates (P1-001 à P1-006) | Immédiat | ~13 jours |
-| **Phase 2** | Fonctionnalités avancées (P2-001 à P2-007) | Après Phase 1 | ~23 jours |
+| **Phase 1** | Améliorations immédiates (P1-001 à P1-004, P1-006) | Immédiat | ~12 jours |
+| **Phase 2** | Fonctionnalités avancées (P2-001, P2-003 à P2-007, P1-005) | Après Phase 1 | ~20 jours |
 | **Phase 3** | Optimisation & Sécurité (P3-001 à P3-004) | Après Phase 2 | ~10 jours |
-| **Phase 4** | Déploiement & Automatisation (P4-001 à P4-004) | Après Phase 3 | ~7 jours |
+| **Phase 4** | Déploiement & Automatisation (P4-001 à P4-004, P2-002) | Après Phase 3 | ~11 jours |
 | **Phase 5** | Évolutions futures (P5-001 à P5-003) | 2027 | À définir |
 
 ---
 
 ## 🎯 **Objectifs à Court Terme (3 mois)**
-- [ ] **Terminer la Phase 1** (Graphiques, SQLite, page de configuration, mode sombre, sécurisation API, UI améliorée).
-- [ ] **Terminer la Phase 2** (Surveillance Docker, multi-langues, login, notifications, etc.).
+- [ ] **Terminer la Phase 1** (Graphiques, SQLite, page de configuration, mode sombre, UI améliorée).
+- [ ] **Terminer la Phase 2** (Surveillance des services, multi-langues, login, sécurisation API, notifications, etc.).
 - [ ] **Atteindre 100% de couverture des tests** pour les fonctionnalités critiques.
 - [ ] **Publier une version v0.2.0** avec les améliorations majeures.
 
