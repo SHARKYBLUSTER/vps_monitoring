@@ -181,6 +181,18 @@ app.post('/api/history/cleanup', async (req, res) => {
   }
 });
 
+// Endpoint pour l'historique réseau avec filtres temporels
+app.get('/api/network-history', async (req, res) => {
+  try {
+    const { period = 'day' } = req.query;
+    const result = await historyService.getNetworkHistory({ period });
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Erreur API /api/network-history :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer l\'historique réseau' });
+  }
+});
+
 // ====================
 // Route principale : Servir le frontend
 // ====================
@@ -188,6 +200,23 @@ app.post('/api/history/cleanup', async (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
+
+// Planifie le nettoyage automatique des données réseau (91 jours = 3 mois + 1 jour)
+const scheduleNetworkCleanup = () => {
+  // Nettoyage tous les jours à minuit
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  const delay = midnight - now;
+
+  setTimeout(() => {
+    historyService.cleanupNetworkHistory(91); // 91 jours = 3 mois + 1 jour
+    // Relance le nettoyage tous les jours
+    setInterval(() => historyService.cleanupNetworkHistory(91), 24 * 60 * 60 * 1000);
+  }, delay);
+};
+
+// Démarrer le nettoyage automatique
+scheduleNetworkCleanup();
 
 // Démarrer le serveur
 app.listen(PORT, () => {
@@ -203,6 +232,7 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/history/:metric (Données pour graphique)`);
   console.log(`   - GET /api/history/alerts (Historique des alertes)`);
   console.log(`   - POST /api/history/cleanup (Nettoyer l'historique)`);
+  console.log(`   - GET /api/network-history?period=day|week|month|quarter (Historique réseau)`);
 });
 
 module.exports = app;

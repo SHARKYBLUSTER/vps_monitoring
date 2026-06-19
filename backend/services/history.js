@@ -13,6 +13,9 @@ const config = require('../config/config');
 // Intervalle de sauvegarde (en ms) - par défaut 5 minutes
 const SAVE_INTERVAL = process.env.HISTORY_SAVE_INTERVAL || 300000; // 5 minutes
 
+// TTL pour les données réseau : 91 jours (3 mois + 1 jour)
+const NETWORK_DATA_TTL = 91;
+
 // Démarrer le collecteur automatique
 let historyInterval = null;
 
@@ -157,6 +160,125 @@ async function cleanupHistory(days = 30) {
   }
 }
 
+/**
+ * Récupère l'historique des connexions réseau avec filtre temporel
+ * @param {Object} options - Options de filtrage
+ * @param {string} options.period - Période (day, week, month, quarter)
+ * @returns {Promise<Object>} - Historique réseau filtré et agrégé
+ */
+async function getNetworkHistory(options = {}) {
+  try {
+    const { period = 'day' } = options;
+    const now = new Date();
+    let startDate;
+
+    // Calcule la date de début en fonction de la période
+    switch (period) {
+      case 'day':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        break;
+      case 'quarter':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+        break;
+      default:
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    }
+
+    // Récupère toutes les métriques depuis la base de données
+    const allMetrics = await db.getMetricsHistory({ limit: 10000 });
+    
+    // Filtre les données réseau valides et dans la période
+    const filteredData = allMetrics.filter(entry => {
+      const entryDate = new Date(entry.timestamp);
+      return entryDate >= startDate && 
+             entry.network_download !== undefined && 
+             entry.network_upload !== undefined;
+    });
+
+    // Agrège les données par intervalle (heure/jour selon la période)
+    const aggregatedData = aggregateNetworkData(filteredData, period);
+
+    return {
+      success: true,
+      data: aggregatedData,
+      period,
+      count: filteredData.length,
+    };
+  } catch (error) {
+    console.error('❌ Erreur lors de la récupération de l\'historique réseau:', error.message);
+    return {
+      success: false,
+      error: error.message,
+      data: { labels: [], download: [], upload: [] },
+    };
+  }
+}
+
+/**
+ * Agrège les données réseau par intervalle (heure/jour)
+ * @param {Array} data - Données réseau brutes
+ * @param {string} period - Période pour déterminer l'intervalle d'agrégation
+ * @returns {Object} - Données agrégées pour Chart.js
+ */
+function aggregateNetworkData(data, period) {
+  if (data.length === 0) return { labels: [], download: [], upload: [] };
+
+  const grouped = {};
+  data.forEach(entry => {
+    const date = new Date(entry.timestamp);
+    let key;
+
+    // Groupement par heure pour 'day', par jour sinon
+    if (period === 'day') {
+      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:00`;
+    } else {
+      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    if (!grouped[key]) {
+      grouped[key] = { download: 0, upload: 0, count: 0 };
+    }
+    grouped[key].download += entry.network_download || 0;
+    grouped[key].upload += entry.network_upload || 0;
+    grouped[key].count += 1;
+  });
+
+  // Convertit en tableaux pour Chart.js
+  const labels = Object.keys(grouped).sort();
+  const download = labels.map(key => grouped[key].download / grouped[key].count); // Moyenne
+  const upload = labels.map(key => grouped[key].upload / grouped[key].count); // Moyenne
+
+  return { labels, download, upload };
+}
+
+/**
+ * Nettoie spécifiquement l'historique réseau (appelé automatiquement)
+ * @param {number} days - Nombre de jours à conserver (par défaut 91)
+ * @returns {Promise<Object>} - Résultat du nettoyage
+ */
+async function cleanupNetworkHistory(days = NETWORK_DATA_TTL) {
+  try {
+    const deletedCount = await db.cleanupOldData(days);
+    return {
+      success: true,
+      message: `${deletedCount} entrées réseau supprimées`,
+      deletedCount,
+    };
+  } catch (error) {
+    console.error('❌ Erreur lors du nettoyage de l\'historique réseau:', error.message);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
+
 module.exports = {
   startAutoCollect,
   stopAutoCollect,
@@ -165,4 +287,6 @@ module.exports = {
   getChartData,
   getAlertsHistory,
   cleanupHistory,
+  getNetworkHistory,
+  cleanupNetworkHistory,
 };

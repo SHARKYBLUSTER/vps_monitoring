@@ -163,6 +163,53 @@
       text-align: center;
       padding: 20px;
     }
+
+    /* Section Historique Réseau */
+    .network-history-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .network-history-section h2 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+
+    .network-filters {
+      margin: 10px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .filter-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .filter-btn.active {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+      margin: 20px 0;
+    }
     
     footer {
       text-align: center;
@@ -399,6 +446,19 @@
       <h2>⚠️ Alertes</h2>
       <div id="alerts-list">
         <p class="no-alerts">✅ Aucune alerte active.</p>
+      </div>
+    </div>
+
+    <div class="network-history-section">
+      <h2>📡 Historique des connexions réseau</h2>
+      <div class="network-filters">
+        <button class="filter-btn active" data-period="day">Jour</button>
+        <button class="filter-btn" data-period="week">Semaine</button>
+        <button class="filter-btn" data-period="month">Mois</button>
+        <button class="filter-btn" data-period="quarter">Trimestre</button>
+      </div>
+      <div class="chart-container">
+        <canvas id="networkChart"></canvas>
       </div>
     </div>
 
@@ -769,6 +829,105 @@
       }
     }
 
+    // ====================
+    // Graphique Réseau
+    // ====================
+    let networkChart = null;
+    let currentPeriod = 'day';
+
+    // Fonction pour charger l'historique réseau
+    async function loadNetworkHistory(period = 'day') {
+      try {
+        const response = await fetch(`/api/network-history?period=${period}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement de l\'historique réseau :', error);
+        return { success: false, error: 'Impossible de charger les données' };
+      }
+    }
+
+    // Fonction pour mettre à jour le graphique
+    async function updateNetworkChart(period) {
+      currentPeriod = period;
+      const data = await loadNetworkHistory(period);
+
+      if (!data.success || !data.data.labels || data.data.labels.length === 0) {
+        console.warn('Aucune donnée disponible pour la période sélectionnée.');
+        // Afficher un message dans le conteneur du graphique
+        const chartContainer = document.querySelector('.chart-container');
+        if (chartContainer) {
+          chartContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Aucune donnée disponible pour cette période.</p>';
+        }
+        return;
+      }
+
+      // Met à jour les boutons actifs
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.period === period);
+      });
+
+      // Crée ou met à jour le graphique
+      const ctx = document.getElementById('networkChart').getContext('2d');
+
+      // Detruit le graphique existant s'il existe
+      if (networkChart) {
+        networkChart.destroy();
+      }
+
+      networkChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.data.labels,
+          datasets: [
+            {
+              label: 'Téléchargement (KB)',
+              data: data.data.download,
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.1,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Envoi (KB)',
+              data: data.data.upload,
+              borderColor: 'rgb(255, 99, 132)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              tension: 0.1,
+              yAxisID: 'y',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Trafic (KB)',
+              },
+            },
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.raw.toFixed(2)} KB`;
+                },
+              },
+            },
+            legend: {
+              position: 'top',
+            },
+          },
+        },
+      });
+    }
+
     // Initialisation
     document.addEventListener('DOMContentLoaded', () => {
       // Premier chargement immédiat
@@ -780,7 +939,20 @@
       setInterval(updateMetrics, 5000);
       setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
       setInterval(updatePorts, 30000); // Rafraîchir les ports toutes les 30 secondes
+      
+      // Initialiser les boutons de filtre réseau
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          updateNetworkChart(btn.dataset.period);
+        });
+      });
+      
+      // Charge le graphique par défaut au démarrage
+      updateNetworkChart('day');
     });
   </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </body>
 </html>
