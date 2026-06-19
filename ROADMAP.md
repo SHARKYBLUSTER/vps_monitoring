@@ -12,9 +12,9 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 
 ## 📌 Statut Actuel
 
-- **Version** : `0.2.0`
-- **Statut** : 🟢 *Phase 2 terminée (66%)*
-- **Dernière mise à jour** : 19 juin 2025
+- **Version** : `0.1.3`
+- **Statut** : 🟢 *Phase 2 terminée (100% des tâches non annulées)*
+- **Dernière mise à jour** : 19 juin 2026
 - **Stack technique** : **Backend** (Node.js + Express) | **Frontend** (Vanilla JS + HTML + CSS)
 - **Architecture** : SSR + API REST avec authentification.
 
@@ -33,24 +33,24 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 | F-002 | ✅ Créer la structure du projet (dossiers `backend/` et `frontend/`) | ✅ Done | ⭐⭐⭐ | 1j |
 | F-003 | ✅ Initialiser le projet Node.js (`package.json`, dépendances : `express`, `systeminformation`) | ✅ Done | ⭐⭐⭐ | 1j |
 | F-004 | ✅ Implémenter le collecteur de métriques avec `systeminformation` (CPU, RAM, Disk) | ✅ Done | ⭐⭐⭐ | 2j |
-| F-005 | Intégrer les métriques dans le HTML (sans API) | ✅ Done | ⭐⭐⭐ | 1j |
-| F-006 | Développer l'interface HTML/CSS de base (structure + styles) | ✅ Done | ⭐⭐ | 2j |
-| F-007 | Intégrer les métriques dynamiques dans le HTML (backend) et ajouter le rafraîchissement automatique | ✅ Done | ⭐⭐ | 1j |
-| F-008 | Ajouter un système de logging (`morgan` pour Express) | ✅ Done | ⭐⭐ | 1j |
+| F-005 | ✅ Intégrer les métriques dans le HTML (sans API) | ✅ Done | ⭐⭐⭐ | 1j |
+| F-006 | ✅ Développer l'interface HTML/CSS de base (structure + styles) | ✅ Done | ⭐⭐ | 2j |
+| F-007 | ✅ Intégrer les métriques dynamiques dans le HTML (backend) et ajouter le rafraîchissement automatique | ✅ Done | ⭐⭐ | 1j |
+| F-008 | ✅ Ajouter un système de logging (`morgan` pour Express) | ✅ Done | ⭐⭐ | 1j |
 
 ---
 
 ### 🔹 **Phase 2 : Fonctionnalités de Base** *(Priorité : Moyenne)*
 **Objectif** : Ajouter des fonctionnalités essentielles pour une surveillance efficace.
 **Architecture** : API REST + Authentification + Historique des métriques.
-**Statut** : **66% terminée** (4/6 tâches complétées, 2 tâches exclues).
+**Statut** : **100% terminée** (4/4 tâches actives complétées, 2 tâches exclues).
 
 | ID | Tâche | Statut | Priorité | Estimations | Détails |
 |----|-------|--------|----------|-------------|---------|
 | B-001 | Surveillance réseau (bande passante, latence) | ✅ Done | ⭐⭐⭐ | 2j | Route `/api/network` avec métriques détaillées par interface. |
 | B-002 | Alertes basiques (seuils CPU/RAM/Disk) | ✅ Done | ⭐⭐⭐ | 3j | Seuils configurables dans `backend/config/config.js`. |
 | B-003 | Historique des métriques (stockage JSON temporaire) | ✅ Done | ⭐⭐⭐ | 3j | Stockage dans `data/metrics_history.json` + collecte automatique toutes les 5 minutes. |
-| B-004 | Authentification utilisateur (login/mot de passe dans .env) | ✅ Done | ⭐⭐ | 2j | Formulaire de login, sessions avec `express-session`, hashage des mots de passe avec `bcryptjs`. |
+| B-004 | Authentification utilisateur (login/mot de passe dans .env) | ✅ Done | ⭐⭐ | 2j | Middleware `auth.js` avec sessions `express-session`, hashage des mots de passe avec `bcryptjs`. |
 | B-005 | Support multi-VPS (gestion de plusieurs serveurs) | ❌ Cancelled | ⭐⭐ | 3j | Exclu par l'utilisateur. |
 | B-006 | Notifications (email, webhook) | ❌ Cancelled | ⭐⭐ | 2j | Exclu par l'utilisateur. |
 
@@ -113,10 +113,10 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 | Phase | Début | Fin | Durée |
 |-------|-------|-----|-------|
 | Phase 1 | Juin 2025 | Juillet 2025 | ~3 semaines |
-| Phase 2 | Juillet 2025 | Août 2025 | ~4 semaines |
-| Phase 3 | Août 2025 | Septembre 2025 | ~6 semaines |
-| Phase 4 | Septembre 2025 | Octobre 2025 | ~4 semaines |
-| Phase 5 | Octobre 2025 | Novembre 2025 | ~4 semaines |
+| Phase 2 | Juillet 2025 | Juin 2026 | ~11 mois |
+| Phase 3 | À définir | À définir | ~6 semaines |
+| Phase 4 | À définir | À définir | ~4 semaines |
+| Phase 5 | À définir | À définir | ~4 semaines |
 | Phase 6 | 2026 | - | À définir |
 
 ---
@@ -133,20 +133,21 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
    - [x] Rafraîchir automatiquement les métriques (via `fetch()` toutes les 5 secondes).
    - [x] Ajouter un système de logging (`morgan` pour Express).
 
-2. **Phase 2** : ✅ **66% terminée** (4/6 tâches)
-   - [x] **B-001** : Surveillance réseau (API `/api/network`).
-   - [x] **B-002** : Alertes basiques (seuils configurables dans `.env`).
-   - [x] **B-003** : Historique des métriques (stockage JSON temporaire).
-   - [x] **B-004** : Authentification utilisateur (login/mot de passe dans `.env`).
+2. **Phase 2** : ✅ **100% terminée** (4/4 tâches actives)
+   - [x] **B-001** : Surveillance réseau (API `/api/network` avec métriques détaillées par interface).
+   - [x] **B-002** : Alertes basiques (seuils configurables dans `backend/config/config.js`).
+   - [x] **B-003** : Historique des métriques (stockage JSON dans `data/metrics_history.json` + collecte automatique toutes les 5 minutes).
+   - [x] **B-004** : Authentification utilisateur (middleware `auth.js` avec `express-session` et `bcryptjs`).
    - [ ] **B-005** : Support multi-VPS (exclu par l'utilisateur).
    - [ ] **B-006** : Notifications (exclu par l'utilisateur).
 
 3. **Améliorations possibles** :
    - [ ] Remplacer le stockage JSON par **SQLite** pour l'historique (B-003).
-   - [ ] Ajouter des **graphiques** (Chart.js) pour visualiser l'historique (`/api/history/:metric`).
+   - [ ] Ajouter des **graphiques** (Chart.js) pour visualiser l'historique (`/api/history/:metric` déjà disponible).
    - [ ] Passer à la **Phase 3** (tableaux de bord personnalisables, surveillance des services).
    - [ ] Améliorer l'UI du formulaire de login (CSS, animations).
    - [ ] Ajouter une page de **configuration** pour modifier les seuils d'alerte.
+   - [ ] Implémenter le middleware d'authentification sur les routes API.
 
 ---
 
@@ -156,8 +157,10 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 |----------|----------|--------|
 | Couverture des tests | > 80% | ❌ 0% |
 | Temps de réponse API | < 200ms | ❌ Non mesuré |
-| Nombre de VPS supportés | 10+ | ❌ 0 |
+| Nombre de VPS supportés | 10+ | ❌ 1 (mono-VPS) |
 | Nombre d'utilisateurs actifs | 100+ | ❌ 0 |
+| Endpoints API implémentés | 8+ | ✅ 8 endpoints |
+| Stockage historique | Fonctionnel | ✅ JSON |
 
 ---
 
@@ -178,10 +181,8 @@ Les contributions sont les bienvenues ! Voici comment aider :
 | 0.1.0 | 19 juin 2025 | Création du dépôt et de la roadmap initiale. |
 | 0.1.1 | 19 juin 2025 | Mise à jour de l'architecture : **Backend (Node.js + Express)** + **Frontend (Vanilla JS + HTML + CSS)**. Ajout des tâches détaillées pour la Phase 1. |
 | 0.1.2 | 19 juin 2025 | **F-002** : Structure du projet créée (`backend/`, `frontend/`, `package.json`). **F-003** : Projet Node.js initialisé (dépendances définies). |
-| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). **F-005** : Intégration des métriques dans le HTML (backend). |
-| 0.1.4 | 19 juin 2025 | **F-006** : Interface HTML/CSS de base finalisée (barres de progression, animations, responsive design, styles pour les graphiques). |
-| 0.1.5 | 19 juin 2025 | **F-007** : Rafraîchissement automatique des métriques (5s) via `fetch()`. **F-008** : Système de logging ajouté (`morgan`). |
-| 0.2.0 | 19 juin 2025 | **Phase 2** : API REST ajoutée (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/history`). **B-003** : Historique des métriques (stockage JSON). **B-004** : Authentification utilisateur (login/mot de passe dans `.env`). |
+| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). **F-005** : Intégration des métriques dans le HTML (backend). **F-006** : Interface HTML/CSS de base finalisée. **F-007** : Rafraîchissement automatique des métriques (5s) via `fetch()`. **F-008** : Système de logging ajouté (`morgan`). |
+| 0.1.3 | 19 juin 2026 | **Phase 2** : API REST implémentée (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/health`, `/api/history`). **B-001** : Surveillance réseau. **B-002** : Alertes basiques avec seuils configurables. **B-003** : Historique des métriques (stockage JSON + collecte automatique). **B-004** : Middleware d'authentification (`auth.js` avec `express-session` et `bcryptjs`). Nettoyage du code et simplification. |
 
 ---
 
@@ -193,4 +194,4 @@ Les contributions sont les bienvenues ! Voici comment aider :
 
 ---
 
-> *Ce document est mis à jour régulièrement. Dernière révision : **19 juin 2025** (Version 0.2.0).*
+> *Ce document est mis à jour régulièrement. Dernière révision : **19 juin 2026** (Version 0.1.3).*

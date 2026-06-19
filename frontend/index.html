@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="5">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VPS Monitoring Dashboard</title>
   <style>
@@ -176,7 +175,36 @@
     .last-update {
       font-weight: bold;
     }
-    
+
+    .loading-indicator {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     @media (max-width: 768px) {
       .metrics-grid {
         grid-template-columns: 1fr;
@@ -189,6 +217,12 @@
   </style>
 </head>
 <body>
+  <!-- Indicateur de chargement -->
+  <div class="loading-indicator" id="loading-indicator">
+    <div class="loading-spinner"></div>
+    <p>Chargement des données...</p>
+  </div>
+  
   <div class="container">
     <header>
       <h1>🖥️ VPS Monitoring Dashboard</h1>
@@ -252,6 +286,9 @@
   </div>
 
   <script>
+    // État de chargement
+    let isLoading = false;
+
     // Fonction pour formater les octets en GB/MB/KB
     function formatBytes(bytes) {
       if (bytes === 0) return '0';
@@ -261,15 +298,40 @@
       return (bytes / Math.pow(k, i)).toFixed(1);
     }
 
+    // Fonction pour afficher/cacher le chargement
+    function setLoading(state) {
+      isLoading = state;
+      const loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) {
+        loadingIndicator.style.display = state ? 'block' : 'none';
+      }
+    }
+
     // Fonction pour mettre à jour les métriques
     async function updateMetrics() {
+      // Éviter les appels simultanés
+      if (isLoading) return;
+      
+      setLoading(true);
+      
       try {
-        const response = await fetch('/api/metrics');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        // Récupérer les métriques et le réseau en parallèle
+        const [metricsResponse, networkResponse, alertsResponse] = await Promise.all([
+          fetch('/api/metrics'),
+          fetch('/api/network'),
+          fetch('/api/alerts')
+        ]);
+
+        if (!metricsResponse.ok || !networkResponse.ok || !alertsResponse.ok) {
+          throw new Error('Impossible de charger les données');
+        }
         
-        const data = await response.json();
-        if (data.success && data.data) {
-          const metrics = data.data;
+        const metricsData = await metricsResponse.json();
+        const networkData = await networkResponse.json();
+        const alertsData = await alertsResponse.json();
+        
+        if (metricsData.success && metricsData.data) {
+          const metrics = metricsData.data;
           
           // Mettre à jour le CPU
           if (metrics.cpu) {
@@ -283,61 +345,55 @@
           if (metrics.memory) {
             document.getElementById('mem-usage').textContent = `${metrics.memory.usagePercent.toFixed(1)}%`;
             document.getElementById('mem-progress').style.width = `${metrics.memory.usagePercent}%`;
-            document.getElementById('mem-used').textContent = `${formatBytes(metrics.memory.used)} GB`;
-            document.getElementById('mem-total').textContent = `${formatBytes(metrics.memory.total)} GB`;
+            document.getElementById('mem-used').textContent = `${formatBytes(metrics.memory.used)}`;
+            document.getElementById('mem-total').textContent = `${formatBytes(metrics.memory.total)}`;
           }
           
           // Mettre à jour le Disque
           if (metrics.disk) {
             document.getElementById('disk-usage').textContent = `${metrics.disk.usagePercent.toFixed(1)}%`;
             document.getElementById('disk-progress').style.width = `${metrics.disk.usagePercent}%`;
-            document.getElementById('disk-used').textContent = `${formatBytes(metrics.disk.used)} GB`;
-            document.getElementById('disk-total').textContent = `${formatBytes(metrics.disk.total)} GB`;
+            document.getElementById('disk-used').textContent = `${formatBytes(metrics.disk.used)}`;
+            document.getElementById('disk-total').textContent = `${formatBytes(metrics.disk.total)}`;
           }
           
           // Mettre à jour le Réseau
-          if (metrics.network) {
-            const statusBadge = metrics.network.status === 'OK' 
+          if (networkData.success && networkData.data) {
+            const network = networkData.data;
+            const statusBadge = network.total.download !== undefined 
               ? '<span class="status-badge online">En ligne</span>' 
               : '<span class="status-badge offline">Hors ligne</span>';
             document.getElementById('network-status').innerHTML = statusBadge;
-            document.getElementById('network-download').textContent = `${(metrics.network.download / 1024).toFixed(1)} KB/s`;
-            document.getElementById('network-upload').textContent = `${(metrics.network.upload / 1024).toFixed(1)} KB/s`;
+            document.getElementById('network-download').textContent = `${formatBytes(network.total.download * 1024)}`;
+            document.getElementById('network-upload').textContent = `${formatBytes(network.total.upload * 1024)}`;
           }
+          
+          // Mettre à jour les alertes
+          updateAlerts(alertsData);
           
           // Mettre à jour l'horodatage
           const now = new Date();
           document.getElementById('last-update').textContent = now.toLocaleString('fr-FR');
-          
-          // Vérifier les alertes
-          checkAlerts(metrics);
         }
       } catch (error) {
         console.error('Erreur:', error);
         document.getElementById('alerts-list').innerHTML = 
-          '<div class="alert danger"><span>❌ Impossible de charger les métriques</span></div>';
+          '<div class="alert danger"><span>❌ Impossible de charger les métriques. Vérifiez que le serveur est en cours d\'exécution.</span></div>';
+      } finally {
+        setLoading(false);
       }
     }
 
-    // Fonction pour vérifier les alertes
-    function checkAlerts(metrics) {
-      const alerts = [];
-      const thresholds = { cpu: 80, memory: 85, disk: 90 };
-      
-      if (metrics.cpu && metrics.cpu.usage > thresholds.cpu) {
-        alerts.push({ type: 'danger', message: `CPU trop élevé: ${metrics.cpu.usage.toFixed(1)}%` });
-      }
-      if (metrics.memory && metrics.memory.usagePercent > thresholds.memory) {
-        alerts.push({ type: 'warning', message: `RAM trop élevée: ${metrics.memory.usagePercent.toFixed(1)}%` });
-      }
-      if (metrics.disk && metrics.disk.usagePercent > thresholds.disk) {
-        alerts.push({ type: 'warning', message: `Disque presque plein: ${metrics.disk.usagePercent.toFixed(1)}%` });
-      }
-      
+    // Fonction pour mettre à jour les alertes
+    function updateAlerts(alertsData) {
       const alertsList = document.getElementById('alerts-list');
-      if (alerts.length > 0) {
-        alertsList.innerHTML = alerts.map(alert => 
-          `<div class="alert ${alert.type}"><span>${alert.message}</span><span class="time">Maintenant</span></div>`
+      
+      if (alertsData.success && alertsData.data && alertsData.data.length > 0) {
+        alertsList.innerHTML = alertsData.data.map(alert => 
+          `<div class="alert ${alert.type || 'warning'}">
+            <span>${alert.message || alert.type}</span>
+            <span class="time">${new Date(alert.timestamp).toLocaleTimeString('fr-FR')}</span>
+          </div>`
         ).join('');
       } else {
         alertsList.innerHTML = '<p class="no-alerts">✅ Aucune alerte active.</p>';
@@ -346,8 +402,10 @@
 
     // Initialisation
     document.addEventListener('DOMContentLoaded', () => {
+      // Premier chargement immédiat
       updateMetrics();
-      // Rafraîchir toutes les 5 secondes (en plus du meta refresh)
+      
+      // Rafraîchir toutes les 5 secondes (sans recharger la page)
       setInterval(updateMetrics, 5000);
     });
   </script>
