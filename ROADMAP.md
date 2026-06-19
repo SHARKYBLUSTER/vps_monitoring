@@ -15,6 +15,7 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 - **Version** : `0.1.0` (Début du projet)
 - **Statut** : 🟡 *En développement initial*
 - **Dernière mise à jour** : 19 juin 2025
+- **Stack technique** : **Backend** (Node.js + Express) | **Frontend** (Vanilla JS + HTML + CSS)
 
 ---
 
@@ -22,15 +23,18 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 
 ### 🔹 **Phase 1 : Fondations** *(Priorité : Haute)*
 **Objectif** : Mise en place de l'infrastructure de base pour la collecte et l'affichage des métriques.
+**Stack technique** : Backend (Node.js + Express) | Frontend (Vanilla JS + HTML + CSS)
 
 | ID | Tâche | Statut | Priorité | Estimations |
 |----|-------|--------|----------|-------------|
-| F-001 | Définir l'architecture globale (backend + frontend) | ⬜ Todo | ⭐⭐⭐ | 2j |
-| F-002 | Choisir la stack technique (ex: Python + FastAPI, React/Next.js) | ⬜ Todo | ⭐⭐⭐ | 1j |
-| F-003 | Créer un collecteur de métriques basique (CPU, RAM, Disk) | ⬜ Todo | ⭐⭐⭐ | 3j |
-| F-004 | Implémenter un endpoint API pour exposer les métriques | ⬜ Todo | ⭐⭐⭐ | 2j |
-| F-005 | Développer une interface web minimale (affichage des métriques) | ⬜ Todo | ⭐⭐ | 3j |
-| F-006 | Ajouter un système de logging | ⬜ Todo | ⭐⭐ | 1j |
+| F-001 | ✅ Définir l'architecture globale (Node.js + Express + Vanilla JS) | ✅ Done | ⭐⭐⭐ | 1j |
+| F-002 | Créer la structure du projet (dossiers `backend/` et `frontend/`) | ⬜ Todo | ⭐⭐⭐ | 1j |
+| F-003 | Initialiser le projet Node.js (`package.json`, dépendances : `express`, `systeminformation`) | ⬜ Todo | ⭐⭐⭐ | 1j |
+| F-004 | Implémenter le collecteur de métriques avec `systeminformation` (CPU, RAM, Disk) | ⬜ Todo | ⭐⭐⭐ | 2j |
+| F-005 | Créer les endpoints API (`/api/metrics`, `/api/health`) | ⬜ Todo | ⭐⭐⭐ | 2j |
+| F-006 | Développer l'interface HTML/CSS de base (structure + styles) | ⬜ Todo | ⭐⭐ | 2j |
+| F-007 | Connecter le frontend à l'API (fetch + affichage dynamique des métriques) | ⬜ Todo | ⭐⭐ | 2j |
+| F-008 | Ajouter un système de logging (ex: `winston` ou `morgan` pour Express) | ⬜ Todo | ⭐⭐ | 1j |
 
 ---
 
@@ -104,7 +108,7 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 
 | Phase | Début | Fin | Durée |
 |-------|-------|-----|-------|
-| Phase 1 | Juin 2025 | Juillet 2025 | ~2 semaines |
+| Phase 1 | Juin 2025 | Juillet 2025 | ~3 semaines |
 | Phase 2 | Juillet 2025 | Août 2025 | ~4 semaines |
 | Phase 3 | Août 2025 | Septembre 2025 | ~6 semaines |
 | Phase 4 | Septembre 2025 | Octobre 2025 | ~4 semaines |
@@ -116,13 +120,17 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 ## 🎯 Prochaines Étapes (Next Steps)
 
 1. **Finaliser la Phase 1** :
-   - [ ] Valider l'architecture technique.
-   - [ ] Implémenter le collecteur de métriques.
-   - [ ] Créer l'API de base.
+   - [x] ✅ Définir l'architecture technique (Node.js + Express + Vanilla JS).
+   - [ ] Créer la structure du projet (`backend/` et `frontend/`).
+   - [ ] Initialiser le projet Node.js avec les dépendances (`express`, `systeminformation`).
+   - [ ] Implémenter le collecteur de métriques (CPU, RAM, Disk).
+   - [ ] Créer les endpoints API (`/api/metrics`, `/api/health`).
+   - [ ] Développer l'interface HTML/CSS de base.
+   - [ ] Connecter le frontend à l'API (affichage dynamique).
 
 2. **Préparer la Phase 2** :
-   - [ ] Concevoir le système d'alertes.
-   - [ ] Choisir la base de données pour l'historique.
+   - [ ] Concevoir le système d'alertes (seuils CPU/RAM/Disk).
+   - [ ] Choisir la base de données pour l'historique (ex: SQLite, MongoDB).
 
 ---
 
@@ -152,6 +160,7 @@ Les contributions sont les bienvenues ! Voici comment aider :
 | Version | Date | Modifications |
 |---------|------|---------------|
 | 0.1.0 | 19 juin 2025 | Création du dépôt et de la roadmap initiale. |
+| 0.1.1 | 19 juin 2025 | Mise à jour de l'architecture : **Backend (Node.js + Express)** + **Frontend (Vanilla JS + HTML + CSS)**. Ajout des tâches détaillées pour la Phase 1. |
 
 ---
 
@@ -163,4 +172,4 @@ Les contributions sont les bienvenues ! Voici comment aider :
 
 ---
 
-> *Ce document est mis à jour régulièrement. Dernière révision : 19 juin 2025.*
+> *Ce document est mis à jour régulièrement. Dernière révision : **19 juin 2025** (Version 0.1.1).*
