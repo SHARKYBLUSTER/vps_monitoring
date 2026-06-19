@@ -39,9 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
 async function fetchMetrics() {
   try {
     const response = await fetch('/api/metrics');
+    
+    // Rediriger vers /login si 401 (non autorisé)
+    if (response.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+    
     if (!response.ok) {
       throw new Error(`Erreur HTTP: ${response.status}`);
     }
+    
     const data = await response.json();
     
     if (data.success && data.data) {

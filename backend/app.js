@@ -9,13 +9,231 @@
 
 const express = require('express');
 const path = require('path');
-const morgan = require('morgan'); // Pour le logging des requêtes HTTP
+const morgan = require('morgan'); // Routes API (REST)
+// ====================
+
+/**
+ * GET /api/metrics
+ * Récupère toutes les métriques système (CPU, RAM, Disque, Réseau)
+ */
+app.get('/api/metrics', async (req, res) => {
+=======
+// ====================
+// Routes Authentification
+// ====================
+
+/**
+ * GET /login
+ * Affiche le formulaire de login
+ */
+app.get('/login', (req, res) => {
+  // Vérifier si l'utilisateur est déjà connecté
+  if (req.session && req.session.authenticated) {
+    return res.redirect('/');
+  }
+  
+  // Générer le HTML du formulaire de login
+  const loginHtml = `
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Connexion - VPS Monitoring Dashboard</title>
+      <link rel="stylesheet" href="/css/style.css">
+      <style>
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+        .login-container {
+          background: white;
+          border-radius: 12px;
+          padding: 40px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          width: 100%;
+          max-width: 400px;
+          text-align: center;
+        }
+        .login-container h1 {
+          color: #2c3e50;
+          margin-bottom: 20px;
+          font-size: 1.8rem;
+        }
+        .login-form {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .form-group {
+          text-align: left;
+        }
+        .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          color: #2c3e50;
+          font-weight: 600;
+        }
+        .form-group input {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 1rem;
+          transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+          outline: none;
+          border-color: #3498db;
+        }
+        .login-button {
+          background: linear-gradient(135deg, #3498db, #2980b9);
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+          margin-top: 10px;
+        }
+        .login-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .error-message {
+          color: #e74c3c;
+          margin-top: 10px;
+          font-size: 0.9rem;
+        }
+        .footer-link {
+          margin-top: 20px;
+          font-size: 0.9rem;
+          color: #7f8c8d;
+        }
+        .footer-link a {
+          color: #3498db;
+          text-decoration: none;
+        }
+        .footer-link a:hover {
+          text-decoration: underline;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="login-container">
+        <h1>🔒 Connexion</h1>
+        <p style="color: #7f8c8d; margin-bottom: 20px;">VPS Monitoring Dashboard</p>
+        
+        ${req.query.error ? '<p class="error-message">❌ Identifiants incorrects</p>' : ''}
+        
+        <form class="login-form" method="POST" action="/login">
+          <div class="form-group">
+            <label for="username">Utilisateur</label>
+            <input type="text" id="username" name="username" required autofocus>
+          </div>
+          <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <button type="submit" class="login-button">Se connecter</button>
+        </form>
+        
+        <p class="footer-link">
+          <a href="/">Retour à l'accueil</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  res.send(loginHtml);
+});
+
+/**
+ * POST /login
+ * Traite la soumission du formulaire de login
+ */
+app.post('/login', express.urlencoded({ extended: true }), async (req, res) => {
+  const { username, password } = req.body;
+  
+  if (!username || !password) {
+    return res.redirect('/login?error=1');
+  }
+  
+  try {
+    const isValid = await authMiddleware.validateCredentials(username, password);
+    
+    if (isValid) {
+      req.session.authenticated = true;
+      req.session.username = username;
+      
+      // Rediriger vers la page demandée ou vers l'accueil
+      const returnTo = req.session.returnTo || '/';
+      delete req.session.returnTo;
+      
+      return res.redirect(returnTo);
+    } else {
+      return res.redirect('/login?error=1');
+    }
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'authentification:', error);
+    return res.redirect('/login?error=1');
+  }
+});
+
+/**
+ * GET /logout
+ * Déconnecte l'utilisateur
+ */
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('❌ Erreur lors de la déconnexion:', err);
+    }
+    res.redirect('/login');
+  });
+});
+
+// ====================
+// Routes API (REST)
+// ====================
+
+/**
+ * GET /api/metrics
+ * Récupère toutes les métriques système (CPU, RAM, Disque, Réseau)
+ */
+app.get('/api/metrics', authMiddleware.requireApiAuth, async (req, res) => {Pour le logging des requêtes HTTP
+const session = require('express-session');
+const dotenv = require('dotenv');
+const authMiddleware = require('./middleware/auth');
 const metricsService = require('./services/metrics');
 const historyService = require('./services/history');
 const config = require('./config/config');
 
+// Charger les variables d'environnement
+dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialiser l'utilisateur admin
+authMiddleware.initializeAdminUser();
+
+// Configuration de la session
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'vps_monitoring_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // HTTPS en production
+    maxAge: 24 * 60 * 60 * 1000, // 24 heures
+  },
+}));
 
 // Démarrer la collecte automatique de l'historique
 historyService.startAutoCollect();
@@ -58,7 +276,7 @@ app.get('/api/metrics', async (req, res) => {
  * GET /api/network
  * Récupère les métriques réseau détaillées
  */
-app.get('/api/network', async (req, res) => {
+app.get('/api/network', authMiddleware.requireApiAuth, async (req, res) => {
   try {
     const networkMetrics = await metricsService.getNetworkMetrics();
     res.json({
@@ -79,7 +297,7 @@ app.get('/api/network', async (req, res) => {
  * GET /api/alerts
  * Récupère la liste des alertes actives
  */
-app.get('/api/alerts', async (req, res) => {
+app.get('/api/alerts', authMiddleware.requireApiAuth, async (req, res) => {
   try {
     const alerts = await metricsService.getAlerts();
     res.json({
@@ -121,7 +339,7 @@ app.get('/api/health', (req, res) => {
  * - from: Date de début (ISO string)
  * - to: Date de fin (ISO string)
  */
-app.get('/api/history', async (req, res) => {
+app.get('/api/history', authMiddleware.requireApiAuth, async (req, res) => {
   try {
     const options = {
       limit: parseInt(req.query.limit) || 100,
@@ -146,7 +364,7 @@ app.get('/api/history', async (req, res) => {
  * Query params:
  * - limit: Nombre maximum de points (défaut: 50)
  */
-app.get('/api/history/:metric', async (req, res) => {
+app.get('/api/history/:metric', authMiddleware.requireApiAuth, async (req, res) => {
   try {
     const { metric } = req.params;
     const options = {
@@ -171,7 +389,7 @@ app.get('/api/history/:metric', async (req, res) => {
  * - limit: Nombre maximum de résultats (défaut: 100)
  * - unresolvedOnly: Ne retourner que les alertes non résolues (true/false)
  */
-app.get('/api/history/alerts', async (req, res) => {
+app.get('/api/history/alerts', authMiddleware.requireApiAuth, async (req, res) => {
   try {
     const options = {
       limit: parseInt(req.query.limit) || 100,
@@ -194,7 +412,7 @@ app.get('/api/history/alerts', async (req, res) => {
  * Nettoie les anciennes données de l'historique
  * Body: { days: number } (défaut: 30)
  */
-app.post('/api/history/cleanup', async (req, res) => {
+app.post('/api/history/cleanup', authMiddleware.requireApiAuth, async (req, res) => {
   try {
     const days = parseInt(req.body.days) || 30;
     const result = await historyService.cleanupHistory(days);
@@ -216,9 +434,10 @@ app.post('/api/history/cleanup', async (req, res) => {
  * Génère le HTML avec les métriques intégrées (pour la compatibilité)
  * @param {Object} metrics - Métriques à intégrer
  * @param {Array} alerts - Alertes à afficher
+ * @param {string} username - Nom de l'utilisateur connecté
  * @returns {string} - HTML généré
  */
-function generateHtml(metrics, alerts) {
+function generateHtml(metrics, alerts, username = null) {
   // Formater les valeurs pour l'affichage
   const formatBytes = (bytes) => (bytes / (1024 ** 3)).toFixed(1); // Convertir en GB
 
@@ -306,8 +525,16 @@ function generateHtml(metrics, alerts) {
     </head>
     <body>
       <header>
-        <h1>🖥️ VPS Monitoring Dashboard</h1>
-        <p class="subtitle">Surveillance en temps réel de votre serveur</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1>🖥️ VPS Monitoring Dashboard</h1>
+            <p class="subtitle">Surveillance en temps réel de votre serveur</p>
+          </div>
+          <div style="text-align: right;">
+            ${username ? `<p style="color: #2c3e50; font-weight: 600;">Connecté: ${username}</p>` : ''}
+            <a href="/logout" style="color: #e74c3c; text-decoration: none; font-weight: 600;">🔒 Déconnexion</a>
+          </div>
+        </div>
       </header>
 
       <main>
@@ -347,11 +574,11 @@ function generateHtml(metrics, alerts) {
 }
 
 // Route principale : génère le HTML avec les métriques (SSR)
-app.get('/', async (req, res) => {
+app.get('/', authMiddleware.requireAuth, async (req, res) => {
   try {
     const metrics = await metricsService.getAllMetrics();
     const alerts = metricsService.checkAlerts(metrics);
-    const html = generateHtml(metrics, alerts);
+    const html = generateHtml(metrics, alerts, req.session.username);
     res.send(html);
   } catch (error) {
     console.error('❌ Erreur lors de la génération de la page :', error);
