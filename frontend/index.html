@@ -2,95 +2,354 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="5">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VPS Monitoring Dashboard</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .metric-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .metric-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    
+    .metric-card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .metric-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #667eea;
+    }
+    
+    .progress-container {
+      height: 10px;
+      background: #ecf0f1;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+    
+    .metric-details {
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      margin-top: 10px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .status-badge.online {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status-badge.offline {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .alerts-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .alerts-section h2 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+    
+    .alert {
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .alert.warning {
+      background: #fff3cd;
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+    
+    .alert.danger {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+    
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    
+    .no-alerts {
+      color: #28a745;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    footer {
+      text-align: center;
+      color: white;
+      opacity: 0.8;
+      margin-top: 30px;
+      font-size: 0.9rem;
+    }
+    
+    .last-update {
+      font-weight: bold;
+    }
+    
+    @media (max-width: 768px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>🖥️ VPS Monitoring Dashboard</h1>
-    <p class="subtitle">Surveillance en temps réel de votre serveur</p>
-  </header>
+  <div class="container">
+    <header>
+      <h1>🖥️ VPS Monitoring Dashboard</h1>
+      <p>Surveillance en temps réel de votre serveur</p>
+    </header>
 
-  <main>
-    <!-- Section des métriques principales -->
-    <section class="metrics-container">
+    <div class="metrics-grid">
       <div class="metric-card">
         <h2>🧠 CPU</h2>
-        <div class="metric-value">
-          <span id="cpu-usage">--%</span>
+        <div class="metric-value" id="cpu-usage">--%</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="cpu-progress" style="width: 0%"></div>
         </div>
-        <div class="progress-bar-container">
-          <div class="progress-bar" id="cpu-progress"></div>
-        </div>
-        <p class="metric-details">
+        <div class="metric-details">
           Cœurs: <span id="cpu-cores">--</span> | Modèle: <span id="cpu-model">--</span>
-        </p>
+        </div>
       </div>
 
       <div class="metric-card">
         <h2>💾 Mémoire (RAM)</h2>
-        <div class="metric-value">
-          <span id="mem-usage">--%</span>
+        <div class="metric-value" id="mem-usage">--%</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="mem-progress" style="width: 0%"></div>
         </div>
-        <div class="progress-bar-container">
-          <div class="progress-bar" id="mem-progress"></div>
-        </div>
-        <p class="metric-details">
+        <div class="metric-details">
           Utilisée: <span id="mem-used">-- GB</span> / <span id="mem-total">-- GB</span>
-        </p>
+        </div>
       </div>
 
       <div class="metric-card">
         <h2>💽 Disque</h2>
-        <div class="metric-value">
-          <span id="disk-usage">--%</span>
+        <div class="metric-value" id="disk-usage">--%</div>
+        <div class="progress-container">
+          <div class="progress-bar" id="disk-progress" style="width: 0%"></div>
         </div>
-        <div class="progress-bar-container">
-          <div class="progress-bar" id="disk-progress"></div>
-        </div>
-        <p class="metric-details">
+        <div class="metric-details">
           Utilisé: <span id="disk-used">-- GB</span> / <span id="disk-total">-- GB</span>
-        </p>
+        </div>
       </div>
 
       <div class="metric-card">
         <h2>🌐 Réseau</h2>
-        <div class="metric-value">
-          <span id="network-status">--</span>
-        </div>
-        <p class="metric-details">
-          Téléchargement: <span id="network-download">-- KB/s</span> |
+        <div class="metric-value" id="network-status">--</div>
+        <div class="metric-details">
+          Téléchargement: <span id="network-download">-- KB/s</span> | 
           Upload: <span id="network-upload">-- KB/s</span>
-        </p>
+        </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Section des alertes -->
-    <section class="alerts-container" id="alerts-container">
+    <div class="alerts-section">
       <h2>⚠️ Alertes</h2>
       <div id="alerts-list">
-        <!-- Les alertes seront ajoutées dynamiquement ici -->
-        <p class="no-alerts">Aucune alerte active.</p>
+        <p class="no-alerts">✅ Aucune alerte active.</p>
       </div>
-    </section>
+    </div>
 
-    <!-- Section des graphiques (à venir) -->
-    <section class="charts-container">
-      <h2>📈 Historique</h2>
-      <div id="charts">
-        <p class="coming-soon">Fonctionnalité à venir...</p>
-      </div>
-    </section>
-  </main>
+    <footer>
+      <p>VPS Monitoring Dashboard v0.2.0 | Dernière mise à jour: <span id="last-update">--</span></p>
+    </footer>
+  </div>
 
-  <footer>
-    <p>VPS Monitoring Dashboard v0.1.1 | <span id="last-update">--</span></p>
-  </footer>
+  <script>
+    // Fonction pour formater les octets en GB/MB/KB
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1);
+    }
 
-  <!-- Scripts -->
-  <script src="/js/app.js"></script>
-  <script src="/js/components/metrics.js"></script>
-  <script src="/js/components/alerts.js"></script>
+    // Fonction pour mettre à jour les métriques
+    async function updateMetrics() {
+      try {
+        const response = await fetch('/api/metrics');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        if (data.success && data.data) {
+          const metrics = data.data;
+          
+          // Mettre à jour le CPU
+          if (metrics.cpu) {
+            document.getElementById('cpu-usage').textContent = `${metrics.cpu.usage.toFixed(1)}%`;
+            document.getElementById('cpu-progress').style.width = `${metrics.cpu.usage}%`;
+            document.getElementById('cpu-cores').textContent = metrics.cpu.cores || '--';
+            document.getElementById('cpu-model').textContent = metrics.cpu.model || '--';
+          }
+          
+          // Mettre à jour la RAM
+          if (metrics.memory) {
+            document.getElementById('mem-usage').textContent = `${metrics.memory.usagePercent.toFixed(1)}%`;
+            document.getElementById('mem-progress').style.width = `${metrics.memory.usagePercent}%`;
+            document.getElementById('mem-used').textContent = `${formatBytes(metrics.memory.used)} GB`;
+            document.getElementById('mem-total').textContent = `${formatBytes(metrics.memory.total)} GB`;
+          }
+          
+          // Mettre à jour le Disque
+          if (metrics.disk) {
+            document.getElementById('disk-usage').textContent = `${metrics.disk.usagePercent.toFixed(1)}%`;
+            document.getElementById('disk-progress').style.width = `${metrics.disk.usagePercent}%`;
+            document.getElementById('disk-used').textContent = `${formatBytes(metrics.disk.used)} GB`;
+            document.getElementById('disk-total').textContent = `${formatBytes(metrics.disk.total)} GB`;
+          }
+          
+          // Mettre à jour le Réseau
+          if (metrics.network) {
+            const statusBadge = metrics.network.status === 'OK' 
+              ? '<span class="status-badge online">En ligne</span>' 
+              : '<span class="status-badge offline">Hors ligne</span>';
+            document.getElementById('network-status').innerHTML = statusBadge;
+            document.getElementById('network-download').textContent = `${(metrics.network.download / 1024).toFixed(1)} KB/s`;
+            document.getElementById('network-upload').textContent = `${(metrics.network.upload / 1024).toFixed(1)} KB/s`;
+          }
+          
+          // Mettre à jour l'horodatage
+          const now = new Date();
+          document.getElementById('last-update').textContent = now.toLocaleString('fr-FR');
+          
+          // Vérifier les alertes
+          checkAlerts(metrics);
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('alerts-list').innerHTML = 
+          '<div class="alert danger"><span>❌ Impossible de charger les métriques</span></div>';
+      }
+    }
+
+    // Fonction pour vérifier les alertes
+    function checkAlerts(metrics) {
+      const alerts = [];
+      const thresholds = { cpu: 80, memory: 85, disk: 90 };
+      
+      if (metrics.cpu && metrics.cpu.usage > thresholds.cpu) {
+        alerts.push({ type: 'danger', message: `CPU trop élevé: ${metrics.cpu.usage.toFixed(1)}%` });
+      }
+      if (metrics.memory && metrics.memory.usagePercent > thresholds.memory) {
+        alerts.push({ type: 'warning', message: `RAM trop élevée: ${metrics.memory.usagePercent.toFixed(1)}%` });
+      }
+      if (metrics.disk && metrics.disk.usagePercent > thresholds.disk) {
+        alerts.push({ type: 'warning', message: `Disque presque plein: ${metrics.disk.usagePercent.toFixed(1)}%` });
+      }
+      
+      const alertsList = document.getElementById('alerts-list');
+      if (alerts.length > 0) {
+        alertsList.innerHTML = alerts.map(alert => 
+          `<div class="alert ${alert.type}"><span>${alert.message}</span><span class="time">Maintenant</span></div>`
+        ).join('');
+      } else {
+        alertsList.innerHTML = '<p class="no-alerts">✅ Aucune alerte active.</p>';
+      }
+    }
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', () => {
+      updateMetrics();
+      // Rafraîchir toutes les 5 secondes (en plus du meta refresh)
+      setInterval(updateMetrics, 5000);
+    });
+  </script>
 </body>
 </html>
