@@ -1,0 +1,28 @@
+{
+  "name": "vps_monitoring",
+  "version": "0.1.1",
+  "description": "Tableau de bord de surveillance pour VPS (CPU, RAM, Disk, Réseau)",
+  "main": "backend/app.js",
+  "scripts": {
+    "start": "node backend/app.js",
+    "dev": "nodemon backend/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vps",
+    "monitoring",
+    "dashboard",
+    "nodejs",
+    "express"
+  ],
+  "author": "SHARKYBLUSTER",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "morgan": "^1.10.0",
+    "systeminformation": "^5.21.12"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

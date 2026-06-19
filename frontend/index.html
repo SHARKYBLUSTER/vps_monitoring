@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPS Monitoring Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>🖥️ VPS Monitoring Dashboard</h1>
+    <p class="subtitle">Surveillance en temps réel de votre serveur</p>
+  </header>
+
+  <main>
+    <!-- Section des métriques principales -->
+    <section class="metrics-container">
+      <div class="metric-card">
+        <h2>🧠 CPU</h2>
+        <div class="metric-value">
+          <span id="cpu-usage">--%</span>
+        </div>
+        <p class="metric-details">
+          Cœurs: <span id="cpu-cores">--</span> | Modèle: <span id="cpu-model">--</span>
+        </p>
+      </div>
+
+      <div class="metric-card">
+        <h2>💾 Mémoire (RAM)</h2>
+        <div class="metric-value">
+          <span id="mem-usage">--%</span>
+        </div>
+        <p class="metric-details">
+          Utilisée: <span id="mem-used">-- GB</span> / <span id="mem-total">-- GB</span>
+        </p>
+      </div>
+
+      <div class="metric-card">
+        <h2>💽 Disque</h2>
+        <div class="metric-value">
+          <span id="disk-usage">--%</span>
+        </div>
+        <p class="metric-details">
+          Utilisé: <span id="disk-used">-- GB</span> / <span id="disk-total">-- GB</span>
+        </p>
+      </div>
+
+      <div class="metric-card">
+        <h2>🌐 Réseau</h2>
+        <div class="metric-value">
+          <span id="network-status">--</span>
+        </div>
+        <p class="metric-details">
+          Téléchargement: <span id="network-download">-- KB/s</span> |
+          Upload: <span id="network-upload">-- KB/s</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- Section des alertes -->
+    <section class="alerts-container" id="alerts-container">
+      <h2>⚠️ Alertes</h2>
+      <div id="alerts-list">
+        <!-- Les alertes seront ajoutées dynamiquement ici -->
+        <p class="no-alerts">Aucune alerte active.</p>
+      </div>
+    </section>
+
+    <!-- Section des graphiques (à venir) -->
+    <section class="charts-container">
+      <h2>📈 Historique</h2>
+      <div id="charts">
+        <p class="coming-soon">Fonctionnalité à venir...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>VPS Monitoring Dashboard v0.1.1 | <span id="last-update">--</span></p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/components/metrics.js"></script>
+  <script src="js/components/alerts.js"></script>
+</body>
+</html>
