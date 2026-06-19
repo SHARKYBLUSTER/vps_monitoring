@@ -80,43 +80,72 @@ async function fetchMetrics() {
  * @param {Object} metrics - Données des métriques
  */
 function updateMetricsInDOM(metrics) {
-  if (!metrics) return;
+  console.log('🔧 updateMetricsInDOM appelé avec:', metrics);
+  if (!metrics) {
+    console.error('❌ metrics est undefined ou null');
+    return;
+  }
 
   // Mettre à jour le CPU
   if (metrics.cpu) {
+    console.log('🔧 Mise à jour CPU:', metrics.cpu);
     const cpuUsageEl = document.getElementById('cpu-usage');
     const cpuCoresEl = document.getElementById('cpu-cores');
     const cpuModelEl = document.getElementById('cpu-model');
     
-    if (cpuUsageEl) cpuUsageEl.textContent = `${metrics.cpu.usage.toFixed(1)}%`;
+    if (cpuUsageEl) {
+      cpuUsageEl.textContent = `${metrics.cpu.usage.toFixed(1)}%`;
+      console.log('✅ CPU usage mis à jour:', cpuUsageEl.textContent);
+    } else {
+      console.error('❌ Éléments CPU introuvables');
+    }
     if (cpuCoresEl) cpuCoresEl.textContent = metrics.cpu.cores || '--';
     if (cpuModelEl) cpuModelEl.textContent = metrics.cpu.model || '--';
+  } else {
+    console.error('❌ metrics.cpu est undefined');
   }
 
   // Mettre à jour la RAM
   if (metrics.memory) {
+    console.log('🔧 Mise à jour RAM:', metrics.memory);
     const memUsageEl = document.getElementById('mem-usage');
     const memUsedEl = document.getElementById('mem-used');
     const memTotalEl = document.getElementById('mem-total');
     
-    if (memUsageEl) memUsageEl.textContent = `${metrics.memory.usagePercent.toFixed(1)}%`;
+    if (memUsageEl) {
+      memUsageEl.textContent = `${metrics.memory.usagePercent.toFixed(1)}%`;
+      console.log('✅ RAM usage mis à jour:', memUsageEl.textContent);
+    } else {
+      console.error('❌ Éléments RAM introuvables');
+    }
     if (memUsedEl) memUsedEl.textContent = `${formatBytes(metrics.memory.used)} GB`;
     if (memTotalEl) memTotalEl.textContent = `${formatBytes(metrics.memory.total)} GB`;
+  } else {
+    console.error('❌ metrics.memory est undefined');
   }
 
   // Mettre à jour le Disque
   if (metrics.disk) {
+    console.log('🔧 Mise à jour Disque:', metrics.disk);
     const diskUsageEl = document.getElementById('disk-usage');
     const diskUsedEl = document.getElementById('disk-used');
     const diskTotalEl = document.getElementById('disk-total');
     
-    if (diskUsageEl) diskUsageEl.textContent = `${metrics.disk.usagePercent.toFixed(1)}%`;
+    if (diskUsageEl) {
+      diskUsageEl.textContent = `${metrics.disk.usagePercent.toFixed(1)}%`;
+      console.log('✅ Disk usage mis à jour:', diskUsageEl.textContent);
+    } else {
+      console.error('❌ Éléments Disque introuvables');
+    }
     if (diskUsedEl) diskUsedEl.textContent = `${formatBytes(metrics.disk.used)} GB`;
     if (diskTotalEl) diskTotalEl.textContent = `${formatBytes(metrics.disk.total)} GB`;
+  } else {
+    console.error('❌ metrics.disk est undefined');
   }
 
   // Mettre à jour le Réseau
   if (metrics.network) {
+    console.log('🔧 Mise à jour Réseau:', metrics.network);
     const networkStatusEl = document.getElementById('network-status');
     const networkDownloadEl = document.getElementById('network-download');
     const networkUploadEl = document.getElementById('network-upload');
@@ -125,9 +154,14 @@ function updateMetricsInDOM(metrics) {
       networkStatusEl.innerHTML = metrics.network.status === 'OK' 
         ? '<span class="status-badge online">En ligne</span>' 
         : '<span class="status-badge offline">Hors ligne</span>';
+      console.log('✅ Network status mis à jour');
+    } else {
+      console.error('❌ Éléments Réseau introuvables');
     }
     if (networkDownloadEl) networkDownloadEl.textContent = `${(metrics.network.download).toFixed(1)} KB/s`;
     if (networkUploadEl) networkUploadEl.textContent = `${(metrics.network.upload).toFixed(1)} KB/s`;
+  } else {
+    console.error('❌ metrics.network est undefined');
   }
 }
 
