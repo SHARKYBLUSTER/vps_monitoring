@@ -12,10 +12,11 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 
 ## 📌 Statut Actuel
 
-- **Version** : `0.1.0` (Début du projet)
-- **Statut** : 🟡 *En développement initial*
+- **Version** : `0.2.0`
+- **Statut** : 🟢 *Phase 2 terminée (66%)*
 - **Dernière mise à jour** : 19 juin 2025
 - **Stack technique** : **Backend** (Node.js + Express) | **Frontend** (Vanilla JS + HTML + CSS)
+- **Architecture** : SSR + API REST avec authentification.
 
 ---
 
@@ -24,6 +25,7 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 ### 🔹 **Phase 1 : Fondations** *(Priorité : Haute)*
 **Objectif** : Mise en place de l'infrastructure de base pour la collecte et l'affichage des métriques.
 **Stack technique** : Backend (Node.js + Express) | Frontend (Vanilla JS + HTML + CSS)
+**Architecture** : Génération HTML côté serveur (SSR) avec rafraîchissement automatique (pas d'API REST pour l'instant).
 
 | ID | Tâche | Statut | Priorité | Estimations |
 |----|-------|--------|----------|-------------|
@@ -32,23 +34,25 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 | F-003 | ✅ Initialiser le projet Node.js (`package.json`, dépendances : `express`, `systeminformation`) | ✅ Done | ⭐⭐⭐ | 1j |
 | F-004 | ✅ Implémenter le collecteur de métriques avec `systeminformation` (CPU, RAM, Disk) | ✅ Done | ⭐⭐⭐ | 2j |
 | F-005 | Intégrer les métriques dans le HTML (sans API) | ✅ Done | ⭐⭐⭐ | 1j |
-| F-006 | Développer l'interface HTML/CSS de base (structure + styles) | ⬜ Todo | ⭐⭐ | 2j |
-| F-007 | Connecter le frontend à l'API (fetch + affichage dynamique des métriques) | ⬜ Todo | ⭐⭐ | 2j |
-| F-008 | Ajouter un système de logging (ex: `winston` ou `morgan` pour Express) | ⬜ Todo | ⭐⭐ | 1j |
+| F-006 | Développer l'interface HTML/CSS de base (structure + styles) | ✅ Done | ⭐⭐ | 2j |
+| F-007 | Intégrer les métriques dynamiques dans le HTML (backend) et ajouter le rafraîchissement automatique | ✅ Done | ⭐⭐ | 1j |
+| F-008 | Ajouter un système de logging (`morgan` pour Express) | ✅ Done | ⭐⭐ | 1j |
 
 ---
 
 ### 🔹 **Phase 2 : Fonctionnalités de Base** *(Priorité : Moyenne)*
 **Objectif** : Ajouter des fonctionnalités essentielles pour une surveillance efficace.
+**Architecture** : API REST + Authentification + Historique des métriques.
+**Statut** : **66% terminée** (4/6 tâches complétées, 2 tâches exclues).
 
-| ID | Tâche | Statut | Priorité | Estimations |
-|----|-------|--------|----------|-------------|
-| B-001 | Surveillance réseau (bande passante, latence) | ⬜ Todo | ⭐⭐⭐ | 2j |
-| B-002 | Alertes basiques (seuils CPU/RAM/Disk) | ⬜ Todo | ⭐⭐⭐ | 3j |
-| B-003 | Historique des métriques (stockage en base de données) | ⬜ Todo | ⭐⭐⭐ | 3j |
-| B-004 | Authentification utilisateur (login/mot de passe) | ⬜ Todo | ⭐⭐ | 2j |
-| B-005 | Support multi-VPS (gestion de plusieurs serveurs) | ⬜ Todo | ⭐⭐ | 3j |
-| B-006 | Notifications (email, webhook) | ⬜ Todo | ⭐⭐ | 2j |
+| ID | Tâche | Statut | Priorité | Estimations | Détails |
+|----|-------|--------|----------|-------------|---------|
+| B-001 | Surveillance réseau (bande passante, latence) | ✅ Done | ⭐⭐⭐ | 2j | Route `/api/network` avec métriques détaillées par interface. |
+| B-002 | Alertes basiques (seuils CPU/RAM/Disk) | ✅ Done | ⭐⭐⭐ | 3j | Seuils configurables dans `backend/config/config.js`. |
+| B-003 | Historique des métriques (stockage JSON temporaire) | ✅ Done | ⭐⭐⭐ | 3j | Stockage dans `data/metrics_history.json` + collecte automatique toutes les 5 minutes. |
+| B-004 | Authentification utilisateur (login/mot de passe dans .env) | ✅ Done | ⭐⭐ | 2j | Formulaire de login, sessions avec `express-session`, hashage des mots de passe avec `bcryptjs`. |
+| B-005 | Support multi-VPS (gestion de plusieurs serveurs) | ❌ Cancelled | ⭐⭐ | 3j | Exclu par l'utilisateur. |
+| B-006 | Notifications (email, webhook) | ❌ Cancelled | ⭐⭐ | 2j | Exclu par l'utilisateur. |
 
 ---
 
@@ -119,18 +123,30 @@ Créer un **tableau de bord de surveillance complet, léger et open-source** pou
 
 ## 🎯 Prochaines Étapes (Next Steps)
 
-1. **Finaliser la Phase 1** :
-   - [x] ✅ Définir l'architecture technique (Node.js + Express + Vanilla JS).
-   - [x] ✅ Créer la structure du projet (`backend/` et `frontend/`).
-   - [x] ✅ Initialiser le projet Node.js avec les dépendances (`express`, `systeminformation`).
-   - [x] ✅ Implémenter le collecteur de métriques (CPU, RAM, Disk).
-   - [x] ✅ Intégrer les métriques dans le HTML (sans API).
-   - [ ] Développer l'interface HTML/CSS de base.
-   - [ ] Rafraîchir automatiquement les métriques (sans API).
+1. **Phase 1** : ✅ **100% terminée**
+   - [x] Définir l'architecture technique (Node.js + Express + Vanilla JS).
+   - [x] Créer la structure du projet (`backend/` et `frontend/`).
+   - [x] Initialiser le projet Node.js avec les dépendances (`express`, `systeminformation`).
+   - [x] Implémenter le collecteur de métriques (CPU, RAM, Disk).
+   - [x] Intégrer les métriques dans le HTML (backend).
+   - [x] Développer l'interface HTML/CSS de base (barres de progression, animations, responsive design).
+   - [x] Rafraîchir automatiquement les métriques (via `fetch()` toutes les 5 secondes).
+   - [x] Ajouter un système de logging (`morgan` pour Express).
 
-2. **Préparer la Phase 2** :
-   - [ ] Concevoir le système d'alertes (seuils CPU/RAM/Disk).
-   - [ ] Choisir la base de données pour l'historique (ex: SQLite, MongoDB).
+2. **Phase 2** : ✅ **66% terminée** (4/6 tâches)
+   - [x] **B-001** : Surveillance réseau (API `/api/network`).
+   - [x] **B-002** : Alertes basiques (seuils configurables dans `.env`).
+   - [x] **B-003** : Historique des métriques (stockage JSON temporaire).
+   - [x] **B-004** : Authentification utilisateur (login/mot de passe dans `.env`).
+   - [ ] **B-005** : Support multi-VPS (exclu par l'utilisateur).
+   - [ ] **B-006** : Notifications (exclu par l'utilisateur).
+
+3. **Améliorations possibles** :
+   - [ ] Remplacer le stockage JSON par **SQLite** pour l'historique (B-003).
+   - [ ] Ajouter des **graphiques** (Chart.js) pour visualiser l'historique (`/api/history/:metric`).
+   - [ ] Passer à la **Phase 3** (tableaux de bord personnalisables, surveillance des services).
+   - [ ] Améliorer l'UI du formulaire de login (CSS, animations).
+   - [ ] Ajouter une page de **configuration** pour modifier les seuils d'alerte.
 
 ---
 
@@ -162,7 +178,10 @@ Les contributions sont les bienvenues ! Voici comment aider :
 | 0.1.0 | 19 juin 2025 | Création du dépôt et de la roadmap initiale. |
 | 0.1.1 | 19 juin 2025 | Mise à jour de l'architecture : **Backend (Node.js + Express)** + **Frontend (Vanilla JS + HTML + CSS)**. Ajout des tâches détaillées pour la Phase 1. |
 | 0.1.2 | 19 juin 2025 | **F-002** : Structure du projet créée (`backend/`, `frontend/`, `package.json`). **F-003** : Projet Node.js initialisé (dépendances définies). |
-| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). **F-005** : Intégration des métriques dans le HTML (sans API). |
+| 0.1.3 | 19 juin 2025 | **F-004** : Collecteur de métriques implémenté (`systeminformation`). **F-005** : Intégration des métriques dans le HTML (backend). |
+| 0.1.4 | 19 juin 2025 | **F-006** : Interface HTML/CSS de base finalisée (barres de progression, animations, responsive design, styles pour les graphiques). |
+| 0.1.5 | 19 juin 2025 | **F-007** : Rafraîchissement automatique des métriques (5s) via `fetch()`. **F-008** : Système de logging ajouté (`morgan`). |
+| 0.2.0 | 19 juin 2025 | **Phase 2** : API REST ajoutée (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/history`). **B-003** : Historique des métriques (stockage JSON). **B-004** : Authentification utilisateur (login/mot de passe dans `.env`). |
 
 ---
 
@@ -174,4 +193,4 @@ Les contributions sont les bienvenues ! Voici comment aider :
 
 ---
 
-> *Ce document est mis à jour régulièrement. Dernière révision : **19 juin 2025** (Version 0.1.3).*
+> *Ce document est mis à jour régulièrement. Dernière révision : **19 juin 2025** (Version 0.2.0).*

@@ -31,3 +31,9 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# SQLite database
+data/
+*.db
+*.sqlite
+*.sqlite3
