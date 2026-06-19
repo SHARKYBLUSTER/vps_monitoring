@@ -329,6 +329,10 @@
       color: #ffc107;
     }
 
+    .port-status.unknown {
+      color: #6c757d;
+    }
+
     @media (max-width: 768px) {
       .metrics-grid {
         grid-template-columns: 1fr;
@@ -630,16 +634,44 @@
 
     // Fonction pour déterminer si un port est local ou externe
     function getPortStatusIcon(address) {
-      // Adresses locales : 127.0.0.1, ::1, localhost, 0.0.0.0 (toutes interfaces)
-      const localAddresses = ['127.0.0.1', '::1', 'localhost', '0.0.0.0', '::'];
+      if (!address) return '<span class="port-status unknown" title="Inconnu">❓</span>';
       
-      if (localAddresses.includes(address)) {
-        return '<span class="port-status local" title="Local">🟢</span>';
-      } else if (address === '*' || address.includes('*')) {
-        return '<span class="port-status external" title="Toutes interfaces">🟠</span>';
+      // Adresses locales : 127.0.0.* (toutes les IPs loopback), ::1, localhost
+      const isLocalhost = address === 'localhost' || 
+                         address === '::1' || 
+                         address === '::' ||
+                         address.startsWith('127.0.0.') ||
+                         address === '127.0.1.1';
+      
+      if (isLocalhost) {
+        return '<span class="port-status local" title="Local (loopback)">🟢</span>';
+      } else if (address === '0.0.0.0' || address === '*' || address === '::') {
+        return '<span class="port-status external" title="Toutes interfaces - Accessible depuis l\'extérieur">🟠</span>';
+      } else if (address.includes(':')) {
+        // IPv6
+        return '<span class="port-status external" title="IPv6 - Vérifiez la portée">🟡</span>';
       } else {
-        // Si c'est une IP spécifique qui n'est pas locale, c'est externe
+        // Autres adresses IP - considérer comme externe par défaut
         return '<span class="port-status external" title="Externe">🟠</span>';
+      }
+    }
+
+    // Fonction pour formater l'adresse avec plus de détails
+    function formatPortAddress(address, port) {
+      if (!address) return '--';
+      
+      // Pour les adresses IPv6
+      if (address.includes(':')) {
+        return address;
+      }
+      
+      // Pour les adresses IPv4
+      if (address.startsWith('127.0.0.')) {
+        return `${address} (loopback)`;
+      } else if (address === '0.0.0.0') {
+        return `${address} (toutes interfaces)`;
+      } else {
+        return address;
       }
     }
 
@@ -653,15 +685,24 @@
         const portsList = document.getElementById('ports-list');
         
         if (data.success && data.data && data.data.length > 0) {
-          portsList.innerHTML = data.data.map(port => `
-            <tr>
-              <td>${getPortStatusIcon(port.address)} ${port.port || '--'}</td>
-              <td>${port.address || '--'}</td>
-              <td>${port.pid || '--'}</td>
-              <td>${port.process || '--'}</td>
-              <td>${port.protocol || '--'}</td>
-            </tr>
-          `).join('');
+          portsList.innerHTML = data.data.map(port => {
+            const icon = getPortStatusIcon(port.address);
+            const formattedAddress = formatPortAddress(port.address, port.port);
+            
+            // Si le processus est Unknown, on n'affiche pas la colonne PID (inutile)
+            const processInfo = port.process && port.process !== 'Unknown' ? 
+              `<td>${port.pid || '--'}</td><td>${port.process}</td>` :
+              `<td colspan="2">--</td>`;
+            
+            return `
+              <tr>
+                <td>${icon} ${port.port || '--'}</td>
+                <td>${formattedAddress}</td>
+                ${processInfo}
+                <td>${port.protocol || '--'}</td>
+              </tr>
+            `;
+          }).join('');
         } else {
           portsList.innerHTML = '<tr><td colspan="5" class="no-data">Aucun port ouvert trouvé</td></tr>';
         }

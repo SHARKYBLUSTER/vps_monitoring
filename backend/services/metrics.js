@@ -190,46 +190,98 @@ async function getOpenPorts() {
         port: p.localPort,
         address: p.localAddress || '0.0.0.0',
         pid: p.pid || null,
-        process: p.processName || 'Unknown',
+        process: p.processName || getProcessNameByPid(p.pid) || 'Unknown',
         protocol: p.protocol || 'TCP',
         state: p.state
       }));
   } catch (error) {
-    console.error('❌ Erreur ports ouverts :', error.message);
-    console.warn('💡 Erreur avec networkConnections. Essayons une méthode alternative...');
+    console.error('❌ Erreur ports ouverts (systeminformation) :', error.message);
+    console.warn('💡 Essayons une méthode alternative avec ss...');
     
-    // Méthode alternative : utiliser netstat via child_process
-    try {
-      const { exec } = require('child_process');
-      const result = await new Promise((resolve, reject) => {
-        exec('ss -tlnp', (error, stdout, stderr) => {
-          if (error) reject(error);
-          else resolve(stdout);
-        });
-      });
-      
-      const ports = [];
-      const lines = result.trim().split('\n').slice(1); // Skip header
-      
-      for (const line of lines) {
-        const parts = line.trim().split(/\s+/);
-        if (parts.length >= 4) {
-          ports.push({
-            port: parseInt(parts[1].split(':').pop()) || parts[1],
-            address: parts[3] || '0.0.0.0',
-            pid: null,
-            process: 'Unknown',
-            protocol: parts[0] || 'TCP',
-            state: 'LISTEN'
-          });
-        }
-      }
-      
-      return ports;
-    } catch (altError) {
-      console.error('❌ Erreur méthode alternative :', altError.message);
-      return [];
+    // Méthode alternative : utiliser ss -tlnp
+    return getPortsFromSS();
+  }
+}
+
+/**
+ * Récupère le nom du processus à partir du PID
+ * @param {number} pid - PID du processus
+ * @returns {string|null} - Nom du processus ou null
+ */
+function getProcessNameByPid(pid) {
+  if (!pid) return null;
+  
+  try {
+    const fs = require('fs');
+    const procPath = `/proc/${pid}/cmdline`;
+    
+    if (fs.existsSync(procPath)) {
+      const cmdline = fs.readFileSync(procPath, 'utf8');
+      // Le cmdline contient les arguments séparés par des null bytes
+      const processName = cmdline.split('\0')[0] || cmdline;
+      // Extraire juste le nom du binaire (dernière partie du path)
+      return processName.split('/').pop() || null;
     }
+  } catch (error) {
+    console.warn(`⚠️ Impossible de lire le processus pour PID ${pid}:`, error.message);
+  }
+  
+  return null;
+}
+
+/**
+ * Méthode alternative pour récupérer les ports avec ss
+ * @returns {Promise<Array>} - Liste des ports
+ */
+async function getPortsFromSS() {
+  try {
+    const { exec } = require('child_process');
+    const result = await new Promise((resolve, reject) => {
+      exec('ss -tlnp', (error, stdout, stderr) => {
+        if (error) reject(error);
+        else resolve(stdout);
+      });
+    });
+    
+    const ports = [];
+    const lines = result.trim().split('\n').slice(1); // Skip header
+    
+    for (const line of lines) {
+      const parts = line.trim().split(/\s+/);
+      if (parts.length >= 4) {
+        // Format ss : State, Recv-Q, Send-Q, Local Address:Port, Peer Address:Port, Process
+        // Exemple: LISTEN 0      128    0.0.0.0:22           0.0.0.0:*           users:(("sshd",pid=1234,fd=3))
+        const addressPort = parts[3];
+        const processInfo = parts[5] || '';
+        
+        // Extraire l'adresse et le port
+        const [address, port] = addressPort.split(':');
+        
+        // Extraire le nom du processus et le PID
+        let processName = 'Unknown';
+        let pid = null;
+        
+        const processMatch = processInfo.match(/("([^"]+)",pid=(\d+))/);
+        if (processMatch) {
+          processName = processMatch[2] || processMatch[1];
+          pid = parseInt(processMatch[3]);
+        }
+        
+        ports.push({
+          port: parseInt(port) || port,
+          address: address || '0.0.0.0',
+          pid: pid,
+          process: processName,
+          protocol: parts[0] || 'TCP',
+          state: 'LISTEN'
+        });
+      }
+    }
+    
+    return ports;
+  } catch (altError) {
+    console.error('❌ Erreur méthode alternative (ss) :', altError.message);
+    return [];
   }
 }
 
