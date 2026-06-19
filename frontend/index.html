@@ -330,16 +330,6 @@
       }
     }
 
-    // Fonction pour formater une date de manière sécurisée
-    function formatDate(dateString) {
-      if (!dateString) return 'Maintenant';
-      try {
-        return new Date(dateString).toLocaleTimeString('fr-FR');
-      } catch (e) {
-        return 'Maintenant';
-      }
-    }
-
     // Fonction pour mettre à jour les alertes
     function updateAlerts(alertsData) {
       const alertsList = document.getElementById('alerts-list');
@@ -348,7 +338,6 @@
         alertsList.innerHTML = alertsData.data.map(alert => 
           `<div class="alert ${alert.type || 'warning'}">
             <span>${alert.message || alert.type}</span>
-            <span class="time">${formatDate(alert.timestamp)}</span>
           </div>`
         ).join('');
       } else {
