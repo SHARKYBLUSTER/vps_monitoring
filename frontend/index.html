@@ -318,6 +318,73 @@
       transition: width 0.3s ease;
     }
 
+    /* NOUVEAU : Styles pour les graphiques de métriques */
+    .metrics-charts-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .chart-filters {
+      margin: 15px 0;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chart-filters .filter-btn {
+      padding: 6px 12px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .chart-filters .filter-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .chart-filters .filter-btn.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .charts-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .chart-card {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .chart-card h3 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+      font-size: 1rem;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .charts-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* Section Ports */
     .ports-section {
       background: white;
@@ -485,6 +552,48 @@
       </div>
     </div>
 
+    <!-- NOUVEAU : Section des graphiques de métriques -->
+    <div class="metrics-charts-section">
+      <h2>📈 Historique des Métriques</h2>
+      <div class="chart-filters">
+        <button class="filter-btn active" data-metric="cpu" data-period="day">CPU (Jour)</button>
+        <button class="filter-btn" data-metric="cpu" data-period="week">CPU (Semaine)</button>
+        <button class="filter-btn" data-metric="cpu" data-period="month">CPU (Mois)</button>
+        
+        <button class="filter-btn" data-metric="memory" data-period="day">RAM (Jour)</button>
+        <button class="filter-btn" data-metric="memory" data-period="week">RAM (Semaine)</button>
+        <button class="filter-btn" data-metric="memory" data-period="month">RAM (Mois)</button>
+        
+        <button class="filter-btn" data-metric="disk" data-period="day">Disque (Jour)</button>
+        <button class="filter-btn" data-metric="disk" data-period="week">Disque (Semaine)</button>
+        <button class="filter-btn" data-metric="disk" data-period="month">Disque (Mois)</button>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-card">
+          <h3>🧠 Utilisation CPU</h3>
+          <div class="chart-wrapper">
+            <canvas id="cpuChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3>💾 Utilisation RAM</h3>
+          <div class="chart-wrapper">
+            <canvas id="memoryChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3>💽 Utilisation Disque</h3>
+          <div class="chart-wrapper">
+            <canvas id="diskChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section réseau existante (inchangée) -->
     <div class="network-history-section">
       <h2>📡 Historique des connexions réseau</h2>
       <div class="network-filters">
@@ -1008,6 +1117,223 @@
     
     // Appeler au chargement de la page
     document.addEventListener('DOMContentLoaded', updateUserInfo);
+  </script>
+
+  <!-- NOUVEAU : Gestion des graphiques de métriques -->
+  <script>
+    // Variables globales pour les graphiques
+    let cpuChart, memoryChart, diskChart;
+    let currentMetric = 'cpu';
+    let currentPeriod = 'day';
+
+    // Fonction pour charger les données d'un graphique
+    async function loadChartData(metric, period) {
+      try {
+        const response = await fetch(`/api/history/${metric}?limit=100`);
+        if (!response.ok) throw new Error('Impossible de charger les données');
+
+        const data = await response.json();
+        return data.data || [];
+      } catch (error) {
+        console.error(`❌ Erreur chargement ${metric}:`, error);
+        return [];
+      }
+    }
+
+    // Fonction pour créer/mettre à jour un graphique
+    function createOrUpdateChart(ctx, data, label, color) {
+      if (window.Chart && window.Chart.getChart(ctx)) {
+        window.Chart.getChart(ctx).destroy();
+      }
+
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(item => new Date(item.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })),
+          datasets: [{
+            label: label,
+            data: data.map(item => item.value),
+            borderColor: color,
+            backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+            tension: 0.1,
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: {
+                display: true,
+                text: '% Utilisation'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Heure'
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.raw.toFixed(1)}%`;
+                }
+              }
+            },
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // Fonction pour mettre à jour tous les graphiques
+    async function updateAllCharts() {
+      const cpuData = await loadChartData('cpu', currentPeriod);
+      const memoryData = await loadChartData('memory', currentPeriod);
+      const diskData = await loadChartData('disk', currentPeriod);
+
+      const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+      const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+      const diskCtx = document.getElementById('diskChart').getContext('2d');
+
+      cpuChart = createOrUpdateChart(cpuCtx, cpuData, 'CPU', 'rgb(75, 192, 192)');
+      memoryChart = createOrUpdateChart(memoryCtx, memoryData, 'RAM', 'rgb(153, 102, 255)');
+      diskChart = createOrUpdateChart(diskCtx, diskData, 'Disque', 'rgb(255, 159, 64)');
+    }
+
+    // Gestion des boutons de filtre
+    function setupChartFilters() {
+      document.querySelectorAll('.chart-filters .filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Mettre à jour les boutons actifs
+          document.querySelectorAll('.chart-filters .filter-btn').forEach(b => {
+            b.classList.remove('active');
+          });
+          btn.classList.add('active');
+
+          // Extraire la métrique et la période
+          currentMetric = btn.dataset.metric;
+          currentPeriod = btn.dataset.period;
+
+          // Mettre à jour les graphiques
+          updateAllCharts();
+        });
+      });
+    }
+
+    // Initialisation au chargement de la page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Attendre que Chart.js soit chargé
+      const checkChartJS = setInterval(() => {
+        if (window.Chart) {
+          clearInterval(checkChartJS);
+          setupChartFilters();
+          updateAllCharts();
+
+          // Mettre à jour les graphiques toutes les minutes
+          setInterval(updateAllCharts, 60000);
+        }
+      }, 100);
+    });
+  </script>
+
+  <!-- Amélioration du graphique réseau existant -->
+  <script>
+    // Remplace la fonction updateNetworkChart existante
+    async function updateNetworkChart(period) {
+      currentPeriod = period;
+      const data = await loadNetworkHistory(period);
+
+      if (!data.success || !data.data.labels || data.data.labels.length === 0) {
+        console.warn('Aucune donnée disponible pour la période sélectionnée.');
+        const chartContainer = document.querySelector('.chart-container');
+        if (chartContainer) {
+          chartContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Aucune donnée disponible pour cette période.</p>';
+        }
+        return;
+      }
+
+      // Met à jour les boutons actifs
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.period === period);
+      });
+
+      // Crée ou met à jour le graphique
+      const ctx = document.getElementById('networkChart').getContext('2d');
+
+      // Detruit le graphique existant s'il existe
+      if (networkChart) {
+        networkChart.destroy();
+      }
+
+      networkChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.data.labels,
+          datasets: [
+            {
+              label: 'Téléchargement (KB/s)',
+              data: data.data.download,
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.1,
+              yAxisID: 'y',
+              borderWidth: 2,
+              pointRadius: 3
+            },
+            {
+              label: 'Envoi (KB/s)',
+              data: data.data.upload,
+              borderColor: 'rgb(255, 99, 132)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              tension: 0.1,
+              yAxisID: 'y',
+              borderWidth: 2,
+              pointRadius: 3
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Trafic (KB/s)',
+              },
+              suggestedMin: 0
+            },
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.raw.toFixed(2)} KB/s`;
+                },
+              },
+            },
+            legend: {
+              position: 'top',
+            },
+          },
+        },
+      });
+    }
   </script>
 </body>
 </html>
