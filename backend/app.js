@@ -14,6 +14,7 @@ const dotenv = require('dotenv');
 const session = require('express-session');
 const metricsService = require('./services/metrics');
 const historyService = require('./services/history');
+const db = require('./services/db-sqlite');
 const { requireApiAuth, requireAuth, initializeAdminUser } = require('./middleware/auth');
 
 // Charger les variables d'environnement
@@ -298,6 +299,19 @@ const scheduleNetworkCleanup = () => {
 
 // Démarrer le nettoyage automatique
 scheduleNetworkCleanup();
+
+// Gestion propre de l'arrêt du serveur
+process.on('SIGINT', () => {
+  console.log('\n🛑 Arrêt du serveur en cours...');
+  db.closeDatabase();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 Arrêt du serveur (SIGTERM)...');
+  db.closeDatabase();
+  process.exit(0);
+});
 
 // Démarrer le serveur
 app.listen(PORT, () => {

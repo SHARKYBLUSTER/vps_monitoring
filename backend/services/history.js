@@ -3,10 +3,10 @@
  * Projet : VPS Monitoring Dashboard
  * 
  * Gère la sauvegarde et la récupération des données historiques.
- * Utilise un stockage JSON temporaire (à remplacer par SQLite en production).
+ * Utilise désormais SQLite pour un stockage fiable et performant.
  */
 
-const db = require('./db');
+const db = require('./db-sqlite');
 const metricsService = require('./metrics');
 const config = require('../config/config');
 const fs = require('fs');
