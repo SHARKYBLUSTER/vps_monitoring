@@ -970,6 +970,27 @@
       }
     }
 
+    // Fonction pour mettre à jour les infos Docker
+    async function updateDockerInfo() {
+      try {
+        const response = await fetch('/api/docker-simple');
+        const data = await response.json();
+        if (data.success && data.data) {
+          const info = data.data;
+          document.getElementById('docker-running').textContent = info.running || 0;
+          document.getElementById('docker-stopped').textContent = info.stopped || 0;
+          document.getElementById('docker-total').textContent = info.total || 0;
+          if (!info.available) {
+            document.getElementById('docker-section').style.display = 'none';
+          }
+        } else {
+          document.getElementById('docker-section').style.display = 'none';
+        }
+      } catch (error) {
+        document.getElementById('docker-section').style.display = 'none';
+      }
+    }
+
     // ====================
     // Graphique Réseau
     // ====================
@@ -992,13 +1013,13 @@
     async function updateNetworkChart(period) {
       currentPeriod = period;
       const data = await loadNetworkHistory(period);
+      const chartWrapper = document.querySelector('.chart-wrapper');
       
       console.log('📊 Données réseau reçues:', data);
 
       if (!data.success || !data.data || !data.data.labels || data.data.labels.length === 0) {
         console.warn('⚠️ Aucune donnée disponible pour la période:', period, '| Data:', data);
         // Afficher un message dans le conteneur du graphique
-        const chartWrapper = document.querySelector('.chart-wrapper');
         if (chartWrapper) {
           chartWrapper.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Aucune donnée disponible. Attendez 5-10 min pour la collecte.</p>';
         }
