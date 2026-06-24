@@ -660,6 +660,9 @@
     </footer>
   </div>
 
+  <!-- Charger Chart.js avant les scripts qui l'utilisent -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
   <script>
     // Fonction pour formater les octets en GB/MB/KB
     function formatBytes(bytes) {
@@ -1099,9 +1102,6 @@
     });
   </script>
 
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  
   <!-- Récupérer et afficher le nom d'utilisateur -->
   <script>
     async function updateUserInfo() {
