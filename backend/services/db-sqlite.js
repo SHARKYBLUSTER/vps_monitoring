@@ -175,6 +175,16 @@ function getMetricChartData(metric, options = {}) {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   }
 
+  // Formater la date au format SQLite DATETIME (YYYY-MM-DD HH:MM:SS)
+  const formatDateForSQLite = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day} 00:00:00`;
+  };
+
+  const startDateStr = formatDateForSQLite(startDate);
+
   // Pour le filtre "jour", on retourne toutes les données brutes
   // Pour semaine/mois, on agrège par jour avec la valeur MAX
   if (period === 'day') {
@@ -185,7 +195,7 @@ function getMetricChartData(metric, options = {}) {
       ORDER BY timestamp
       LIMIT ?
     `;
-    return db.prepare(query).all(startDate.toISOString(), limit);
+    return db.prepare(query).all(startDateStr, limit);
   } else {
     // Pour semaine/mois : regrouper par jour et prendre le MAX
     const groupFormat = "strftime('%Y-%m-%d', timestamp)";
@@ -199,7 +209,7 @@ function getMetricChartData(metric, options = {}) {
       ORDER BY label
       LIMIT ?
     `;
-    return db.prepare(query).all(startDate.toISOString(), limit);
+    return db.prepare(query).all(startDateStr, limit);
   }
 }
 

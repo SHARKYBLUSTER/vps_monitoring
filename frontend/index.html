@@ -1135,13 +1135,16 @@
     // Fonction pour charger les données d'un graphique
     async function loadChartData(metric, period) {
       try {
-        const response = await fetch(`/api/history/${metric}?period=${period}&limit=100`);
+        // Pour le jour, on veut toutes les données (limite plus élevée)
+        // Pour semaine/mois, 100 points suffisent (max 30 ou 7 jours)
+        const limit = period === 'day' ? 500 : 100;
+        const response = await fetch(`/api/history/${metric}?period=${period}&limit=${limit}`);
         if (!response.ok) throw new Error('Impossible de charger les données');
 
         const data = await response.json();
         if (!data.success || !data.data) return [];
         
-        // Les données sont déjà agrégées par le backend selon la période
+        // Les données sont déjà filtrées/agregées par le backend selon la période
         return data.data;
       } catch (error) {
         console.error(`❌ Erreur chargement ${metric}:`, error);
