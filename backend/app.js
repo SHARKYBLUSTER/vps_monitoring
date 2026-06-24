@@ -286,22 +286,23 @@ app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Planifie le nettoyage automatique des données réseau (91 jours = 3 mois + 1 jour)
-const scheduleNetworkCleanup = () => {
+// Planifie le nettoyage automatique de TOUTES les données (91 jours = 3 mois + 1 jour)
+const scheduleCleanup = () => {
   // Nettoyage tous les jours à minuit
   const now = new Date();
   const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
   const delay = midnight - now;
 
   setTimeout(() => {
-    historyService.cleanupNetworkHistory(91); // 91 jours = 3 mois + 1 jour
+    // Nettoyer metrics ET alerts après 91 jours (3 mois + 1 jour)
+    db.cleanupOldData(91);
     // Relance le nettoyage tous les jours
-    setInterval(() => historyService.cleanupNetworkHistory(91), 24 * 60 * 60 * 1000);
+    setInterval(() => db.cleanupOldData(91), 24 * 60 * 60 * 1000);
   }, delay);
 };
 
 // Démarrer le nettoyage automatique
-scheduleNetworkCleanup();
+scheduleCleanup();
 
 // Gestion propre de l'arrêt du serveur
 process.on('SIGINT', () => {
