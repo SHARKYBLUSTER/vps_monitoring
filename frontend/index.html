@@ -1132,38 +1132,17 @@
       disk: 'day'
     };
 
-    // Fonction pour obtenir la date de début selon la période
-    function getStartDate(period) {
-      const now = new Date();
-      switch (period) {
-        case 'day':
-          return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        case 'week':
-          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-        case 'month':
-          return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-        default:
-          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-      }
-    }
-
     // Fonction pour charger les données d'un graphique
     async function loadChartData(metric, period) {
       try {
-        const response = await fetch(`/api/history/${metric}?limit=1000`);
+        const response = await fetch(`/api/history/${metric}?period=${period}&limit=100`);
         if (!response.ok) throw new Error('Impossible de charger les données');
 
         const data = await response.json();
-        if (!data.data || data.data.length === 0) return [];
+        if (!data.success || !data.data) return [];
         
-        // Filtre par période (côté client)
-        const startDate = getStartDate(period);
-        
-        // Filtre les données
-        return data.data.filter(item => {
-          const itemDate = new Date(item.timestamp);
-          return itemDate >= startDate;
-        });
+        // Les données sont déjà agrégées par le backend selon la période
+        return data.data;
       } catch (error) {
         console.error(`❌ Erreur chargement ${metric}:`, error);
         return [];
@@ -1171,18 +1150,25 @@
     }
 
     // Fonction pour formater les labels selon la période
-    function formatLabelDate(timestamp, period) {
-      const date = new Date(timestamp);
-      switch (period) {
-        case 'day':
-          return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        case 'week':
-          return date.toLocaleDateString('fr-FR', { weekday: 'short' });
-        case 'month':
-          return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-        default:
-          return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    // Les données du backend ont un champ 'label' formaté comme "YYYY-MM-DD HH:00" ou "YYYY-MM-DD"
+    function formatLabelDate(label, period) {
+      if (period === 'day') {
+        // Label format: "YYYY-MM-DD HH:00"
+        const parts = label.split(' ');
+        if (parts.length === 2) {
+          return parts[1].substring(0, 5); // Retourne "HH:00"
+        }
+        return label;
+      } else if (period === 'week') {
+        // Label format: "YYYY-MM-DD"
+        const date = new Date(label + 'T00:00:00');
+        return date.toLocaleDateString('fr-FR', { weekday: 'short' });
+      } else if (period === 'month') {
+        // Label format: "YYYY-MM-DD"
+        const date = new Date(label + 'T00:00:00');
+        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
       }
+      return label;
     }
 
     // Fonction pour obtenir le titre de l'axe X selon la période
@@ -1208,7 +1194,7 @@
       return new Chart(ctx, {
         type: 'line',
         data: {
-          labels: data.map(item => formatLabelDate(item.timestamp, period)),
+          labels: data.map(item => formatLabelDate(item.label, period)),
           datasets: [{
             label: label,
             data: data.map(item => item.value),

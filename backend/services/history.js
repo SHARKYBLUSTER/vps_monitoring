@@ -173,12 +173,13 @@ async function getHistory(options = {}) {
  * Récupère les données pour un graphique
  * @param {string} metric - Métrique (cpu, memory, disk)
  * @param {Object} options - Options
+ * @param {string} options.period - Période (day, week, month, quarter)
+ * @param {number} options.limit - Limite de résultats
  * @returns {Promise<Object>} - Données du graphique
  */
 async function getChartData(metric, options = {}) {
   try {
-    const limit = options.limit || 50;
-    const chartData = await db.getMetricChartData(metric, limit);
+    const chartData = await db.getMetricChartData(metric, options);
     
     return {
       success: true,
