@@ -31,7 +31,7 @@
 - Historique des alertes
 
 ### 📈 **Historique et analyse**
-- Stockage des métriques historiques (JSON)
+- Stockage des métriques historiques (SQLite)
 - Collecte automatique toutes les 5 minutes
 - Endpoints API pour récupérer les données historiques
 
@@ -47,6 +47,15 @@
 - **Niveau de sécurité** : Notation en étoiles (⭐⭐⭐, ⭐⭐☆, ⭐☆☆)
 - **Classification automatique** : Ports système, enregistrés, dynamiques
 
+### 🐳 **Surveillance Docker**
+- **Docker Engine** : Statut, version, uptime
+- **Conteneurs** : Liste complète (actifs/inactifs) avec filtres
+- **Stats par conteneur** : CPU %, RAM % (utilisée/limite), Réseau RX/TX, Disque
+- **Graphiques** : Évolution CPU et RAM par conteneur
+- **Alertes Docker** : Conteneurs arrêtés, CPU > 90%, RAM > 85%
+- **Contrôles** : Démarrer/Arrêter/Redémarrer directement depuis l'interface
+- **Historique** : Stockage SQLite avec nettoyage automatique après 91 jours
+
 ---
 
 ## 🚀 Installation
@@ -55,6 +64,7 @@
 - Node.js (v16 ou supérieur)
 - npm ou yarn
 - Un serveur VPS ou local pour tester
+- **Docker Engine** (pour la surveillance Docker - optionnel)
 
 ### Étapes
 
@@ -68,6 +78,32 @@
    ```bash
    npm install
    ```
+
+3. **Installer Docker (optionnel - pour la surveillance Docker)** :
+   
+   Si vous souhaitez surveiller vos conteneurs Docker, installez Docker Engine :
+   
+   ```bash
+   # Pour Debian/Ubuntu
+   sudo apt-get update
+   sudo apt-get install -y docker.io
+   
+   # Démarrer et activer Docker
+   sudo systemctl enable docker
+   sudo systemctl start docker
+   
+   # Vérifier l'installation
+   docker --version
+   sudo docker run hello-world
+   ```
+   
+   **Ajouter votre utilisateur au groupe docker** (pour éviter sudo) :
+   ```bash
+   sudo usermod -aG docker $USER
+   newgrp docker  # Appliquer les changements sans redémarrer
+   ```
+   
+   **⚠️ Important** : Après avoir ajouté votre utilisateur au groupe docker, vous devez redémarrer votre session ou exécuter `newgrp docker` pour que les changements prennent effet.
 
 3. **Configurer l'environnement** (optionnel) :
    ```bash
@@ -207,7 +243,7 @@
 
 ## 🔐 Permissions pour la surveillance des processus
 
-> ⚠️ **Important** : La surveillance des processus nécessite des permissions élevées.
+> ⚠️ **Important** : La surveillance des processus et de Docker nécessite des permissions élevées.
 
 ### Option 1 : Exécuter avec sudo (recommandé pour les tests)
 ```bash
@@ -233,11 +269,40 @@ sudo pm2 startup
 ```
 > **Note** : Pour plus de détails sur PM2, consultez la section **[Utiliser PM2 (Recommandé pour la production)](#6-utiliser-pm2-recommandé-pour-la-production)**.
 
+### ⚠️ **Permissions Docker supplémentaires**
+
+Si vous utilisez la **surveillance Docker**, assurez-vous que :
+
+1. **Docker est installé et en cours d'exécution** :
+   ```bash
+   sudo systemctl status docker
+   ```
+
+2. **Votre utilisateur fait partie du groupe docker** :
+   ```bash
+   sudo usermod -aG docker $USER
+   newgrp docker
+   ```
+
+3. **Le démon Docker est accessible** :
+   - Testez avec : `docker ps` (sans sudo)
+   - Si vous obtenez une erreur de permission, redémarrez votre session
+
+4. **Pour la surveillance complète** (y compris les stats avancées) :
+   ```bash
+   # Donner les permissions étendues à Node.js pour Docker
+   sudo setcap cap_sys_admin+ep /usr/bin/node
+   ```
+   
+   **⚠️ Attention** : Les capabilities étendues peuvent poser des problèmes de sécurité. Utilisez cette option uniquement si nécessaire et en comprenant les risques.
+
 ---
 
 ## 📡 API REST
 
 Le backend expose plusieurs endpoints pour récupérer les données :
+
+### 📊 **Endpoints Système**
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
@@ -252,6 +317,23 @@ Le backend expose plusieurs endpoints pour récupérer les données :
 | GET | `/api/history/alerts` | Historique des alertes |
 | POST | `/api/history/cleanup` | Nettoyer l'historique |
 
+### 🐳 **Endpoints Docker**
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/api/docker` | Statut de Docker Engine |
+| GET | `/api/docker/containers` | Liste de tous les conteneurs |
+| GET | `/api/docker/containers/:id/stats` | Stats d'un conteneur spécifique |
+| GET | `/api/docker/stats` | Stats de tous les conteneurs actifs |
+| GET | `/api/docker/history` | Historique des stats Docker |
+| GET | `/api/docker/containers/:id/chart` | Données graphique (CPU/RAM) |
+| GET | `/api/docker/alerts` | Liste des alertes Docker |
+| GET | `/api/docker/alerts/check` | Vérifier et sauvegarder les alertes |
+| POST | `/api/docker/containers/:id/start` | Démarrer un conteneur |
+| POST | `/api/docker/containers/:id/stop` | Arrêter un conteneur |
+| POST | `/api/docker/containers/:id/restart` | Redémarrer un conteneur |
+| POST | `/api/docker/cleanup` | Nettoyer l'historique Docker |
+
 ---
 
 ## 📂 Structure du projet
@@ -265,12 +347,12 @@ vps_monitoring/
 │   └── services/
 │       ├── metrics.js      # Collecte des métriques système
 │       ├── history.js      # Gestion de l'historique
-│       └── db.js           # Stockage des données (JSON)
+│       ├── docker.js       # Surveillance Docker (dockerode)
+│       └── db-sqlite.js    # Stockage des données (SQLite)
 ├── frontend/
 │   └── index.html          # Interface utilisateur complète
 ├── data/                  # Données historiques (créé automatiquement)
-│   ├── metrics_history.json
-│   └── alerts_history.json
+│   └── vps_monitoring.db  # Base de données SQLite
 ├── package.json
 ├── README.md
 ├── ROADMAP.md
@@ -291,12 +373,14 @@ vps_monitoring/
 | **Environnement** | `dotenv`            | v16.3+  |
 | **Base de données** | SQLite (`better-sqlite3`) | v11+ |
 | **Graphiques**  | Chart.js             | v4.4.0  |
+| **Docker**     | `dockerode`          | v4.0+   |
 
 ## 📊 Historique des Versions
 
 | Version | Date | Modifications |
 |---------|------|---------------|
 | 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
+| 0.2.6 | 24 juin 2026 | **Surveillance Docker complète** : Intégration de dockerode pour surveiller les conteneurs Docker (stats CPU/RAM/Réseau/Disque, alertes, contrôles start/stop/restart, historique SQLite, graphiques par conteneur). |
 | 0.2.5 | 24 juin 2026 | **Migration vers SQLite** : Remplacement du stockage JSON par une base SQLite avec tables metrics, alerts, users, index pour les performances. |
 | 0.2.0 | 24 juin 2026 | **Authentification complète** : Protection des routes API et du dashboard, page de login, gestion des sessions, middleware `requireAuth`/`requireApiAuth`. |
 | 0.1.3 | 19 juin 2026 | Phase 2 terminée : API REST, alertes, historique, surveillance réseau/ports/processus. |
