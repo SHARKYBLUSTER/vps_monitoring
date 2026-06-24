@@ -1663,7 +1663,9 @@
         return;
       }
       
-      grid.innerHTML = filtered.map(container => `
+      grid.innerHTML = filtered.map(container => {
+        const safeId = container.shortId || container.id.substring(0, 12);
+        return `
         <div class="container-card ${container.isRunning ? '' : 'stopped'}" onclick="showContainerDetails('${container.id}')">
           <div class="container-header">
             <span class="container-name">${escapeHtml(container.name)}</span>
@@ -1671,23 +1673,26 @@
           </div>
           <div class="container-image">${escapeHtml(container.image || 'N/A')}</div>
           <div class="container-stats">
-            <div class="container-stat"><span class="value" id="cpu-${container.id}">-</span><span class="label">CPU %</span></div>
-            <div class="container-stat"><span class="value" id="memory-${container.id}">-</span><span class="label">RAM %</span></div>
+            <div class="container-stat"><span class="value" id="cpu-${safeId}">-</span><span class="label">CPU %</span></div>
+            <div class="container-stat"><span class="value" id="memory-${safeId}">-</span><span class="label">RAM %</span></div>
           </div>
         </div>
-      `).join('');
+      `}).join('');
       
-      filtered.forEach(container => loadContainerStats(container.id));
+      filtered.forEach(container => {
+        const safeId = container.shortId || container.id.substring(0, 12);
+        loadContainerStats(container.id, safeId);
+      });
     }
     
-    async function loadContainerStats(containerId) {
+    async function loadContainerStats(containerId, safeId) {
       try {
         const response = await fetch(`/api/docker/containers/${containerId}/stats`);
         const data = await response.json();
         if (data.success && data.data) {
           const stats = data.data;
-          const cpuEl = document.getElementById(`cpu-${containerId}`);
-          const memoryEl = document.getElementById(`memory-${containerId}`);
+          const cpuEl = document.getElementById(`cpu-${safeId}`);
+          const memoryEl = document.getElementById(`memory-${safeId}`);
           if (cpuEl) cpuEl.textContent = stats.cpu.percent.toFixed(1);
           if (memoryEl) memoryEl.textContent = stats.memory.percent.toFixed(1);
         }

@@ -115,13 +115,24 @@ async function getContainerStats(containerId) {
 
   try {
     const container = docker.getContainer(containerId);
-    const statsStream = await container.stats({ stream: true, since: '5s' });
     
-    // Collecter les stats sur une période
+    // Essayer d'abord avec stream: false pour obtenir les dernières stats directement
+    try {
+      const statsData = await container.stats({ stream: false });
+      const stat = parseDockerStats(statsData);
+      if (stat) return stat;
+    } catch (e) {
+      console.warn('⚠️ Impossible de récupérer les stats sans stream, essai avec stream...');
+    }
+    
+    // Si ça ne fonctionne pas, essayer avec stream: true
+    const statsStream = await container.stats({ stream: true });
+    
+    // Collecter les stats pendant 2 secondes max
     const stats = [];
     const timeout = setTimeout(() => {
       statsStream.destroy();
-    }, 2000);
+    }, 2500);
 
     return new Promise((resolve) => {
       statsStream.on('data', (chunk) => {
@@ -148,7 +159,7 @@ async function getContainerStats(containerId) {
 
       statsStream.on('error', (error) => {
         clearTimeout(timeout);
-        console.error('❌ Erreur lors de la récupération des stats:', error.message);
+        console.error('❌ Erreur lors de la récupération des stats (stream):', error.message);
         resolve(null);
       });
     });
