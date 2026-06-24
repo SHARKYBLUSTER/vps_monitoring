@@ -388,14 +388,50 @@
       header h1 {
         font-size: 1.8rem;
       }
+      
+      .auth-info {
+        margin-top: 15px;
+        text-align: center;
+      }
+    }
+    
+    /* Auth styles */
+    .auth-info {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 0.9rem;
+      transition: background 0.3s ease;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>🖥️ VPS Monitoring Dashboard</h1>
-      <p>Surveillance en temps réel de votre serveur</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div>
+          <h1>🖥️ VPS Monitoring Dashboard</h1>
+          <p>Surveillance en temps réel de votre serveur</p>
+        </div>
+        <div class="auth-info">
+          <span id="user-info" style="color: white; margin-right: 15px; font-size: 0.95rem;">
+            Connecté en tant que : <strong id="username-display">admin</strong>
+          </span>
+          <a href="/logout" class="logout-btn">Déconnexion</a>
+        </div>
+      </div>
     </header>
 
     <div class="metrics-grid">
@@ -954,5 +990,24 @@
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- Récupérer et afficher le nom d'utilisateur -->
+  <script>
+    async function updateUserInfo() {
+      try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        
+        if (data.authenticated && data.username) {
+          document.getElementById('username-display').textContent = data.username;
+        }
+      } catch (error) {
+        console.warn('Impossible de charger les infos utilisateur:', error);
+      }
+    }
+    
+    // Appeler au chargement de la page
+    document.addEventListener('DOMContentLoaded', updateUserInfo);
+  </script>
 </body>
 </html>

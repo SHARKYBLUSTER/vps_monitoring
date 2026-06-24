@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - VPS Monitoring</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .login-container {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    
+    .login-header {
+      margin-bottom: 30px;
+    }
+    
+    .login-header h1 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    
+    .login-header p {
+      color: #7f8c8d;
+      font-size: 1rem;
+    }
+    
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .form-group {
+      text-align: left;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2c3e50;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      outline: none;
+    }
+    
+    .form-group input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .login-btn {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 10px;
+    }
+    
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .login-btn:active {
+      transform: translateY(0);
+    }
+    
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #dc3545;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    
+    .login-footer {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #ecf0f1;
+      color: #7f8c8d;
+      font-size: 0.85rem;
+    }
+    
+    .login-footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .credentials-info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #495057;
+      text-align: left;
+    }
+    
+    .credentials-info strong {
+      color: #2c3e50;
+    }
+    
+    .credentials-info code {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <h1>🔒 Connexion</h1>
+      <p>VPS Monitoring Dashboard</p>
+    </div>
+
+    <!-- Message d'erreur -->
+    <% if (error) { %>
+    <div class="error-message">
+      ❌ Identifiants invalides. Veuillez réessayer.
+    </div>
+    <% } %>
+
+    <form class="login-form" action="/login" method="POST">
+      <div class="form-group">
+        <label for="username">Utilisateur</label>
+        <input type="text" id="username" name="username" placeholder="admin" required autofocus>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+      </div>
+      
+      <button type="submit" class="login-btn">Se connecter</button>
+    </form>
+
+    <div class="credentials-info">
+      <p>
+        <strong>Identifiants par défaut :</strong><br>
+        Utilisateur : <code>admin</code><br>
+        Mot de passe : <code>changer_mot_de_passe</code> (à modifier dans <code>.env</code>)
+      </p>
+    </div>
+
+    <div class="login-footer">
+      <p>© 2026 - VPS Monitoring v0.2.0</p>
+    </div>
+  </div>
+
+  <!-- Affichage des erreurs via JavaScript (si redirection avec param error) -->
+  <script>
+    // Vérifier si l'URL contient ?error=1
+    if (window.location.search.includes('error=1')) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = '❌ Identifiants invalides. Veuillez réessayer.';
+      
+      const form = document.querySelector('.login-form');
+      form.parentNode.insertBefore(errorDiv, form);
+      
+      // Effacer le paramètre de l'URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  </script>
+</body>
+</html>

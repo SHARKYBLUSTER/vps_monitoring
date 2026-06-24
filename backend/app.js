@@ -11,14 +11,19 @@ const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const session = require('express-session');
 const metricsService = require('./services/metrics');
 const historyService = require('./services/history');
+const { requireApiAuth, initializeAdminUser } = require('./middleware/auth');
 
 // Charger les variables d'environnement
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialiser l'utilisateur admin (doit être fait avant les requêtes)
+initializeAdminUser();
 
 // Démarrer la collecte automatique de l'historique
 historyService.startAutoCollect();
@@ -27,6 +32,14 @@ historyService.startAutoCollect();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+
+// Middleware de session (requis pour l'authentification)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'votre_cle_secrete_par_defaut_changez_la',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24h
+}));
 
 // Middleware CORS pour autoriser les requêtes depuis le frontend
 app.use((req, res, next) => {
@@ -39,9 +52,77 @@ app.use((req, res, next) => {
 // Middleware pour servir les fichiers statiques (frontend)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+// Appliquer l'authentification sur TOUTES les routes API
+app.use('/api/*', requireApiAuth);
+
+// ====================
+// Routes d'authentification
+// ====================
+
+// Page de login (formulaire HTML)
+app.get('/login', (req, res) => {
+  if (req.session && req.session.authenticated) {
+    return res.redirect('/');
+  }
+  res.sendFile(path.join(__dirname, '../frontend/login.html'));
+});
+
+// Traitement du login (POST)
+app.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const { validateCredentials } = require('./middleware/auth');
+    
+    const isValid = await validateCredentials(username, password);
+    
+    if (isValid) {
+      req.session.authenticated = true;
+      req.session.username = username;
+      req.session.save();
+      
+      // Rediriger vers la page précédente ou vers l'accueil
+      const returnTo = req.session.returnTo || '/';
+      delete req.session.returnTo;
+      return res.redirect(returnTo);
+    } else {
+      return res.status(401).redirect('/login?error=1');
+    }
+  } catch (error) {
+    console.error('❌ Erreur lors du login:', error);
+    return res.status(500).redirect('/login?error=1');
+  }
+});
+
+// Logout
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('❌ Erreur lors du logout:', err);
+    }
+    res.clearCookie('connect.sid');
+    res.redirect('/login');
+  });
+});
+
 // ====================
 // Routes API (REST)
 // ====================
+
+// Endpoint pour récupérer l'utilisateur connecté
+app.get('/api/user', (req, res) => {
+  if (req.session && req.session.authenticated) {
+    res.json({
+      success: true,
+      authenticated: true,
+      username: req.session.username || 'admin'
+    });
+  } else {
+    res.json({
+      success: true,
+      authenticated: false
+    });
+  }
+});
 
 app.get('/api/metrics', async (req, res) => {
   try {
@@ -194,10 +275,10 @@ app.get('/api/network-history', async (req, res) => {
 });
 
 // ====================
-// Route principale : Servir le frontend
+// Route principale : Servir le frontend (protégée par auth)
 // ====================
 
-app.get('/', (req, res) => {
+app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
