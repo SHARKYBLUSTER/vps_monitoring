@@ -149,6 +149,44 @@
    ```
    http://localhost:3000
    ```
+   
+   **⚠️ Depuis la version 0.2.0, l'authentification est obligatoire** :
+   - Vous serez automatiquement redirigé vers `/login`.
+   - Utilisez les identifiants définis dans votre fichier `.env` (par défaut : `admin`/`changer_mot_de_passe`).
+   - Après connexion, vous accéderez au tableau de bord complet.
+
+8. **Gestion de l'authentification** :
+   
+   Le projet inclut désormais un système d'authentification complet basé sur des sessions :
+   
+   - **Fichier de configuration** : `.env` (copiez `.env.example` et modifiez les valeurs)
+   - **Identifiants par défaut** :
+     ```ini
+     ADMIN_USER=admin
+     ADMIN_PASSWORD=changer_mot_de_passe
+     SESSION_SECRET=votre_cle_secrete_aleatoire_ici
+     ```
+   - **Générer une clé secrète sécurisée** :
+     ```bash
+     node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+     ```
+   - **Routes d'authentification** :
+     - `GET /login` : Page de connexion
+     - `POST /login` : Traitement du formulaire
+     - `GET /logout` : Déconnexion
+     - `GET /api/user` : Récupère l'utilisateur connecté (pour le frontend)
+
+9. **Mise à jour du projet** :
+   
+   Pour mettre à jour votre installation existante :
+   ```bash
+   cd vps_monitoring
+   git pull origin main
+   npm install --production
+   pm2 restart vps_monitoring  # ou : npm start
+   ```
+   
+   **⚠️ Important** : Après une mise à jour, vérifiez que votre fichier `.env` est toujours présent et contient vos identifiants personnalisés.
 
 ---
 
@@ -236,6 +274,16 @@ vps_monitoring/
 | **Logging**     | `morgan`             | v1.10+  |
 | **Authentification** | `express-session` + `bcryptjs` | - |
 | **Environnement** | `dotenv`            | v16.3+  |
+
+## 📊 Historique des Versions
+
+| Version | Date | Modifications |
+|---------|------|---------------|
+| 0.2.0 | 24 juin 2026 | **Authentification complète** : Protection des routes API et du dashboard, page de login, gestion des sessions, middleware `requireAuth`/`requireApiAuth`. |
+| 0.1.3 | 19 juin 2026 | Phase 2 terminée : API REST, alertes, historique, surveillance réseau/ports/processus. |
+| 0.1.2 | 19 juin 2025 | Initialisation du projet Node.js, structure de base. |
+| 0.1.1 | 19 juin 2025 | Architecture définie (Backend + Frontend). |
+| 0.1.0 | 19 juin 2025 | Création du dépôt et roadmap initiale. |
 
 ---
 

@@ -120,10 +120,10 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📊 **Métriques de Succès**
 | Métrique | Objectif | Statut |
 |----------|----------|--------|
-| **Endpoints API** | 10+ | ✅ 8/10 |
-| **Stockage historique** | Fonctionnel | ✅ SQLite en cours |
+| **Endpoints API** | 10+ | ✅ 10/10 (avec authentification) |
+| **Stockage historique** | Fonctionnel | ✅ JSON (SQLite en roadmap) |
 | **Surveillance Docker** | Implémentée | ❌ À venir |
-| **Authentification** | Complète | ❌ À finaliser |
+| **Authentification** | Complète | ✅ **100%** (sessions + middleware) |
 | **Mode sombre** | Implémenté | ❌ À venir |
 | **Multi-langues** | Français/Anglais | ❌ À venir |
 | **Couverture des tests** | > 80% | ❌ 0% |
@@ -137,4 +137,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **2026** (Version 0.1.3).*
+> *Dernière mise à jour : **24 juin 2026** (Version 0.2.0).*
