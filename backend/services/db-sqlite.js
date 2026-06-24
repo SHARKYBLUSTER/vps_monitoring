@@ -388,19 +388,49 @@ function getNetworkHistory(options = {}) {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   }
 
-  const query = `
-    SELECT 
-      strftime('%Y-%m-%d', timestamp) as date,
-      AVG(network_download) as download,
-      AVG(network_upload) as upload,
-      COUNT(*) as count
-    FROM metrics
-    WHERE timestamp >= ?
-    GROUP BY date
-    ORDER BY date
-  `;
+  // Formater la date au format SQLite DATETIME (YYYY-MM-DD HH:MM:SS)
+  const formatDateForSQLite = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day} 00:00:00`;
+  };
 
-  const rows = db.prepare(query).all(startDate.toISOString());
+  const startDateStr = formatDateForSQLite(startDate);
+
+  let query, groupBy;
+  
+  // Pour la période 'day', on regroupe par heure pour plus de détails
+  if (period === 'day') {
+    groupBy = "strftime('%Y-%m-%d %H:00', timestamp)";
+    query = `
+      SELECT 
+        ${groupBy} as date,
+        AVG(network_download) as download,
+        AVG(network_upload) as upload,
+        COUNT(*) as count
+      FROM metrics
+      WHERE timestamp >= ?
+      GROUP BY ${groupBy}
+      ORDER BY date
+    `;
+  } else {
+    // Pour les autres périodes, on regroupe par jour
+    groupBy = "strftime('%Y-%m-%d', timestamp)";
+    query = `
+      SELECT 
+        ${groupBy} as date,
+        AVG(network_download) as download,
+        AVG(network_upload) as upload,
+        COUNT(*) as count
+      FROM metrics
+      WHERE timestamp >= ?
+      GROUP BY ${groupBy}
+      ORDER BY date
+    `;
+  }
+
+  const rows = db.prepare(query).all(startDateStr);
 
   const labels = rows.map(row => row.date);
   const download = rows.map(row => row.download);
