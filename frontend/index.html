@@ -710,15 +710,12 @@
           // Mettre à jour le CPU
           if (metrics.cpu) {
             document.getElementById('cpu-usage').textContent = `${metrics.cpu.usage.toFixed(1)}%`;
-            document.getElementById('cpu-progress').style.width = `${metrics.cpu.usage}%`;
             document.getElementById('cpu-cores').textContent = metrics.cpu.cores || '--';
-            document.getElementById('cpu-model').textContent = metrics.cpu.model || '--';
           }
           
           // Mettre à jour la RAM
           if (metrics.memory) {
             document.getElementById('mem-usage').textContent = `${metrics.memory.usagePercent.toFixed(1)}%`;
-            document.getElementById('mem-progress').style.width = `${metrics.memory.usagePercent}%`;
             document.getElementById('mem-used').textContent = `${formatBytes(metrics.memory.used)}`;
             document.getElementById('mem-total').textContent = `${formatBytes(metrics.memory.total)}`;
           }
@@ -726,7 +723,6 @@
           // Mettre à jour le Disque
           if (metrics.disk) {
             document.getElementById('disk-usage').textContent = `${metrics.disk.usagePercent.toFixed(1)}%`;
-            document.getElementById('disk-progress').style.width = `${metrics.disk.usagePercent}%`;
             document.getElementById('disk-used').textContent = `${formatBytes(metrics.disk.used)}`;
             document.getElementById('disk-total').textContent = `${formatBytes(metrics.disk.total)}`;
           }
@@ -734,10 +730,7 @@
           // Mettre à jour le Réseau
           if (networkData.success && networkData.data) {
             const network = networkData.data;
-            const statusBadge = network.total.download !== undefined 
-              ? '<span class="status-badge online">En ligne</span>' 
-              : '<span class="status-badge offline">Hors ligne</span>';
-            document.getElementById('network-status').innerHTML = statusBadge;
+            document.getElementById('network-status').textContent = network.total.download !== undefined ? 'En ligne' : 'Hors ligne';
             document.getElementById('network-download').textContent = `${formatBytes(network.total.download * 1024)}`;
             document.getElementById('network-upload').textContent = `${formatBytes(network.total.upload * 1024)}`;
           }
@@ -994,6 +987,7 @@
     // Graphique Réseau
     // ====================
     let networkChart = null;
+    let currentPeriod = 'day';
 
     // Fonction pour charger l'historique réseau
     async function loadNetworkHistory(period = 'day') {
@@ -1352,101 +1346,6 @@
         return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
       }
       return label;
-    }
-
-    // Remplace la fonction updateNetworkChart existante
-    async function updateNetworkChart(period) {
-      currentPeriod = period;
-      const data = await loadNetworkHistory(period);
-
-      if (!data.success || !data.data.labels || data.data.labels.length === 0) {
-        console.warn('Aucune donnée disponible pour la période sélectionnée.');
-        const chartContainer = document.querySelector('.chart-container');
-        if (chartContainer) {
-          chartContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Aucune donnée disponible pour cette période.</p>';
-        }
-        return;
-      }
-
-      // Met à jour les boutons actifs (uniquement pour le réseau)
-      document.querySelectorAll('.network-filters .filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.period === period);
-      });
-
-      // Formater les labels selon la période
-      const formattedLabels = data.data.labels.map(label => formatNetworkLabel(label, period));
-
-      // Crée ou met à jour le graphique
-      const ctx = document.getElementById('networkChart').getContext('2d');
-
-      // Detruit le graphique existant s'il existe
-      if (networkChart) {
-        networkChart.destroy();
-      }
-
-      networkChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: formattedLabels,
-          datasets: [
-            {
-              label: 'Téléchargement (KB/s)',
-              data: data.data.download,
-              borderColor: 'rgb(75, 192, 192)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              tension: 0.1,
-              yAxisID: 'y',
-              borderWidth: 2,
-              pointRadius: 3
-            },
-            {
-              label: 'Envoi (KB/s)',
-              data: data.data.upload,
-              borderColor: 'rgb(255, 99, 132)',
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              tension: 0.1,
-              yAxisID: 'y',
-              borderWidth: 2,
-              pointRadius: 3
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              type: 'linear',
-              display: true,
-              position: 'left',
-              title: {
-                display: true,
-                text: 'Trafic (KB/s)',
-              },
-              suggestedMin: 0
-            },
-            x: {
-              title: {
-                display: true,
-                text: period === 'day' ? 'Heure' : 'Jour'
-              }
-            }
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return `${context.dataset.label}: ${context.raw.toFixed(2)} KB/s`;
-                },
-              },
-            },
-            legend: {
-              position: 'top',
-            },
-          },
-        },
-      });
-    }
   </script>
 </body>
 </html>
