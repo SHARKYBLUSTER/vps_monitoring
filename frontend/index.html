@@ -992,13 +992,15 @@
     async function updateNetworkChart(period) {
       currentPeriod = period;
       const data = await loadNetworkHistory(period);
+      
+      console.log('📊 Données réseau reçues:', data);
 
-      if (!data.success || !data.data.labels || data.data.labels.length === 0) {
-        console.warn('Aucune donnée disponible pour la période sélectionnée.');
+      if (!data.success || !data.data || !data.data.labels || data.data.labels.length === 0) {
+        console.warn('⚠️ Aucune donnée disponible pour la période:', period, '| Data:', data);
         // Afficher un message dans le conteneur du graphique
         const chartWrapper = document.querySelector('.chart-wrapper');
         if (chartWrapper) {
-          chartWrapper.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Aucune donnée disponible pour cette période.</p>';
+          chartWrapper.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Aucune donnée disponible. Attendez 5-10 min pour la collecte.</p>';
         }
         return;
       }
