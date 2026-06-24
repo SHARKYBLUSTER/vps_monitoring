@@ -1008,8 +1008,8 @@
         return;
       }
 
-      // Met à jour les boutons actifs
-      document.querySelectorAll('.filter-btn').forEach(btn => {
+      // Met à jour les boutons actifs (uniquement pour le réseau)
+      document.querySelectorAll('.network-filters .filter-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.period === period);
       });
 
@@ -1086,8 +1086,8 @@
       setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
       setInterval(updatePorts, 30000); // Rafraîchir les ports toutes les 30 secondes
       
-      // Initialiser les boutons de filtre réseau
-      document.querySelectorAll('.filter-btn').forEach(btn => {
+      // Initialiser les boutons de filtre réseau (uniquement les boutons réseau)
+      document.querySelectorAll('.network-filters .filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           updateNetworkChart(btn.dataset.period);
         });
@@ -1311,8 +1311,8 @@
         return;
       }
 
-      // Met à jour les boutons actifs
-      document.querySelectorAll('.filter-btn').forEach(btn => {
+      // Met à jour les boutons actifs (uniquement pour le réseau)
+      document.querySelectorAll('.network-filters .filter-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.period === period);
       });
 
