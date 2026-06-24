@@ -1025,7 +1025,7 @@
       }
 
       // Vérifier que Chart.js est chargé
-      if (typeof Chart === 'undefined') {
+      if (typeof Chart === 'undefined' && typeof window.Chart === 'undefined') {
         console.error('❌ Chart.js n\'est pas chargé !');
         if (chartWrapper) {
           chartWrapper.innerHTML = '<p style="text-align: center; color: #dc3545; padding: 20px;">Erreur : Chart.js non chargé. Vérifiez votre connexion internet.</p>';
@@ -1033,7 +1033,9 @@
         return;
       }
 
-      networkChart = new Chart(ctx, {
+      // Utiliser window.Chart si Chart n'est pas disponible directement
+      const ChartLib = typeof Chart !== 'undefined' ? Chart : window.Chart;
+      networkChart = new ChartLib(ctx, {
         type: 'line',
         data: {
           labels: data.data.labels,
