@@ -1433,5 +1433,409 @@
       });
     }
   </script>
+
+  <!-- ==================== SECTION DOCKER ==================== -->
+  <div class="section" id="docker-section" style="display: none;">
+    <div class="section-header">
+      <h2><i class="fas fa-cube"></i> 🐳 Surveillance Docker</h2>
+      <div class="section-controls">
+        <button onclick="loadDockerData()" class="btn btn-refresh">
+          <i class="fas fa-sync-alt"></i> Rafraîchir
+        </button>
+      </div>
+    </div>
+
+    <div class="docker-status" id="docker-status" style="display: none;">
+      <div class="status-grid">
+        <div class="status-card">
+          <div class="status-header">
+            <i class="fas fa-docker"></i>
+            <span>Docker Engine</span>
+          </div>
+          <div class="status-content">
+            <div class="status-indicator" id="docker-engine-status"></div>
+            <div class="status-info">
+              <span class="label">Version:</span>
+              <span class="value" id="docker-version">-</span>
+            </div>
+            <div class="status-info">
+              <span class="label">Uptime:</span>
+              <span class="value" id="docker-uptime">-</span>
+            </div>
+          </div>
+        </div>
+        <div class="status-card">
+          <div class="status-header">
+            <i class="fas fa-cubes"></i>
+            <span>Conteneurs</span>
+          </div>
+          <div class="status-content">
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-value" id="docker-running">0</span>
+                <span class="stat-label">En cours</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="docker-stopped">0</span>
+                <span class="stat-label">Arrêtés</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="docker-total">0</span>
+                <span class="stat-label">Total</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alerts-section" id="docker-alerts-section" style="display: none;">
+      <h3><i class="fas fa-exclamation-triangle"></i> Alertes Docker</h3>
+      <div id="docker-alerts-list" class="alerts-list"></div>
+    </div>
+
+    <div class="containers-section">
+      <h3><i class="fas fa-list"></i> Conteneurs</h3>
+      <div class="containers-filters">
+        <button onclick="filterDockerContainers('all')" class="filter-btn active">Tous</button>
+        <button onclick="filterDockerContainers('running')" class="filter-btn">En cours</button>
+        <button onclick="filterDockerContainers('stopped')" class="filter-btn">Arrêtés</button>
+      </div>
+      <div class="containers-grid" id="containers-grid">
+        <div class="loading">Chargement des conteneurs...</div>
+      </div>
+    </div>
+
+    <div id="container-details-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeContainerModal()">&times;</span>
+        <h2 id="container-details-name">Détails du conteneur</h2>
+        <div class="container-details" id="container-details"></div>
+        <div class="container-charts">
+          <div class="chart-container">
+            <canvas id="container-cpu-chart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="container-memory-chart"></canvas>
+          </div>
+        </div>
+        <div class="container-actions">
+          <button id="container-action-start" onclick="containerAction('start')" class="btn btn-success">
+            <i class="fas fa-play"></i> Démarrer
+          </button>
+          <button id="container-action-stop" onclick="containerAction('stop')" class="btn btn-danger">
+            <i class="fas fa-stop"></i> Arrêter
+          </button>
+          <button id="container-action-restart" onclick="containerAction('restart')" class="btn btn-warning">
+            <i class="fas fa-redo"></i> Redémarrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .no-data { text-align: center; padding: 20px; color: #64748b; }
+    .loading { text-align: center; padding: 20px; color: #64748b; }
+    .section { background: white; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-header h2 { color: #1e293b; font-size: 1.5rem; }
+    .section-controls { display: flex; gap: 10px; }
+    .docker-status { margin-bottom: 25px; }
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px; }
+    .status-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; }
+    .status-info { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.9rem; }
+    .status-info .label { opacity: 0.8; }
+    .status-indicator { width: 12px; height: 12px; border-radius: 50%; background: #4ade80; margin-bottom: 10px; animation: pulse 2s infinite; }
+    .status-indicator.error { background: #f87171; animation: none; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .stats-row { display: flex; justify-content: space-between; gap: 15px; }
+    .stat-item { text-align: center; flex: 1; }
+    .stat-value { display: block; font-size: 1.8rem; font-weight: bold; }
+    .stat-label { display: block; font-size: 0.8rem; opacity: 0.8; }
+    .containers-filters { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .filter-btn { padding: 8px 16px; border: none; background: #f1f5f9; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+    .filter-btn:hover { background: #e2e8f0; }
+    .filter-btn.active { background: #667eea; color: white; }
+    .containers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .container-card { background: #f8fafc; border-radius: 10px; padding: 20px; transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
+    .container-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); transform: translateY(-2px); }
+    .container-card.stopped { opacity: 0.7; }
+    .container-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .container-name { font-size: 1.1rem; font-weight: bold; color: #1e293b; }
+    .container-status { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+    .container-status.running { background: #dcfce7; color: #166534; }
+    .container-status.stopped { background: #fee2e2; color: #991b1b; }
+    .container-status.paused { background: #fef3c7; color: #92400e; }
+    .container-image { font-size: 0.85rem; color: #64748b; margin-bottom: 10px; }
+    .container-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .container-stat { background: white; padding: 10px; border-radius: 6px; text-align: center; }
+    .container-stat .value { display: block; font-size: 1.1rem; font-weight: bold; color: #667eea; }
+    .container-stat .label { display: block; font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); overflow: auto; }
+    .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 12px; max-width: 900px; max-height: 90vh; overflow-y: auto; }
+    .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close:hover { color: #000; }
+    .container-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+    .detail-item { background: #f8fafc; padding: 15px; border-radius: 8px; }
+    .detail-item .label { display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px; }
+    .detail-item .value { display: block; font-size: 1.2rem; font-weight: bold; color: #1e293b; }
+    .container-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+    .chart-container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .container-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+    .alerts-list { max-height: 200px; overflow-y: auto; }
+    .alert-item { background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .alert-item.warning { background: #fef9c3; border-left-color: #eab308; }
+    .alert-item.critical { background: #fee2e2; border-left-color: #dc2626; }
+    .alert-item .message { flex: 1; font-size: 0.9rem; }
+    .alert-item .container-name { font-weight: bold; margin-right: 10px; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-refresh { background: #667eea; color: white; }
+    .btn-refresh:hover { background: #5568d3; }
+    .btn-success { background: #4ade80; color: white; }
+    .btn-success:hover { background: #22c55e; }
+    .btn-danger { background: #f87171; color: white; }
+    .btn-danger:hover { background: #ef4444; }
+    .btn-warning { background: #fbbf24; color: #1e293b; }
+    .btn-warning:hover { background: #eab308; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+
+  <script>
+    let dockerData = null;
+    let selectedContainer = null;
+    let currentFilter = 'all';
+    let dockerCharts = {};
+    
+    async function loadDockerData() {
+      try {
+        const response = await fetch('/api/docker');
+        const data = await response.json();
+        if (data.success && data.data.available) {
+          dockerData = data.data;
+          document.getElementById('docker-section').style.display = 'block';
+          updateDockerStatus(data.data);
+          await loadDockerContainers();
+          await loadDockerAlerts();
+        } else {
+          document.getElementById('docker-section').style.display = 'none';
+        }
+      } catch (error) {
+        document.getElementById('docker-section').style.display = 'none';
+      }
+    }
+    
+    function updateDockerStatus(status) {
+      document.getElementById('docker-status').style.display = 'block';
+      document.getElementById('docker-version').textContent = status.version || 'Inconnu';
+      document.getElementById('docker-running').textContent = status.containersRunning || 0;
+      document.getElementById('docker-stopped').textContent = status.containersStopped || 0;
+      document.getElementById('docker-total').textContent = status.containers || 0;
+      document.getElementById('docker-uptime').textContent = formatUptime(status.uptime) || 'Inconnu';
+      document.getElementById('docker-engine-status').className = 'status-indicator';
+    }
+    
+    function formatUptime(seconds) {
+      if (!seconds) return '';
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      return `${days}d ${hours}h ${minutes}m`;
+    }
+    
+    async function loadDockerContainers() {
+      try {
+        const response = await fetch('/api/docker/containers?all=true');
+        const data = await response.json();
+        if (data.success) displayDockerContainers(data.data);
+      } catch (error) {}
+    }
+    
+    function displayDockerContainers(containers) {
+      const grid = document.getElementById('containers-grid');
+      let filtered = containers;
+      if (currentFilter === 'running') filtered = containers.filter(c => c.isRunning);
+      else if (currentFilter === 'stopped') filtered = containers.filter(c => !c.isRunning);
+      
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="no-data">Aucun conteneur trouvé</div>';
+        return;
+      }
+      
+      grid.innerHTML = filtered.map(container => `
+        <div class="container-card ${container.isRunning ? '' : 'stopped'}" onclick="showContainerDetails('${container.id}')">
+          <div class="container-header">
+            <span class="container-name">${escapeHtml(container.name)}</span>
+            <span class="container-status ${container.state}">${container.state.toUpperCase()}</span>
+          </div>
+          <div class="container-image">${escapeHtml(container.image || 'N/A')}</div>
+          <div class="container-stats">
+            <div class="container-stat"><span class="value" id="cpu-${container.id}">-</span><span class="label">CPU %</span></div>
+            <div class="container-stat"><span class="value" id="memory-${container.id}">-</span><span class="label">RAM %</span></div>
+          </div>
+        </div>
+      `).join('');
+      
+      filtered.forEach(container => loadContainerStats(container.id));
+    }
+    
+    async function loadContainerStats(containerId) {
+      try {
+        const response = await fetch(`/api/docker/containers/${containerId}/stats`);
+        const data = await response.json();
+        if (data.success && data.data) {
+          const stats = data.data;
+          const cpuEl = document.getElementById(`cpu-${containerId}`);
+          const memoryEl = document.getElementById(`memory-${containerId}`);
+          if (cpuEl) cpuEl.textContent = stats.cpu.percent.toFixed(1);
+          if (memoryEl) memoryEl.textContent = stats.memory.percent.toFixed(1);
+        }
+      } catch (error) {}
+    }
+    
+    function filterDockerContainers(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.trim().toLowerCase() === filter) btn.classList.add('active');
+      });
+      loadDockerContainers();
+    }
+    
+    async function showContainerDetails(containerId) {
+      try {
+        selectedContainer = containerId;
+        const response = await fetch(`/api/docker/containers/${containerId}/stats`);
+        const data = await response.json();
+        if (data.success && data.data) {
+          const containerResponse = await fetch('/api/docker/containers?all=true');
+          const containersData = await containerResponse.json();
+          const containerInfo = containersData.data.find(c => c.id === containerId);
+          const details = data.data;
+          
+          document.getElementById('container-details-name').textContent = `Détails: ${escapeHtml(containerInfo ? containerInfo.name : containerId.substring(0, 12))}`;
+          
+          const detailsHtml = `
+            <div class="detail-item"><span class="label">ID</span><span class="value">${containerId.substring(0, 12)}</span></div>
+            <div class="detail-item"><span class="label">Image</span><span class="value">${escapeHtml(containerInfo ? containerInfo.image : 'N/A')}</span></div>
+            <div class="detail-item"><span class="label">Statut</span><span class="value">${containerInfo ? containerInfo.state.toUpperCase() : 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">CPU %</span><span class="value">${details.cpu.percent.toFixed(1)}%</span></div>
+            <div class="detail-item"><span class="label">RAM %</span><span class="value">${details.memory.percent.toFixed(1)}%</span></div>
+            <div class="detail-item"><span class="label">RAM Utilisée</span><span class="value">${formatBytes(details.memory.used)}</span></div>
+            <div class="detail-item"><span class="label">RAM Limite</span><span class="value">${details.memory.limit > 0 ? formatBytes(details.memory.limit) : 'Illimitée'}</span></div>
+            <div class="detail-item"><span class="label">RX</span><span class="value">${formatBytes(details.network.rx_bytes)}</span></div>
+            <div class="detail-item"><span class="label">TX</span><span class="value">${formatBytes(details.network.tx_bytes)}</span></div>
+          `;
+          
+          document.getElementById('container-details').innerHTML = detailsHtml;
+          loadContainerChart(containerId, 'cpu');
+          loadContainerChart(containerId, 'memory');
+          
+          const isRunning = containerInfo && containerInfo.isRunning;
+          document.getElementById('container-action-start').disabled = isRunning;
+          document.getElementById('container-action-stop').disabled = !isRunning;
+          document.getElementById('container-action-restart').disabled = !isRunning;
+          
+          document.getElementById('container-details-modal').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    }
+    
+    async function loadContainerChart(containerId, type) {
+      try {
+        const response = await fetch(`/api/docker/containers/${containerId}/chart?period=day&limit=50`);
+        const data = await response.json();
+        if (data.success && data.data.length > 0) {
+          const chartId = `container-${type}-chart`;
+          const canvas = document.getElementById(chartId);
+          if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (dockerCharts[chartId]) dockerCharts[chartId].destroy();
+            
+            const labels = data.data.map(d => new Date(d.timestamp).toLocaleTimeString());
+            const chartData = data.data.map(d => type === 'cpu' ? d.cpu : d.memory);
+            
+            dockerCharts[chartId] = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: type === 'cpu' ? 'CPU %' : 'RAM %',
+                  data: chartData,
+                  borderColor: type === 'cpu' ? '#667eea' : '#f87171',
+                  backgroundColor: type === 'cpu' ? 'rgba(102, 126, 234, 0.2)' : 'rgba(248, 113, 113, 0.2)',
+                  tension: 0.1, borderWidth: 2, pointRadius: 3
+                }]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                  y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } },
+                  x: { title: { display: true, text: 'Heure' } }
+                },
+                plugins: {
+                  tooltip: { callbacks: { label: function(context) { return `${context.dataset.label}: ${context.raw.toFixed(1)}%`; } } },
+                  legend: { position: 'top' }
+                }
+              }
+            });
+          }
+        }
+      } catch (error) {}
+    }
+    
+    function closeContainerModal() {
+      document.getElementById('container-details-modal').style.display = 'none';
+      selectedContainer = null;
+    }
+    
+    async function containerAction(action) {
+      if (!selectedContainer) return;
+      const confirmMessage = { start: 'Démarrer ce conteneur?', stop: 'Arrêter ce conteneur?', restart: 'Redémarrer ce conteneur?' };
+      if (!confirm(confirmMessage[action])) return;
+      try {
+        const response = await fetch(`/api/docker/containers/${selectedContainer}/${action}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ timeout: 10 }) });
+        const data = await response.json();
+        if (data.success) {
+          alert(data.message);
+          closeContainerModal();
+          await loadDockerData();
+        } else {
+          alert('Erreur: ' + (data.error || 'Action échouée'));
+        }
+      } catch (error) {
+        alert('Erreur lors de l\'action');
+      }
+    }
+    
+    async function loadDockerAlerts() {
+      try {
+        const response = await fetch('/api/docker/alerts?unresolvedOnly=true');
+        const data = await response.json();
+        if (data.success && data.data.length > 0) {
+          document.getElementById('docker-alerts-section').style.display = 'block';
+          const alertsHtml = data.data.map(alert => `
+            <div class="alert-item ${alert.severity}">
+              <span class="message"><span class="container-name">[${escapeHtml(alert.container_name)}]</span> ${escapeHtml(alert.message)}</span>
+              <span class="timestamp">${new Date(alert.timestamp).toLocaleString()}</span>
+            </div>
+          `).join('');
+          document.getElementById('docker-alerts-list').innerHTML = alertsHtml;
+        } else {
+          document.getElementById('docker-alerts-section').style.display = 'none';
+        }
+      } catch (error) {}
+    }
+    
+    window.onclick = function(event) {
+      const modal = document.getElementById('container-details-modal');
+      if (event.target == modal) closeContainerModal();
+    }
+    
+    document.addEventListener('DOMContentLoaded', loadDockerData);
+  </script>
 </body>
 </html>

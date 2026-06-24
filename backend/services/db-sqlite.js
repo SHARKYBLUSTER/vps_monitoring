@@ -51,11 +51,49 @@ function initializeDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- Tables Docker
+    CREATE TABLE IF NOT EXISTS docker_containers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      container_id TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      image TEXT,
+      state TEXT NOT NULL,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+      cpu_percent REAL,
+      memory_used INTEGER,
+      memory_limit INTEGER,
+      memory_percent REAL,
+      network_rx INTEGER,
+      network_tx INTEGER,
+      disk_read INTEGER,
+      disk_write INTEGER,
+      is_running BOOLEAN DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS docker_alerts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+      type TEXT NOT NULL,
+      container_id TEXT NOT NULL,
+      container_name TEXT NOT NULL,
+      message TEXT NOT NULL,
+      value REAL,
+      threshold REAL,
+      severity TEXT DEFAULT 'warning',
+      resolved BOOLEAN DEFAULT 0,
+      resolved_at DATETIME
+    );
+
     -- Index pour les requêtes fréquentes
     CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp);
     CREATE INDEX IF NOT EXISTS idx_alerts_timestamp ON alerts(timestamp);
     CREATE INDEX IF NOT EXISTS idx_alerts_resolved ON alerts(resolved);
     CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_docker_containers_id ON docker_containers(container_id);
+    CREATE INDEX IF NOT EXISTS idx_docker_containers_timestamp ON docker_containers(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_docker_alerts_timestamp ON docker_alerts(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_docker_alerts_resolved ON docker_alerts(resolved);
+    CREATE INDEX IF NOT EXISTS idx_docker_alerts_container ON docker_alerts(container_id);
   `);
 
   console.log('✅ Base de données SQLite initialisée');
@@ -371,6 +409,300 @@ function closeDatabase() {
   console.log('✅ Base de données SQLite fermée');
 }
 
+// ====================
+// Fonctions Docker
+// ====================
+
+/**
+ * Insère un conteneur Docker dans l'historique
+ * @param {Object} containerData - Données du conteneur
+ * @returns {number} - ID de l'entrée insérée
+ */
+function insertDockerContainer(containerData) {
+  const stmt = db.prepare(`
+    INSERT INTO docker_containers (
+      container_id, name, image, state, cpu_percent, 
+      memory_used, memory_limit, memory_percent, 
+      network_rx, network_tx, disk_read, disk_write, is_running
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const info = stmt.run(
+    containerData.container_id,
+    containerData.name,
+    containerData.image,
+    containerData.state,
+    containerData.cpu_percent,
+    containerData.memory_used,
+    containerData.memory_limit,
+    containerData.memory_percent,
+    containerData.network_rx,
+    containerData.network_tx,
+    containerData.disk_read,
+    containerData.disk_write,
+    containerData.is_running
+  );
+
+  return info.lastInsertRowid;
+}
+
+/**
+ * Récupère un conteneur Docker par son ID
+ * @param {string} containerId - ID du conteneur
+ * @returns {Object|null} - Données du conteneur
+ */
+function getDockerContainer(containerId) {
+  const stmt = db.prepare(`
+    SELECT * FROM docker_containers WHERE container_id = ?
+  `);
+  return stmt.get(containerId) || null;
+}
+
+/**
+ * Met à jour les stats d'un conteneur Docker
+ * @param {string} containerId - ID du conteneur
+ * @param {Object} stats - Nouvelles stats
+ * @returns {number} - Nombre de lignes mises à jour
+ */
+function updateDockerStats(containerId, stats) {
+  const stmt = db.prepare(`
+    UPDATE docker_containers SET
+      name = ?,
+      state = ?,
+      timestamp = CURRENT_TIMESTAMP,
+      cpu_percent = ?,
+      memory_used = ?,
+      memory_limit = ?,
+      memory_percent = ?,
+      network_rx = ?,
+      network_tx = ?,
+      disk_read = ?,
+      disk_write = ?,
+      is_running = ?
+    WHERE container_id = ?
+  `);
+
+  const info = stmt.run(
+    stats.name,
+    stats.state,
+    stats.cpu_percent,
+    stats.memory_used,
+    stats.memory_limit,
+    stats.memory_percent,
+    stats.network_rx,
+    stats.network_tx,
+    stats.disk_read,
+    stats.disk_write,
+    stats.is_running,
+    containerId
+  );
+
+  return info.changes;
+}
+
+/**
+ * Récupère l'historique des conteneurs Docker
+ * @param {Object} options - Options de filtrage
+ * @param {number} options.limit - Nombre maximum de résultats
+ * @param {string} options.containerId - Filtrer par ID de conteneur
+ * @param {string} options.from - Date de début (ISO string)
+ * @param {string} options.to - Date de fin (ISO string)
+ * @returns {Array} - Liste des entrées d'historique
+ */
+function getDockerHistory({ limit = 100, containerId = null, from = null, to = null } = {}) {
+  let query = 'SELECT * FROM docker_containers';
+  const params = [];
+
+  if (containerId || from || to) {
+    query += ' WHERE';
+    let conditions = [];
+    
+    if (containerId) {
+      conditions.push(' container_id = ?');
+      params.push(containerId);
+    }
+    
+    if (from) {
+      conditions.push(' timestamp >= ?');
+      params.push(from);
+    }
+    
+    if (to) {
+      conditions.push(' timestamp <= ?');
+      params.push(to);
+    }
+    
+    query += conditions.join(' AND');
+  }
+
+  query += ' ORDER BY timestamp DESC LIMIT ?';
+  params.push(limit);
+
+  return db.prepare(query).all(...params);
+}
+
+/**
+ * Récupère l'historique des stats pour un conteneur (pour graphiques)
+ * @param {string} containerId - ID du conteneur
+ * @param {Object} options - Options
+ * @param {number} options.limit - Nombre de points à retourner
+ * @param {string} options.period - Période (day, week, month, quarter)
+ * @returns {Array} - Liste des valeurs avec timestamps
+ */
+function getDockerContainerChartData(containerId, options = {}) {
+  const { limit = 50, period = 'day' } = options;
+  
+  const now = new Date();
+  let startDate;
+
+  switch (period) {
+    case 'day':
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
+    case 'week':
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      break;
+    case 'month':
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      break;
+    case 'quarter':
+      startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      break;
+    default:
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  }
+
+  const formatDateForSQLite = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day} 00:00:00`;
+  };
+
+  const startDateStr = formatDateForSQLite(startDate);
+
+  if (period === 'day') {
+    const query = `
+      SELECT timestamp, cpu_percent as cpu, memory_percent as memory
+      FROM docker_containers
+      WHERE container_id = ? AND timestamp >= ?
+      ORDER BY timestamp
+      LIMIT ?
+    `;
+    return db.prepare(query).all(containerId, startDateStr, limit);
+  } else {
+    const groupFormat = "strftime('%Y-%m-%d', timestamp)";
+    const query = `
+      SELECT 
+        ${groupFormat} as label,
+        AVG(cpu_percent) as cpu,
+        AVG(memory_percent) as memory
+      FROM docker_containers
+      WHERE container_id = ? AND timestamp >= ?
+      GROUP BY ${groupFormat}
+      ORDER BY label
+      LIMIT ?
+    `;
+    return db.prepare(query).all(containerId, startDateStr, limit);
+  }
+}
+
+/**
+ * Insère une alerte Docker
+ * @param {Object} alert - Alerte à sauvegarder
+ * @returns {number} - ID de l'entrée insérée
+ */
+function insertDockerAlert(alert) {
+  const stmt = db.prepare(`
+    INSERT INTO docker_alerts
+    (type, container_id, container_name, message, value, threshold, severity)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const info = stmt.run(
+    alert.type,
+    alert.container_id,
+    alert.container_name,
+    alert.message,
+    alert.value,
+    alert.threshold,
+    alert.severity
+  );
+
+  return info.lastInsertRowid;
+}
+
+/**
+ * Récupère l'historique des alertes Docker
+ * @param {Object} options - Options de filtrage
+ * @param {number} options.limit - Nombre maximum de résultats
+ * @param {boolean} options.unresolvedOnly - Ne retourner que les alertes non résolues
+ * @param {string} options.containerId - Filtrer par ID de conteneur
+ * @returns {Array} - Liste des alertes historiques
+ */
+function getDockerAlertsHistory({ limit = 100, unresolvedOnly = false, containerId = null } = {}) {
+  let query = 'SELECT * FROM docker_alerts';
+  const params = [];
+
+  if (unresolvedOnly || containerId) {
+    query += ' WHERE';
+    let conditions = [];
+    
+    if (unresolvedOnly) {
+      conditions.push(' resolved = 0');
+    }
+    
+    if (containerId) {
+      conditions.push(' container_id = ?');
+      params.push(containerId);
+    }
+    
+    query += conditions.join(' AND');
+  }
+
+  query += ' ORDER BY timestamp DESC LIMIT ?';
+  params.push(limit);
+
+  return db.prepare(query).all(...params);
+}
+
+/**
+ * Marque une alerte Docker comme résolue
+ * @param {number} alertId - ID de l'alerte
+ * @returns {boolean} - True si l'alerte a été mise à jour
+ */
+function resolveDockerAlert(alertId) {
+  const stmt = db.prepare(`
+    UPDATE docker_alerts
+    SET resolved = 1, resolved_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `);
+
+  return stmt.run(alertId).changes > 0;
+}
+
+/**
+ * Nettoie les anciennes données Docker
+ * @param {number} days - Nombre de jours à conserver
+ * @returns {number} - Nombre de lignes supprimées
+ */
+function cleanupOldDockerData(days = 91) {
+  const deleteContainers = db.prepare(`
+    DELETE FROM docker_containers
+    WHERE timestamp < datetime('now', ?)
+  `);
+
+  const deleteAlerts = db.prepare(`
+    DELETE FROM docker_alerts
+    WHERE timestamp < datetime('now', ?)
+  `);
+
+  const changes = deleteContainers.run(`-${days} days`).changes;
+  changes += deleteAlerts.run(`-${days} days`).changes;
+
+  return changes;
+}
+
 // Initialiser la base de données au démarrage
 initializeDatabase();
 
@@ -379,7 +711,7 @@ module.exports = {
   insertMetrics,
   getMetricsHistory,
   getMetricChartData,
-  // Alertes
+  // Alertes (système)
   insertAlert,
   getAlertsHistory,
   resolveAlert,
@@ -387,6 +719,16 @@ module.exports = {
   cleanupOldData,
   cleanupNetworkHistory,
   getNetworkHistory,
+  // Docker
+  insertDockerContainer,
+  getDockerContainer,
+  updateDockerStats,
+  getDockerHistory,
+  getDockerContainerChartData,
+  insertDockerAlert,
+  getDockerAlertsHistory,
+  resolveDockerAlert,
+  cleanupOldDockerData,
   // Utilitaire
   closeDatabase,
 };

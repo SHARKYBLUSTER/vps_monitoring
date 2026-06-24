@@ -14,6 +14,7 @@ const dotenv = require('dotenv');
 const session = require('express-session');
 const metricsService = require('./services/metrics');
 const historyService = require('./services/history');
+const dockerService = require('./services/docker');
 const db = require('./services/db-sqlite');
 const { requireApiAuth, requireAuth, initializeAdminUser } = require('./middleware/auth');
 
@@ -28,6 +29,9 @@ initializeAdminUser();
 
 // Démarrer la collecte automatique de l'historique
 historyService.startAutoCollect();
+
+// Démarrer la collecte automatique des stats Docker
+dockerService.startAutoDockerCollect();
 
 // Middleware pour parser le JSON et le logging
 app.use(express.json());
@@ -279,6 +283,225 @@ app.get('/api/network-history', async (req, res) => {
 });
 
 // ====================
+// Routes API - Docker
+// ====================
+
+// Statut de Docker
+app.get('/api/docker', async (req, res) => {
+  try {
+    const status = await dockerService.checkDockerStatus();
+    res.json({
+      success: true,
+      data: status,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker :', error);
+    res.status(500).json({ success: false, error: 'Impossible de vérifier le statut Docker' });
+  }
+});
+
+// Liste des conteneurs
+app.get('/api/docker/containers', async (req, res) => {
+  try {
+    const all = req.query.all === 'true';
+    const containers = await dockerService.getContainers(all);
+    res.json({
+      success: true,
+      data: containers,
+      count: containers.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker/containers :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les conteneurs' });
+  }
+});
+
+// Stats d'un conteneur spécifique
+app.get('/api/docker/containers/:id/stats', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const stats = await dockerService.getContainerStats(id);
+    
+    if (!stats) {
+      return res.status(404).json({ success: false, error: 'Conteneur non trouvé' });
+    }
+    
+    res.json({
+      success: true,
+      data: stats,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error(`❌ Erreur API /api/docker/containers/${req.params.id}/stats :`, error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les stats du conteneur' });
+  }
+});
+
+// Stats de tous les conteneurs
+app.get('/api/docker/stats', async (req, res) => {
+  try {
+    const stats = await dockerService.getAllContainersStats();
+    res.json({
+      success: true,
+      data: stats,
+      count: stats.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker/stats :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les stats Docker' });
+  }
+});
+
+// Historique Docker
+app.get('/api/docker/history', async (req, res) => {
+  try {
+    const options = {
+      limit: parseInt(req.query.limit) || 100,
+      containerId: req.query.containerId || null,
+      from: req.query.from || null,
+      to: req.query.to || null
+    };
+    const result = await dockerService.getDockerHistory(options);
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker/history :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer l\'historique Docker' });
+  }
+});
+
+// Historique des stats d'un conteneur pour graphique
+app.get('/api/docker/containers/:id/chart', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const options = {
+      limit: parseInt(req.query.limit) || 50,
+      period: req.query.period || 'day'
+    };
+    const chartData = await db.getDockerContainerChartData(id, options);
+    res.json({
+      success: true,
+      data: chartData,
+      containerId: id,
+      count: chartData.length
+    });
+  } catch (error) {
+    console.error(`❌ Erreur API /api/docker/containers/${req.params.id}/chart :`, error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les données du graphique' });
+  }
+});
+
+// Alertes Docker
+app.get('/api/docker/alerts', async (req, res) => {
+  try {
+    const options = {
+      limit: parseInt(req.query.limit) || 100,
+      unresolvedOnly: req.query.unresolvedOnly === 'true',
+      containerId: req.query.containerId || null
+    };
+    const alerts = await db.getDockerAlertsHistory(options);
+    res.json({
+      success: true,
+      data: alerts,
+      count: alerts.length
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker/alerts :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les alertes Docker' });
+  }
+});
+
+// Vérifier les alertes Docker (à appeler manuellement ou via scheduler)
+app.get('/api/docker/alerts/check', async (req, res) => {
+  try {
+    const alerts = await dockerService.checkDockerAlerts();
+    
+    // Sauvegarder les nouvelles alertes
+    for (const alert of alerts) {
+      await db.insertDockerAlert(alert);
+    }
+    
+    res.json({
+      success: true,
+      data: alerts,
+      count: alerts.length
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker/alerts/check :', error);
+    res.status(500).json({ success: false, error: 'Impossible de vérifier les alertes Docker' });
+  }
+});
+
+// Actions Docker
+app.post('/api/docker/containers/:id/start', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await dockerService.startContainer(id);
+    
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error(`❌ Erreur API /api/docker/containers/${req.params.id}/start :`, error);
+    res.status(500).json({ success: false, error: 'Impossible de démarrer le conteneur' });
+  }
+});
+
+app.post('/api/docker/containers/:id/stop', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const timeout = parseInt(req.body.timeout) || 10;
+    const result = await dockerService.stopContainer(id, timeout);
+    
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error(`❌ Erreur API /api/docker/containers/${req.params.id}/stop :`, error);
+    res.status(500).json({ success: false, error: 'Impossible d\'arrêter le conteneur' });
+  }
+});
+
+app.post('/api/docker/containers/:id/restart', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const timeout = parseInt(req.body.timeout) || 10;
+    const result = await dockerService.restartContainer(id, timeout);
+    
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error(`❌ Erreur API /api/docker/containers/${req.params.id}/restart :`, error);
+    res.status(500).json({ success: false, error: 'Impossible de redémarrer le conteneur' });
+  }
+});
+
+// Nettoyage Docker
+app.post('/api/docker/cleanup', async (req, res) => {
+  try {
+    const days = parseInt(req.body.days) || 91;
+    const deletedCount = await db.cleanupOldDockerData(days);
+    res.json({
+      success: true,
+      message: `${deletedCount} entrées Docker supprimées`,
+      deletedCount
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker/cleanup :', error);
+    res.status(500).json({ success: false, error: 'Impossible de nettoyer l\'historique Docker' });
+  }
+});
+
+// ====================
 // Route principale : Servir le frontend (protégée par auth)
 // ====================
 
@@ -296,13 +519,39 @@ const scheduleCleanup = () => {
   setTimeout(() => {
     // Nettoyer metrics ET alerts après 91 jours (3 mois + 1 jour)
     db.cleanupOldData(91);
+    // Nettoyer aussi les données Docker
+    db.cleanupOldDockerData(91);
     // Relance le nettoyage tous les jours
-    setInterval(() => db.cleanupOldData(91), 24 * 60 * 60 * 1000);
+    setInterval(() => {
+      db.cleanupOldData(91);
+      db.cleanupOldDockerData(91);
+    }, 24 * 60 * 60 * 1000);
   }, delay);
+};
+
+// Planifie la vérification des alertes Docker (toutes les 5 minutes)
+const scheduleDockerAlertsCheck = () => {
+  // Vérifier immédiatement
+  dockerService.checkDockerAlerts().then(async alerts => {
+    for (const alert of alerts) {
+      await db.insertDockerAlert(alert);
+    }
+  });
+
+  // Puis toutes les 5 minutes
+  setInterval(async () => {
+    const alerts = await dockerService.checkDockerAlerts();
+    for (const alert of alerts) {
+      await db.insertDockerAlert(alert);
+    }
+  }, 5 * 60 * 1000);
 };
 
 // Démarrer le nettoyage automatique
 scheduleCleanup();
+
+// Démarrer la vérification des alertes Docker
+scheduleDockerAlertsCheck();
 
 // Gestion propre de l'arrêt du serveur
 process.on('SIGINT', () => {
@@ -332,6 +581,20 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/history/alerts (Historique des alertes)`);
   console.log(`   - POST /api/history/cleanup (Nettoyer l'historique)`);
   console.log(`   - GET /api/network-history?period=day|week|month|quarter (Historique réseau)`);
+  console.log(`   `);
+  console.log(`   🐳 API Docker:`);
+  console.log(`   - GET /api/docker                        (Statut Docker)`);
+  console.log(`   - GET /api/docker/containers            (Liste des conteneurs)`);
+  console.log(`   - GET /api/docker/containers/:id/stats  (Stats d'un conteneur)`);
+  console.log(`   - GET /api/docker/stats                  (Stats de tous les conteneurs)`);
+  console.log(`   - GET /api/docker/history                (Historique Docker)`);
+  console.log(`   - GET /api/docker/containers/:id/chart (Graphique d'un conteneur)`);
+  console.log(`   - GET /api/docker/alerts                (Alertes Docker)`);
+  console.log(`   - GET /api/docker/alerts/check           (Vérifier les alertes)`);
+  console.log(`   - POST /api/docker/containers/:id/start  (Démarrer un conteneur)`);
+  console.log(`   - POST /api/docker/containers/:id/stop   (Arrêter un conteneur)`);
+  console.log(`   - POST /api/docker/containers/:id/restart (Redémarrer un conteneur)`);
+  console.log(`   - POST /api/docker/cleanup               (Nettoyer l'historique Docker)`);
 });
 
 module.exports = app;
