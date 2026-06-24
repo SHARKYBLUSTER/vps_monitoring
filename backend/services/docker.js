@@ -374,19 +374,33 @@ async function getAllContainersStatsCli() {
 }
 
 /**
- * Parse une valeur mémoire Docker (ex: "349.6MiB", "1.5GiB")
+ * Parse une valeur mémoire Docker (ex: "349.6MiB", "1.5GiB", "0B")
  * @param {string} value - Valeur à parser
- * @returns {number} - Valeur en octets
+ * @returns {number} - Valeur en octets (toujours un nombre valide)
  */
 function parseMemoryValue(value) {
-  if (!value || value === '0B') return 0;
+  // Gérer les valeurs nulles, vides ou 0B
+  if (!value || value === '0B' || value === '' || typeof value !== 'string') {
+    return 0;
+  }
   
-  const match = value.match(/^([\d.]+)([KMGT]?)i?B$/);
-  if (!match) return 0;
+  // Nettoyer la valeur (enlever espaces, etc.)
+  const cleanValue = value.trim();
+  
+  // Gérer les formats Docker : "349.6MiB", "1.5GiB", "123kB", "0B"
+  const match = cleanValue.match(/^([\d.]+)\s*([KMGT]?)i?B$/i);
+  if (!match) {
+    console.warn(`⚠️ Format mémoire Docker non reconnu: "${cleanValue}"`);
+    return 0;
+  }
   
   const num = parseFloat(match[1]);
-  const unit = match[2].toUpperCase();
+  if (isNaN(num) || !isFinite(num)) {
+    console.warn(`⚠️ Valeur numérique invalide: "${match[1]}"`);
+    return 0;
+  }
   
+  const unit = (match[2] || '').toUpperCase();
   const multipliers = {
     '': 1,
     'K': 1024,
@@ -395,7 +409,15 @@ function parseMemoryValue(value) {
     'T': 1024 * 1024 * 1024 * 1024
   };
   
-  return Math.round(num * (multipliers[unit] || 1));
+  const multiplier = multipliers[unit] || 1;
+  const result = Math.round(num * multiplier);
+  
+  // Vérifier que le résultat est un nombre valide
+  if (isNaN(result) || !isFinite(result)) {
+    return 0;
+  }
+  
+  return result;
 }
 
 /**
@@ -470,6 +492,29 @@ async function restartContainer(containerId, timeout = 10) {
  * Sauvegarde les stats Docker dans la base de données
  * @returns {Promise<number>} - Nombre d'entrées sauvegardées
  */
+/**
+ * Valide et nettoie les stats Docker avant sauvegarde
+ * @param {Object} stats - Stats à valider
+ * @returns {Object} - Stats validées
+ */
+function validateDockerStats(stats) {
+  if (!stats) return null;
+  
+  // Valider et nettoyer chaque valeur
+  const validated = {
+    cpu_percent: Math.max(0, Math.min(100, isFinite(stats.cpu?.percent) ? parseFloat(stats.cpu.percent) : 0)),
+    memory_used: Math.max(0, isFinite(stats.memory?.used) ? parseInt(stats.memory.used) : 0),
+    memory_limit: Math.max(0, isFinite(stats.memory?.limit) ? parseInt(stats.memory.limit) : 0),
+    memory_percent: Math.max(0, Math.min(100, isFinite(stats.memory?.percent) ? parseFloat(stats.memory.percent) : 0)),
+    network_rx: Math.max(0, isFinite(stats.network?.rx_bytes) ? parseInt(stats.network.rx_bytes) : 0),
+    network_tx: Math.max(0, isFinite(stats.network?.tx_bytes) ? parseInt(stats.network.tx_bytes) : 0),
+    disk_read: Math.max(0, isFinite(stats.disk?.read) ? parseInt(stats.disk.read) : 0),
+    disk_write: Math.max(0, isFinite(stats.disk?.write) ? parseInt(stats.disk.write) : 0)
+  };
+  
+  return validated;
+}
+
 async function saveDockerStatsToHistory() {
   try {
     const containersStats = await getAllContainersStats();
@@ -478,40 +523,47 @@ async function saveDockerStatsToHistory() {
       if (container.stats && container.isRunning) {
         const stats = container.stats;
         
+        // Valider les stats avant sauvegarde
+        const validatedStats = validateDockerStats(stats);
+        if (!validatedStats) {
+          console.error('⚠️ Stats Docker invalides pour conteneur:', container.id);
+          continue;
+        }
+        
         // Vérifier si le conteneur existe déjà
         const existing = await db.getDockerContainer(container.id);
         
         if (existing) {
           // Mettre à jour
           await db.updateDockerStats(container.id, {
-            name: container.name,
-            state: container.state,
-            cpu_percent: stats.cpu.percent,
-            memory_used: stats.memory.used,
-            memory_limit: stats.memory.limit,
-            memory_percent: stats.memory.percent,
-            network_rx: stats.network.rx_bytes,
-            network_tx: stats.network.tx_bytes,
-            disk_read: stats.disk.read,
-            disk_write: stats.disk.write,
-            is_running: container.isRunning
+            name: container.name || '',
+            state: container.state || 'unknown',
+            cpu_percent: validatedStats.cpu_percent,
+            memory_used: validatedStats.memory_used,
+            memory_limit: validatedStats.memory_limit,
+            memory_percent: validatedStats.memory_percent,
+            network_rx: validatedStats.network_rx,
+            network_tx: validatedStats.network_tx,
+            disk_read: validatedStats.disk_read,
+            disk_write: validatedStats.disk_write,
+            is_running: container.isRunning ? 1 : 0
           });
         } else {
           // Insérer nouveau
           await db.insertDockerContainer({
             container_id: container.id,
-            name: container.name,
-            image: container.image,
-            state: container.state,
-            cpu_percent: stats.cpu.percent,
-            memory_used: stats.memory.used,
-            memory_limit: stats.memory.limit,
-            memory_percent: stats.memory.percent,
-            network_rx: stats.network.rx_bytes,
-            network_tx: stats.network.tx_bytes,
-            disk_read: stats.disk.read,
-            disk_write: stats.disk.write,
-            is_running: container.isRunning
+            name: container.name || '',
+            image: container.image || '',
+            state: container.state || 'unknown',
+            cpu_percent: validatedStats.cpu_percent,
+            memory_used: validatedStats.memory_used,
+            memory_limit: validatedStats.memory_limit,
+            memory_percent: validatedStats.memory_percent,
+            network_rx: validatedStats.network_rx,
+            network_tx: validatedStats.network_tx,
+            disk_read: validatedStats.disk_read,
+            disk_write: validatedStats.disk_write,
+            is_running: container.isRunning ? 1 : 0
           });
         }
       }
