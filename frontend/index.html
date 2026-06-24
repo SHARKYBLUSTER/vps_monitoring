@@ -1170,8 +1170,37 @@
       }
     }
 
+    // Fonction pour formater les labels selon la période
+    function formatLabelDate(timestamp, period) {
+      const date = new Date(timestamp);
+      switch (period) {
+        case 'day':
+          return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        case 'week':
+          return date.toLocaleDateString('fr-FR', { weekday: 'short' });
+        case 'month':
+          return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+        default:
+          return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    // Fonction pour obtenir le titre de l'axe X selon la période
+    function getXAxisTitle(period) {
+      switch (period) {
+        case 'day':
+          return 'Heure';
+        case 'week':
+          return 'Jour';
+        case 'month':
+          return 'Jour';
+        default:
+          return 'Heure';
+      }
+    }
+
     // Fonction pour créer/mettre à jour un graphique
-    function createOrUpdateChart(ctx, data, label, color) {
+    function createOrUpdateChart(ctx, data, label, color, period = 'day') {
       if (window.Chart && window.Chart.getChart(ctx)) {
         window.Chart.getChart(ctx).destroy();
       }
@@ -1179,7 +1208,7 @@
       return new Chart(ctx, {
         type: 'line',
         data: {
-          labels: data.map(item => new Date(item.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })),
+          labels: data.map(item => formatLabelDate(item.timestamp, period)),
           datasets: [{
             label: label,
             data: data.map(item => item.value),
@@ -1207,7 +1236,7 @@
             x: {
               title: {
                 display: true,
-                text: 'Heure'
+                text: getXAxisTitle(period)
               }
             }
           },
@@ -1245,7 +1274,7 @@
         disk: 'Disque'
       };
       
-      window[`${metric}Chart`] = createOrUpdateChart(ctx, data, labels[metric], colors[metric]);
+      window[`${metric}Chart`] = createOrUpdateChart(ctx, data, labels[metric], colors[metric], period);
     }
 
     // Gestion des boutons de filtre (par carte)
@@ -1297,6 +1326,28 @@
 
   <!-- Amélioration du graphique réseau existant -->
   <script>
+    // Fonction pour formater les labels réseau selon la période
+    function formatNetworkLabel(label, period) {
+      if (period === 'day') {
+        // Label format: "YYYY-MM-DD HH:00"
+        const parts = label.split(' ');
+        if (parts.length === 2) {
+          const timePart = parts[1]; // "HH:00"
+          return timePart.substring(0, 5); // Retourne "HH:00"
+        }
+        return label;
+      } else if (period === 'week') {
+        // Label format: "YYYY-MM-DD"
+        const date = new Date(label + 'T00:00:00');
+        return date.toLocaleDateString('fr-FR', { weekday: 'short' });
+      } else if (period === 'month') {
+        // Label format: "YYYY-MM-DD"
+        const date = new Date(label + 'T00:00:00');
+        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+      }
+      return label;
+    }
+
     // Remplace la fonction updateNetworkChart existante
     async function updateNetworkChart(period) {
       currentPeriod = period;
@@ -1316,6 +1367,9 @@
         btn.classList.toggle('active', btn.dataset.period === period);
       });
 
+      // Formater les labels selon la période
+      const formattedLabels = data.data.labels.map(label => formatNetworkLabel(label, period));
+
       // Crée ou met à jour le graphique
       const ctx = document.getElementById('networkChart').getContext('2d');
 
@@ -1327,7 +1381,7 @@
       networkChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: data.data.labels,
+          labels: formattedLabels,
           datasets: [
             {
               label: 'Téléchargement (KB/s)',
@@ -1365,6 +1419,12 @@
               },
               suggestedMin: 0
             },
+            x: {
+              title: {
+                display: true,
+                text: period === 'day' ? 'Heure' : 'Jour'
+              }
+            }
           },
           plugins: {
             tooltip: {
