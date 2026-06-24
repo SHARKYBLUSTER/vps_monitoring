@@ -2,11 +2,13 @@
  * Service de surveillance Docker
  * Projet : VPS Monitoring Dashboard
  * 
- * Utilise dockerode pour interagir avec le démon Docker.
+ * Utilise dockerode pour les actions (start/stop/restart) et
+ * l'API Docker CLI pour les stats (plus fiable).
  * Gère la récupération des conteneurs, leurs stats, et les actions de contrôle.
  */
 
 const Docker = require('dockerode');
+const { exec } = require('child_process');
 const db = require('./db-sqlite');
 const config = require('../config/config');
 
@@ -249,10 +251,21 @@ function parseDockerStats(rawStat) {
 }
 
 /**
- * Récupère les stats de tous les conteneurs actifs
+ * Récupère les stats de tous les conteneurs actifs via CLI Docker
  * @returns {Promise<Array>} - Stats de tous les conteneurs
  */
 async function getAllContainersStats() {
+  // Essayer d'abord avec la commande CLI Docker (plus fiable)
+  try {
+    const stats = await getAllContainersStatsCli();
+    if (stats.length > 0) {
+      return stats;
+    }
+  } catch (error) {
+    console.warn('⚠️ Impossible de récupérer les stats via CLI Docker, essai avec dockerode...');
+  }
+  
+  // Fallback avec dockerode
   const containers = await getContainers(true);
   const runningContainers = containers.filter(c => c.isRunning);
   
@@ -265,6 +278,124 @@ async function getAllContainersStats() {
   });
   
   return Promise.all(statsPromises);
+}
+
+/**
+ * Récupère les stats de tous les conteneurs via la commande CLI Docker
+ * @returns {Promise<Array>} - Stats de tous les conteneurs
+ */
+async function getAllContainersStatsCli() {
+  // D'abord récupérer la liste des conteneurs avec leurs images
+  let containersInfo = [];
+  try {
+    containersInfo = await getContainers(true);
+  } catch (error) {
+    console.warn('⚠️ Impossible de récupérer la liste des conteneurs:', error.message);
+  }
+  
+  return new Promise((resolve, reject) => {
+    // Utiliser docker stats avec format JSON
+    exec('docker stats --no-stream --format "{{json .}}"', { timeout: 10000 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Erreur docker stats CLI:', error.message);
+        return reject(error);
+      }
+      
+      if (stderr) {
+        console.error('❌ Erreur stderr docker stats CLI:', stderr);
+        return reject(new Error(stderr));
+      }
+      
+      if (!stdout || stdout.trim() === '') {
+        console.error('❌ Aucune sortie docker stats CLI');
+        return resolve([]);
+      }
+      
+      try {
+        // Chaque ligne est un JSON séparé
+        const lines = stdout.trim().split('\n');
+        const stats = [];
+        
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          
+          try {
+            const statData = JSON.parse(line);
+            const containerId = statData.Container;
+            
+            // Trouver les infos du conteneur dans containersInfo
+            const containerInfo = containersInfo.find(c => c.id === containerId || c.shortId === containerId.substring(0, 12));
+            
+            stats.push({
+              id: containerId,
+              shortId: containerId.substring(0, 12),
+              name: statData.Name.replace('/', ''),
+              image: containerInfo ? containerInfo.image : '',
+              state: 'running',
+              isRunning: true,
+              stats: {
+                timestamp: new Date().toISOString(),
+                cpu: {
+                  percent: parseFloat(statData.CPUPerc.replace('%', '')),
+                  usage: 0,
+                  cores: 1
+                },
+                memory: {
+                  used: parseMemoryValue(statData.MemUsage),
+                  limit: parseMemoryValue(statData.MemLimit),
+                  percent: parseFloat(statData.MemPerc.replace('%', '')),
+                  usedMB: Math.round(parseMemoryValue(statData.MemUsage) / (1024 * 1024)),
+                  limitMB: statData.MemLimit !== '0B' ? Math.round(parseMemoryValue(statData.MemLimit) / (1024 * 1024)) : 0
+                },
+                network: {
+                  rx_bytes: 0,
+                  tx_bytes: 0,
+                  rx_kb: 0,
+                  tx_kb: 0
+                },
+                disk: {
+                  read: 0,
+                  write: 0
+                }
+              }
+            });
+          } catch (e) {
+            console.error('❌ Erreur parsing ligne docker stats:', e.message);
+          }
+        }
+        
+        resolve(stats);
+      } catch (parseError) {
+        console.error('❌ Erreur parsing global docker stats CLI:', parseError.message);
+        reject(parseError);
+      }
+    });
+  });
+}
+
+/**
+ * Parse une valeur mémoire Docker (ex: "349.6MiB", "1.5GiB")
+ * @param {string} value - Valeur à parser
+ * @returns {number} - Valeur en octets
+ */
+function parseMemoryValue(value) {
+  if (!value || value === '0B') return 0;
+  
+  const match = value.match(/^([\d.]+)([KMGT]?)i?B$/);
+  if (!match) return 0;
+  
+  const num = parseFloat(match[1]);
+  const unit = match[2].toUpperCase();
+  
+  const multipliers = {
+    '': 1,
+    'K': 1024,
+    'M': 1024 * 1024,
+    'G': 1024 * 1024 * 1024,
+    'T': 1024 * 1024 * 1024 * 1024
+  };
+  
+  return Math.round(num * (multipliers[unit] || 1));
 }
 
 /**
