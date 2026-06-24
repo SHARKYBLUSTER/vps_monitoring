@@ -14,7 +14,7 @@ const dotenv = require('dotenv');
 const session = require('express-session');
 const metricsService = require('./services/metrics');
 const historyService = require('./services/history');
-const { requireApiAuth, initializeAdminUser } = require('./middleware/auth');
+const { requireApiAuth, requireAuth, initializeAdminUser } = require('./middleware/auth');
 
 // Charger les variables d'environnement
 dotenv.config();
