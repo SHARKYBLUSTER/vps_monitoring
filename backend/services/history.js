@@ -3,14 +3,18 @@
  * Projet : VPS Monitoring Dashboard
  * 
  * Gère la sauvegarde et la récupération des données historiques.
- * Utilise désormais SQLite pour un stockage fiable et performant.
+ * Utilise SQLite pour un stockage fiable et performant.
+ * Fallback vers JSON si SQLite n'est pas disponible.
  */
 
-const db = require('./db-sqlite');
-const metricsService = require('./metrics');
-const config = require('../config/config');
-const fs = require('fs');
-const path = require('path');
+let db;
+try {
+  db = require('./db-sqlite');
+  console.log('✅ Base de données SQLite utilisée');
+} catch (error) {
+  console.warn('⚠️ SQLite non disponible, utilisation du fallback JSON:', error.message);
+  db = require('./db');
+}
 
 // Intervalle de sauvegarde (en ms) - par défaut 5 minutes
 const SAVE_INTERVAL = process.env.HISTORY_SAVE_INTERVAL || 300000; // 5 minutes
@@ -99,27 +103,51 @@ function stopAutoCollect() {
 async function saveMetricsToHistory() {
   try {
     const metrics = await metricsService.getAllMetrics();
+    const networkStats = await metricsService.getNetworkMetrics();
     const alerts = metricsService.checkAlerts(metrics);
 
-    // Calculer les deltas réseau si on a des données précédentes
-    if (previousNetworkState.timestamp && metrics.network && metrics.network.interface) {
-      // Récupérer les stats réseau brutes pour calculer les deltas
-      const networkStats = await metricsService.getNetworkMetrics();
-      const activeInterface = networkStats.interfaces.find(i => i.name === metrics.network.interface);
-      
-      if (activeInterface) {
+    // Toujours calculer les deltas réseau à partir des stats brutes
+    // Trouver l'interface active correspondante
+    let activeInterface = null;
+    if (metrics.network && metrics.network.interface) {
+      activeInterface = networkStats.interfaces.find(i => i.name === metrics.network.interface);
+    }
+    
+    // Si pas d'interface active trouvée, prendre la première non-loopback
+    if (!activeInterface) {
+      activeInterface = networkStats.interfaces.find(i => i.name !== 'lo');
+    }
+
+    let deltaDownloadKB = 0;
+    let deltaUploadKB = 0;
+
+    if (activeInterface) {
+      // Si c'est la première collecte (previousNetworkState.timestamp est null),
+      // initialiser avec les valeurs actuelles et ne pas calculer de delta
+      if (!previousNetworkState.timestamp) {
+        deltaDownloadKB = 0;
+        deltaUploadKB = 0;
+      } else {
         // Calculer les deltas (en octets)
         const deltaRx = activeInterface.rx_bytes - previousNetworkState.rx_bytes;
         const deltaTx = activeInterface.tx_bytes - previousNetworkState.tx_bytes;
         
         // Convertir en KB (et prendre la valeur absolue si négative = reset du compteur)
-        const deltaDownloadKB = Math.max(0, deltaRx / 1024);
-        const deltaUploadKB = Math.max(0, deltaTx / 1024);
-        
-        // Mettre à jour les métriques avec les deltas
-        metrics.network.download = deltaDownloadKB;
-        metrics.network.upload = deltaUploadKB;
+        deltaDownloadKB = Math.max(0, deltaRx / 1024);
+        deltaUploadKB = Math.max(0, deltaTx / 1024);
       }
+      
+      // Mettre à jour les métriques avec les deltas
+      metrics.network.download = deltaDownloadKB;
+      metrics.network.upload = deltaUploadKB;
+      metrics.network.interface = activeInterface.name;
+      metrics.network.status = activeInterface.status || 'OK';
+    } else {
+      // Aucune interface trouvée, mettre à 0
+      metrics.network.download = 0;
+      metrics.network.upload = 0;
+      metrics.network.interface = null;
+      metrics.network.status = 'Aucune interface active';
     }
 
     // Sauvegarder les métriques (avec les deltas réseau)
@@ -131,8 +159,6 @@ async function saveMetricsToHistory() {
     }
 
     // Sauvegarder l'état réseau actuel pour la prochaine collecte
-    const networkStats = await metricsService.getNetworkMetrics();
-    const activeInterface = networkStats.interfaces.find(i => i.name === metrics.network.interface);
     if (activeInterface) {
       saveNetworkState({
         rx_bytes: activeInterface.rx_bytes,
@@ -249,48 +275,74 @@ async function cleanupHistory(days = 30) {
 async function getNetworkHistory(options = {}) {
   try {
     const { period = 'day' } = options;
-    const now = new Date();
-    let startDate;
-
-    // Calcule la date de début en fonction de la période
-    switch (period) {
-      case 'day':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        break;
-      case 'week':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-        break;
-      case 'month':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-        break;
-      case 'quarter':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-        break;
-      default:
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    }
-
-    // Récupère toutes les métriques depuis la base de données
-    const allMetrics = await db.getMetricsHistory({ limit: 10000 });
     
-    // Filtre les données réseau valides et dans la période
-    const filteredData = allMetrics.filter(entry => {
-      const entryDate = new Date(entry.timestamp);
-      return entryDate >= startDate && 
-             entry.network_download !== undefined && 
-             entry.network_upload !== undefined;
-    });
+    // Utiliser la fonction dédiée de db-sqlite.js si disponible
+    if (db.getNetworkHistory) {
+      const result = await db.getNetworkHistory({ period });
+      return {
+        success: true,
+        data: result,
+        period,
+        count: result.labels ? result.labels.length : 0,
+      };
+    } else {
+      // Fallback pour db.js (JSON) - implémentation manuelle
+      const now = new Date();
+      let startDate;
 
-    // Les données sont déjà des deltas (calculés au moment de la collecte)
-    // Agrège les données par intervalle (heure/jour selon la période)
-    const aggregatedData = aggregateNetworkData(filteredData, period);
+      // Calcule la date de début en fonction de la période
+      switch (period) {
+        case 'day':
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+          break;
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          break;
+        case 'quarter':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+          break;
+        default:
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      }
 
-    return {
-      success: true,
-      data: aggregatedData,
-      period,
-      count: filteredData.length,
-    };
+      // Récupère toutes les métriques depuis la base de données JSON
+      const allMetrics = await db.getMetricsHistory({ limit: 10000 });
+      
+      // Filtre les données réseau valides et dans la période
+      const filteredData = allMetrics.filter(entry => {
+        const entryDate = new Date(entry.timestamp);
+        return entryDate >= startDate && 
+               entry.network_download !== undefined && 
+               entry.network_upload !== undefined;
+      });
+
+      // Agrège les données par jour (simplifié pour le fallback)
+      const grouped = {};
+      filteredData.forEach(entry => {
+        const date = new Date(entry.timestamp);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        if (!grouped[key]) {
+          grouped[key] = { download: 0, upload: 0, count: 0 };
+        }
+        grouped[key].download += entry.network_download || 0;
+        grouped[key].upload += entry.network_upload || 0;
+        grouped[key].count += 1;
+      });
+
+      const labels = Object.keys(grouped).sort();
+      const download = labels.map(key => grouped[key].download / grouped[key].count);
+      const upload = labels.map(key => grouped[key].upload / grouped[key].count);
+
+      return {
+        success: true,
+        data: { labels, download, upload },
+        period,
+        count: filteredData.length,
+      };
+    }
   } catch (error) {
     console.error('❌ Erreur lors de la récupération de l\'historique réseau:', error.message);
     return {
@@ -301,44 +353,6 @@ async function getNetworkHistory(options = {}) {
   }
 }
 
-
-
-/**
- * Agrège les données réseau par intervalle (heure/jour)
- * @param {Array} data - Données réseau brutes
- * @param {string} period - Période pour déterminer l'intervalle d'agrégation
- * @returns {Object} - Données agrégées pour Chart.js
- */
-function aggregateNetworkData(data, period) {
-  if (data.length === 0) return { labels: [], download: [], upload: [] };
-
-  const grouped = {};
-  data.forEach(entry => {
-    const date = new Date(entry.timestamp);
-    let key;
-
-    // Groupement par heure pour 'day', par jour sinon
-    if (period === 'day') {
-      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:00`;
-    } else {
-      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    }
-
-    if (!grouped[key]) {
-      grouped[key] = { download: 0, upload: 0, count: 0 };
-    }
-    grouped[key].download += entry.network_download || 0;
-    grouped[key].upload += entry.network_upload || 0;
-    grouped[key].count += 1;
-  });
-
-  // Convertit en tableaux pour Chart.js
-  const labels = Object.keys(grouped).sort();
-  const download = labels.map(key => grouped[key].download / grouped[key].count); // Moyenne
-  const upload = labels.map(key => grouped[key].upload / grouped[key].count); // Moyenne
-
-  return { labels, download, upload };
-}
 
 /**
  * Nettoie spécifiquement l'historique réseau (appelé automatiquement)

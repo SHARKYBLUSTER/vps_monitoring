@@ -6,9 +6,17 @@
  */
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
 // Chemin vers la base de données
 const DB_PATH = path.join(__dirname, '../../data/vps_monitoring.db');
+
+// Créer le dossier data/ s'il n'existe pas
+const dataDir = path.dirname(DB_PATH);
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
 const db = new Database(DB_PATH);
 
 // Initialiser les tables si elles n'existent pas
