@@ -1150,25 +1150,27 @@
     }
 
     // Fonction pour formater les labels selon la période
-    // Les données du backend ont un champ 'label' formaté comme "YYYY-MM-DD HH:00" ou "YYYY-MM-DD"
-    function formatLabelDate(label, period) {
+    // Pour 'day': les données ont un champ 'timestamp' (ISO string)
+    // Pour 'week'/'month': les données ont un champ 'label' (format YYYY-MM-DD)
+    function formatLabelDate(item, period) {
+      let labelText;
+      
       if (period === 'day') {
-        // Label format: "YYYY-MM-DD HH:00"
-        const parts = label.split(' ');
-        if (parts.length === 2) {
-          return parts[1].substring(0, 5); // Retourne "HH:00"
+        // Pour le jour, on utilise timestamp et on extrait l'heure
+        labelText = item.timestamp;
+        const date = new Date(labelText);
+        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      } else {
+        // Pour semaine/mois, on utilise label (format YYYY-MM-DD)
+        labelText = item.label;
+        const date = new Date(labelText + 'T00:00:00');
+        if (period === 'week') {
+          return date.toLocaleDateString('fr-FR', { weekday: 'short' });
+        } else if (period === 'month') {
+          return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
         }
-        return label;
-      } else if (period === 'week') {
-        // Label format: "YYYY-MM-DD"
-        const date = new Date(label + 'T00:00:00');
-        return date.toLocaleDateString('fr-FR', { weekday: 'short' });
-      } else if (period === 'month') {
-        // Label format: "YYYY-MM-DD"
-        const date = new Date(label + 'T00:00:00');
-        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
       }
-      return label;
+      return labelText;
     }
 
     // Fonction pour obtenir le titre de l'axe X selon la période
@@ -1194,7 +1196,7 @@
       return new Chart(ctx, {
         type: 'line',
         data: {
-          labels: data.map(item => formatLabelDate(item.label, period)),
+          labels: data.map(item => formatLabelDate(item, period)),
           datasets: [{
             label: label,
             data: data.map(item => item.value),

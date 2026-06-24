@@ -140,7 +140,7 @@ function getMetricsHistory({ limit = 100, from = null, to = null } = {}) {
  * @param {Object} options - Options
  * @param {number} options.limit - Nombre de points à retourner
  * @param {string} options.period - Période (day, week, month, quarter)
- * @returns {Array} - Liste des valeurs agrégées avec timestamps
+ * @returns {Array} - Liste des valeurs avec timestamps ou agrégées
  */
 function getMetricChartData(metric, options = {}) {
   const { limit = 50, period = 'day' } = options;
@@ -175,28 +175,32 @@ function getMetricChartData(metric, options = {}) {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   }
 
-  // Format du groupement selon la période
-  let groupFormat, dateFormat;
+  // Pour le filtre "jour", on retourne toutes les données brutes
+  // Pour semaine/mois, on agrège par jour avec la valeur MAX
   if (period === 'day') {
-    groupFormat = "strftime('%Y-%m-%d %H:00', timestamp)";
-    dateFormat = "timestamp";
+    const query = `
+      SELECT timestamp, ${columnMap[metric]} as value
+      FROM metrics
+      WHERE timestamp >= ?
+      ORDER BY timestamp
+      LIMIT ?
+    `;
+    return db.prepare(query).all(startDate.toISOString(), limit);
   } else {
-    groupFormat = "strftime('%Y-%m-%d', timestamp)";
-    dateFormat = "date(timestamp)";
+    // Pour semaine/mois : regrouper par jour et prendre le MAX
+    const groupFormat = "strftime('%Y-%m-%d', timestamp)";
+    const query = `
+      SELECT 
+        ${groupFormat} as label,
+        MAX(${columnMap[metric]}) as value
+      FROM metrics
+      WHERE timestamp >= ?
+      GROUP BY ${groupFormat}
+      ORDER BY label
+      LIMIT ?
+    `;
+    return db.prepare(query).all(startDate.toISOString(), limit);
   }
-
-  const query = `
-    SELECT 
-      ${groupFormat} as label,
-      MAX(${columnMap[metric]}) as value
-    FROM metrics
-    WHERE timestamp >= ?
-    GROUP BY ${groupFormat}
-    ORDER BY label
-    LIMIT ?
-  `;
-
-  return db.prepare(query).all(startDate.toISOString(), limit);
 }
 
 // ====================
