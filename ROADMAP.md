@@ -121,13 +121,42 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | Métrique | Objectif | Statut |
 |----------|----------|--------|
 | **Endpoints API** | 10+ | ✅ 10/10 (avec authentification) |
-| **Stockage historique** | Fonctionnel | ✅ JSON (SQLite en roadmap) |
+| **Stockage historique** | Fonctionnel | ✅ **SQLite** (remplace JSON) |
 | **Surveillance Docker** | Implémentée | ❌ À venir |
 | **Authentification** | Complète | ✅ **100%** (sessions + middleware) |
+| **Graphiques** | 4 graphiques | ✅ **100%** (CPU, RAM, Disque, Réseau) |
 | **Mode sombre** | Implémenté | ❌ À venir |
 | **Multi-langues** | Français/Anglais | ❌ À venir |
 | **Couverture des tests** | > 80% | ❌ 0% |
 | **Temps de réponse API** | < 200ms | ❌ Non mesuré |
+
+---
+
+## 📝 Changelog des Versions
+
+### Version 0.3.0 - 24 juin 2026
+**Graphiques interactifs**
+- ✅ Ajout de 3 nouveaux graphiques (CPU, RAM, Disque) avec Chart.js
+- ✅ Amélioration du graphique réseau existant
+- ✅ Filtres par période indépendants pour chaque graphique (Jour/Semaine/Mois)
+- ✅ Mise à jour automatique des graphiques toutes les minutes
+- ✅ Design responsive pour mobile
+
+### Version 0.2.5 - 24 juin 2026
+**Migration vers SQLite**
+- ✅ Remplacement du stockage JSON par SQLite (better-sqlite3)
+- ✅ Création des tables : metrics, alerts, users
+- ✅ Ajout d'index pour les performances
+- ✅ Migration transparente (compatibilité API préservée)
+- ✅ Fermeture propre de la base de données
+
+### Version 0.2.0 - 24 juin 2026
+**Authentification complète**
+- ✅ Protection de toutes les routes API avec middleware `requireApiAuth`
+- ✅ Protection du dashboard avec middleware `requireAuth`
+- ✅ Page de login moderne avec gestion des erreurs
+- ✅ Déconnexion propre et destruction de session
+- ✅ Récupération du username connecté via API
 
 ---
 
@@ -137,4 +166,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **24 juin 2026** (Version 0.2.0).*
+> *Dernière mise à jour : **24 juin 2026** (Version 0.3.0).*

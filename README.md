@@ -188,6 +188,21 @@
    
    **⚠️ Important** : Après une mise à jour, vérifiez que votre fichier `.env` est toujours présent et contient vos identifiants personnalisés.
 
+10. **Visualisation avec Graphiques** :
+    
+    Le projet inclut désormais des graphiques interactifs pour visualiser l'historique des métriques :
+    
+    - **3 graphiques principaux** : CPU, RAM, Disque (utilisation en %)
+    - **1 graphique réseau** : Téléchargement/Envoi (en KB/s)
+    - **Sélection de période** : Jour, Semaine, Mois (indépendante pour chaque graphique)
+    - **Mise à jour automatique** : Toutes les minutes
+    - **Technologie** : Chart.js (v4.4.0) via CDN
+    
+    **Exemple d'utilisation** :
+    - Cliquez sur "Semaine" dans le graphique CPU pour voir l'historique sur 7 jours
+    - Cliquez sur "Mois" dans le graphique RAM pour voir l'historique sur 30 jours
+    - Chaque graphique a ses propres contrôles !
+
 ---
 
 ## 🔐 Permissions pour la surveillance des processus
@@ -274,11 +289,15 @@ vps_monitoring/
 | **Logging**     | `morgan`             | v1.10+  |
 | **Authentification** | `express-session` + `bcryptjs` | - |
 | **Environnement** | `dotenv`            | v16.3+  |
+| **Base de données** | SQLite (`better-sqlite3`) | v11+ |
+| **Graphiques**  | Chart.js             | v4.4.0  |
 
 ## 📊 Historique des Versions
 
 | Version | Date | Modifications |
 |---------|------|---------------|
+| 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
+| 0.2.5 | 24 juin 2026 | **Migration vers SQLite** : Remplacement du stockage JSON par une base SQLite avec tables metrics, alerts, users, index pour les performances. |
 | 0.2.0 | 24 juin 2026 | **Authentification complète** : Protection des routes API et du dashboard, page de login, gestion des sessions, middleware `requireAuth`/`requireApiAuth`. |
 | 0.1.3 | 19 juin 2026 | Phase 2 terminée : API REST, alertes, historique, surveillance réseau/ports/processus. |
 | 0.1.2 | 19 juin 2025 | Initialisation du projet Node.js, structure de base. |
