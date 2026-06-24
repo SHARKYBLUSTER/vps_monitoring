@@ -7,6 +7,9 @@
  * Fallback vers JSON si SQLite n'est pas disponible.
  */
 
+const fs = require('fs');
+const path = require('path');
+
 let db;
 try {
   db = require('./db-sqlite');
@@ -15,6 +18,9 @@ try {
   console.warn('⚠️ SQLite non disponible, utilisation du fallback JSON:', error.message);
   db = require('./db');
 }
+
+const metricsService = require('./metrics');
+const config = require('../config/config');
 
 // Intervalle de sauvegarde (en ms) - par défaut 5 minutes
 const SAVE_INTERVAL = process.env.HISTORY_SAVE_INTERVAL || 300000; // 5 minutes
