@@ -327,14 +327,14 @@
       margin-bottom: 20px;
     }
 
-    .chart-filters {
+    .chart-filters, .card-filters {
       margin: 15px 0;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
 
-    .chart-filters .filter-btn {
+    .chart-filters .filter-btn, .card-filters .filter-btn {
       padding: 6px 12px;
       background: #f0f0f0;
       border: none;
@@ -344,11 +344,11 @@
       transition: all 0.2s;
     }
 
-    .chart-filters .filter-btn:hover {
+    .chart-filters .filter-btn:hover, .card-filters .filter-btn:hover {
       background: #e0e0e0;
     }
 
-    .chart-filters .filter-btn.active {
+    .chart-filters .filter-btn.active, .card-filters .filter-btn.active {
       background: #667eea;
       color: white;
     }
@@ -555,23 +555,15 @@
     <!-- NOUVEAU : Section des graphiques de métriques -->
     <div class="metrics-charts-section">
       <h2>📈 Historique des Métriques</h2>
-      <div class="chart-filters">
-        <button class="filter-btn active" data-metric="cpu" data-period="day">CPU (Jour)</button>
-        <button class="filter-btn" data-metric="cpu" data-period="week">CPU (Semaine)</button>
-        <button class="filter-btn" data-metric="cpu" data-period="month">CPU (Mois)</button>
-        
-        <button class="filter-btn" data-metric="memory" data-period="day">RAM (Jour)</button>
-        <button class="filter-btn" data-metric="memory" data-period="week">RAM (Semaine)</button>
-        <button class="filter-btn" data-metric="memory" data-period="month">RAM (Mois)</button>
-        
-        <button class="filter-btn" data-metric="disk" data-period="day">Disque (Jour)</button>
-        <button class="filter-btn" data-metric="disk" data-period="week">Disque (Semaine)</button>
-        <button class="filter-btn" data-metric="disk" data-period="month">Disque (Mois)</button>
-      </div>
 
       <div class="charts-container">
         <div class="chart-card">
           <h3>🧠 Utilisation CPU</h3>
+          <div class="card-filters">
+            <button class="filter-btn active" data-metric="cpu" data-period="day">Jour</button>
+            <button class="filter-btn" data-metric="cpu" data-period="week">Semaine</button>
+            <button class="filter-btn" data-metric="cpu" data-period="month">Mois</button>
+          </div>
           <div class="chart-wrapper">
             <canvas id="cpuChart"></canvas>
           </div>
@@ -579,6 +571,11 @@
 
         <div class="chart-card">
           <h3>💾 Utilisation RAM</h3>
+          <div class="card-filters">
+            <button class="filter-btn active" data-metric="memory" data-period="day">Jour</button>
+            <button class="filter-btn" data-metric="memory" data-period="week">Semaine</button>
+            <button class="filter-btn" data-metric="memory" data-period="month">Mois</button>
+          </div>
           <div class="chart-wrapper">
             <canvas id="memoryChart"></canvas>
           </div>
@@ -586,6 +583,11 @@
 
         <div class="chart-card">
           <h3>💽 Utilisation Disque</h3>
+          <div class="card-filters">
+            <button class="filter-btn active" data-metric="disk" data-period="day">Jour</button>
+            <button class="filter-btn" data-metric="disk" data-period="week">Semaine</button>
+            <button class="filter-btn" data-metric="disk" data-period="month">Mois</button>
+          </div>
           <div class="chart-wrapper">
             <canvas id="diskChart"></canvas>
           </div>
@@ -1122,10 +1124,30 @@
   <script>
     // Variables globales pour les graphiques
     let cpuChart, memoryChart, diskChart;
-    let currentMetric = 'cpu';
-    let currentPeriod = 'day';
+    
+    // Périodes par métrique (pour des filtres indépendants)
+    const chartPeriods = {
+      cpu: 'day',
+      memory: 'day',
+      disk: 'day'
+    };
 
-    // Fonction pour charger les données d'un graphique (corrigée avec filtre par période)
+    // Fonction pour obtenir la date de début selon la période
+    function getStartDate(period) {
+      const now = new Date();
+      switch (period) {
+        case 'day':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        case 'week':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        case 'month':
+          return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        default:
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      }
+    }
+
+    // Fonction pour charger les données d'un graphique
     async function loadChartData(metric, period) {
       try {
         const response = await fetch(`/api/history/${metric}?limit=1000`);
@@ -1135,22 +1157,7 @@
         if (!data.data || data.data.length === 0) return [];
         
         // Filtre par période (côté client)
-        const now = new Date();
-        let startDate;
-        
-        switch (period) {
-          case 'day':
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            break;
-          case 'week':
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-            break;
-          case 'month':
-            startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-            break;
-          default:
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-        }
+        const startDate = getStartDate(period);
         
         // Filtre les données
         return data.data.filter(item => {
@@ -1220,37 +1227,46 @@
       });
     }
 
-    // Fonction pour mettre à jour tous les graphiques
-    async function updateAllCharts() {
-      const cpuData = await loadChartData('cpu', currentPeriod);
-      const memoryData = await loadChartData('memory', currentPeriod);
-      const diskData = await loadChartData('disk', currentPeriod);
-
-      const cpuCtx = document.getElementById('cpuChart').getContext('2d');
-      const memoryCtx = document.getElementById('memoryChart').getContext('2d');
-      const diskCtx = document.getElementById('diskChart').getContext('2d');
-
-      cpuChart = createOrUpdateChart(cpuCtx, cpuData, 'CPU', 'rgb(75, 192, 192)');
-      memoryChart = createOrUpdateChart(memoryCtx, memoryData, 'RAM', 'rgb(153, 102, 255)');
-      diskChart = createOrUpdateChart(diskCtx, diskData, 'Disque', 'rgb(255, 159, 64)');
+    // Fonction pour mettre à jour un graphique spécifique
+    async function updateChart(metric) {
+      const period = chartPeriods[metric];
+      const data = await loadChartData(metric, period);
+      const ctx = document.getElementById(`${metric}Chart`).getContext('2d');
+      
+      // Couleurs par métrique
+      const colors = {
+        cpu: 'rgb(75, 192, 192)',
+        memory: 'rgb(153, 102, 255)',
+        disk: 'rgb(255, 159, 64)'
+      };
+      const labels = {
+        cpu: 'CPU',
+        memory: 'RAM',
+        disk: 'Disque'
+      };
+      
+      window[`${metric}Chart`] = createOrUpdateChart(ctx, data, labels[metric], colors[metric]);
     }
 
-    // Gestion des boutons de filtre
+    // Gestion des boutons de filtre (par carte)
     function setupChartFilters() {
-      document.querySelectorAll('.chart-filters .filter-btn').forEach(btn => {
+      document.querySelectorAll('.card-filters .filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          // Mettre à jour les boutons actifs
-          document.querySelectorAll('.chart-filters .filter-btn').forEach(b => {
+          const metric = btn.dataset.metric;
+          const period = btn.dataset.period;
+          
+          // Mettre à jour les boutons actifs pour cette carte
+          const card = btn.closest('.chart-card');
+          card.querySelectorAll('.filter-btn').forEach(b => {
             b.classList.remove('active');
           });
           btn.classList.add('active');
 
-          // Extraire la métrique et la période
-          currentMetric = btn.dataset.metric;
-          currentPeriod = btn.dataset.period;
-
-          // Mettre à jour les graphiques
-          updateAllCharts();
+          // Mettre à jour la période pour cette métrique
+          chartPeriods[metric] = period;
+          
+          // Mettre à jour uniquement ce graphique
+          updateChart(metric);
         });
       });
     }
@@ -1262,10 +1278,18 @@
         if (window.Chart) {
           clearInterval(checkChartJS);
           setupChartFilters();
-          updateAllCharts();
+          
+          // Charger tous les graphiques avec leurs périodes par défaut
+          updateChart('cpu');
+          updateChart('memory');
+          updateChart('disk');
 
           // Mettre à jour les graphiques toutes les minutes
-          setInterval(updateAllCharts, 60000);
+          setInterval(() => {
+            updateChart('cpu');
+            updateChart('memory');
+            updateChart('disk');
+          }, 60000);
         }
       }, 100);
     });
