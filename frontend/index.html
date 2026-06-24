@@ -1126,14 +1126,38 @@
     let currentMetric = 'cpu';
     let currentPeriod = 'day';
 
-    // Fonction pour charger les données d'un graphique
+    // Fonction pour charger les données d'un graphique (corrigée avec filtre par période)
     async function loadChartData(metric, period) {
       try {
-        const response = await fetch(`/api/history/${metric}?limit=100`);
+        const response = await fetch(`/api/history/${metric}?limit=1000`);
         if (!response.ok) throw new Error('Impossible de charger les données');
 
         const data = await response.json();
-        return data.data || [];
+        if (!data.data || data.data.length === 0) return [];
+        
+        // Filtre par période (côté client)
+        const now = new Date();
+        let startDate;
+        
+        switch (period) {
+          case 'day':
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          case 'week':
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+            break;
+          case 'month':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            break;
+          default:
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        }
+        
+        // Filtre les données
+        return data.data.filter(item => {
+          const itemDate = new Date(item.timestamp);
+          return itemDate >= startDate;
+        });
       } catch (error) {
         console.error(`❌ Erreur chargement ${metric}:`, error);
         return [];
