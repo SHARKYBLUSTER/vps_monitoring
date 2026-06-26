@@ -11,6 +11,12 @@
       box-sizing: border-box;
     }
     
+    /* Fallback pour Font Awesome si le CDN ne charge pas */
+    [class^="fa-"], [class*=" fa-"] {
+      font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free', serif;
+      font-weight: 900;
+    }
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -466,7 +472,22 @@
     }
   </style>
   <!-- Font Awesome CDN pour les icônes -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZ2Jyj7YHmjgymr705SBJod5cyBAGQ80JXwAmeqHvXPge7S1kVhgQ51c82qQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+  <!-- Alternative Font Awesome si le CDN principal échoue -->
+  <script>
+    // Fallback pour Font Awesome si le CDN échoue
+    function checkFontAwesome() {
+      setTimeout(() => {
+        if (!document.fonts || !document.fonts.check('1em FontAwesome')) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+          document.head.appendChild(link);
+        }
+      }, 2000);
+    }
+    document.addEventListener('DOMContentLoaded', checkFontAwesome);
+  </script>
 </head>
 <body>
   <div class="container">
