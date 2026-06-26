@@ -193,7 +193,8 @@ async function getOpenPorts() {
         process: p.processName || getProcessNameByPid(p.pid) || 'Unknown',
         protocol: p.protocol || 'TCP',
         state: p.state
-      }));
+      }))
+      .sort((a, b) => (a.port || 0) - (b.port || 0));
   } catch (error) {
     console.error('❌ Erreur ports ouverts (systeminformation) :', error.message);
     console.warn('💡 Essayons une méthode alternative avec ss...');
@@ -278,7 +279,8 @@ async function getPortsFromSS() {
       }
     }
     
-    return ports;
+    // Trier les ports par numéro croissant
+    return ports.sort((a, b) => (a.port || 0) - (b.port || 0));
   } catch (altError) {
     console.error('❌ Erreur méthode alternative (ss) :', altError.message);
     return [];
