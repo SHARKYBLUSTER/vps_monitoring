@@ -881,28 +881,64 @@
       return stars + empty;
     }
 
+    // Fonction pour détecter le type d'adresse IPv6
+    function getIPv6Type(address) {
+      if (!address || !address.includes(':')) return null;
+      
+      // Normaliser l'adresse (supprimer les zéros inutiles pour la comparaison)
+      const normalized = address.toLowerCase().trim();
+      
+      // Loopback IPv6
+      if (normalized === '::1' || normalized === '0:0:0:0:0:0:0:1') {
+        return { type: 'loopback', icon: '🟢', title: 'Local (loopback IPv6)', cssClass: 'local' };
+      }
+      
+      // Toutes interfaces IPv6
+      if (normalized === '::' || normalized === '0:0:0:0:0:0:0:0') {
+        return { type: 'all', icon: '🟠', title: 'Toutes interfaces IPv6 - Accessible depuis l\'extérieur', cssClass: 'external' };
+      }
+      
+      // Link-local IPv6 (fe80::/10)
+      if (normalized.startsWith('fe80:') || normalized.startsWith('fe80::')) {
+        return { type: 'link-local', icon: '🟢', title: 'IPv6 Link-local (réseau local seulement)', cssClass: 'local' };
+      }
+      
+      // Unique local address (fc00::/7)
+      if (normalized.startsWith('fc00:') || normalized.startsWith('fd00:')) {
+        return { type: 'unique-local', icon: '🟡', title: 'IPv6 Unique Local (réseau privé)', cssClass: 'external' };
+      }
+      
+      // Adresses IPv6 globales (2000::/3 et autres)
+      // Si ce n'est pas loopback, link-local ou unique-local, c'est probablement global
+      return { type: 'global', icon: '🟠', title: 'IPv6 Global - Accessible depuis Internet', cssClass: 'external' };
+    }
+
     // Fonction pour déterminer si un port est local ou externe
     function getPortStatusIcon(address) {
       if (!address) return '<span class="port-status unknown" title="Inconnu">❓</span>';
       
-      // Adresses locales : 127.0.0.* (toutes les IPs loopback), ::1, localhost
-      const isLocalhost = address === 'localhost' || 
-                         address === '::1' || 
-                         address === '::' ||
-                         address.startsWith('127.0.0.') ||
-                         address === '127.0.1.1';
+      // Adresses locales IPv4 : 127.0.0.* (toutes les IPs loopback), localhost
+      const isLocalhostIPv4 = address === 'localhost' || 
+                             address.startsWith('127.0.0.') ||
+                             address === '127.0.1.1';
       
-      if (isLocalhost) {
+      if (isLocalhostIPv4) {
         return '<span class="port-status local" title="Local (loopback)">🟢</span>';
-      } else if (address === '0.0.0.0' || address === '*' || address === '::') {
-        return '<span class="port-status external" title="Toutes interfaces - Accessible depuis l\'extérieur">🟠</span>';
-      } else if (address.includes(':')) {
-        // IPv6
-        return '<span class="port-status external" title="IPv6 - Vérifiez la portée">🟡</span>';
-      } else {
-        // Autres adresses IP - considérer comme externe par défaut
-        return '<span class="port-status external" title="Externe">🟠</span>';
       }
+      
+      // Vérifier si c'est une adresse IPv6
+      const ipv6Info = getIPv6Type(address);
+      if (ipv6Info) {
+        return `<span class="port-status ${ipv6Info.cssClass}" title="${ipv6Info.title}">${ipv6Info.icon}</span>`;
+      }
+      
+      // IPv4 : toutes interfaces
+      if (address === '0.0.0.0' || address === '*') {
+        return '<span class="port-status external" title="Toutes interfaces IPv4 - Accessible depuis l\'extérieur">🟠</span>';
+      }
+      
+      // Autres adresses IPv4 - considérer comme externe par défaut
+      return '<span class="port-status external" title="Externe (IPv4)">🟠</span>';
     }
 
     // Fonction pour formater l'adresse avec plus de détails
@@ -911,6 +947,29 @@
       
       // Pour les adresses IPv6
       if (address.includes(':')) {
+        const normalized = address.toLowerCase().trim();
+        
+        // Loopback IPv6
+        if (normalized === '::1' || normalized === '0:0:0:0:0:0:0:1') {
+          return `${address} (loopback)`;
+        }
+        
+        // Toutes interfaces IPv6
+        if (normalized === '::' || normalized === '0:0:0:0:0:0:0:0') {
+          return `${address} (toutes interfaces)`;
+        }
+        
+        // Link-local IPv6 (fe80::/10)
+        if (normalized.startsWith('fe80:')) {
+          return `${address} (link-local)`;
+        }
+        
+        // Unique local address (fc00::/7)
+        if (normalized.startsWith('fc00:') || normalized.startsWith('fd00:')) {
+          return `${address} (unique-local)`;
+        }
+        
+        // Adresses IPv6 globales
         return address;
       }
       
