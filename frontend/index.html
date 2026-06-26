@@ -1329,6 +1329,9 @@
         }
         return;
       }
+      const isDark = document.body.classList.contains('dark-mode');
+      const colors = getChartColors(isDark);
+      
       networkChart = new ChartLib(ctx, {
         type: 'line',
         data: {
@@ -1337,16 +1340,16 @@
             {
               label: 'Téléchargement (KB)',
               data: data.data.download,
-              borderColor: 'rgb(75, 192, 192)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: colors.networkDownload,
+              backgroundColor: colors.networkDownload.replace('rgb', 'rgba').replace(')', ', 0.2)'),
               tension: 0.1,
               yAxisID: 'y',
             },
             {
               label: 'Envoi (KB)',
               data: data.data.upload,
-              borderColor: 'rgb(255, 99, 132)',
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: colors.networkUpload,
+              backgroundColor: colors.networkUpload.replace('rgb', 'rgba').replace(')', ', 0.2)'),
               tension: 0.1,
               yAxisID: 'y',
             },
@@ -1363,8 +1366,23 @@
               title: {
                 display: true,
                 text: 'Trafic (KB)',
+                color: colors.titleColor
               },
+              ticks: {
+                color: colors.textColor
+              },
+              grid: {
+                color: colors.gridColor
+              }
             },
+            x: {
+              ticks: {
+                color: colors.textColor
+              },
+              grid: {
+                color: colors.gridColor
+              }
+            }
           },
           plugins: {
             tooltip: {
@@ -1376,6 +1394,9 @@
             },
             legend: {
               position: 'top',
+              labels: {
+                color: colors.textColor
+              }
             },
           },
         },
@@ -1429,6 +1450,72 @@
   <script>
     // Variables globales pour les graphiques
     let cpuChart, memoryChart, diskChart;
+    
+    // Fonction pour obtenir les couleurs des graphiques selon le mode
+    function getChartColors(isDarkMode = false) {
+      if (isDarkMode) {
+        return {
+          cpu: 'rgb(100, 200, 255)',
+          memory: 'rgb(180, 100, 255)',
+          disk: 'rgb(255, 180, 100)',
+          networkDownload: 'rgb(100, 200, 255)',
+          networkUpload: 'rgb(255, 120, 150)',
+          gridColor: 'rgba(255, 255, 255, 0.1)',
+          textColor: '#e2e8f0',
+          titleColor: '#e2e8f0'
+        };
+      } else {
+        return {
+          cpu: 'rgb(75, 192, 192)',
+          memory: 'rgb(153, 102, 255)',
+          disk: 'rgb(255, 159, 64)',
+          networkDownload: 'rgb(75, 192, 192)',
+          networkUpload: 'rgb(255, 99, 132)',
+          gridColor: 'rgba(0, 0, 0, 0.1)',
+          textColor: '#666',
+          titleColor: '#666'
+        };
+      }
+    }
+    
+    // Fonction pour rafraîchir tous les graphiques avec les bonnes couleurs
+    function refreshAllCharts() {
+      const isDark = document.body.classList.contains('dark-mode');
+      const colors = getChartColors(isDark);
+      
+      // Rafraîchir les graphiques CPU, RAM, Disk
+      ['cpu', 'memory', 'disk'].forEach(metric => {
+        const chart = window[`${metric}Chart`];
+        if (chart) {
+          const dataset = chart.data.datasets[0];
+          const colorKey = metric;
+          dataset.borderColor = colors[colorKey];
+          dataset.backgroundColor = colors[colorKey].replace('rgb', 'rgba').replace(')', ', 0.1)');
+          chart.options.scales.y.title.color = colors.titleColor;
+          chart.options.scales.x.title.color = colors.titleColor;
+          chart.options.scales.y.ticks.color = colors.textColor;
+          chart.options.scales.x.ticks.color = colors.textColor;
+          chart.options.scales.y.grid.color = colors.gridColor;
+          chart.options.scales.x.grid.color = colors.gridColor;
+          chart.update();
+        }
+      });
+      
+      // Rafraîchir le graphique réseau
+      if (networkChart) {
+        const downloadDataset = networkChart.data.datasets[0];
+        const uploadDataset = networkChart.data.datasets[1];
+        downloadDataset.borderColor = colors.networkDownload;
+        downloadDataset.backgroundColor = colors.networkDownload.replace('rgb', 'rgba').replace(')', ', 0.2)');
+        uploadDataset.borderColor = colors.networkUpload;
+        uploadDataset.backgroundColor = colors.networkUpload.replace('rgb', 'rgba').replace(')', ', 0.2)');
+        networkChart.options.scales.y.title.color = colors.titleColor;
+        networkChart.options.scales.y.ticks.color = colors.textColor;
+        networkChart.options.scales.y.grid.color = colors.gridColor;
+        networkChart.options.scales.x.grid.color = colors.gridColor;
+        networkChart.update();
+      }
+    }
     
     // Périodes par métrique (pour des filtres indépendants)
     const chartPeriods = {
@@ -1513,6 +1600,13 @@
         data = [];
       }
 
+      const isDark = document.body.classList.contains('dark-mode');
+      const chartColors = getChartColors(isDark);
+      
+      // Utiliser la couleur passée en paramètre ou celle par défaut selon la métrique
+      const borderColor = color || chartColors.cpu;
+      const bgColor = borderColor.replace('rgb', 'rgba').replace(')', ', 0.1)');
+
       return new Chart(ctx, {
         type: 'line',
         data: {
@@ -1520,8 +1614,8 @@
           datasets: [{
             label: label,
             data: data.map(item => item.value),
-            borderColor: color,
-            backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+            borderColor: borderColor,
+            backgroundColor: bgColor,
             tension: 0.1,
             fill: true,
             borderWidth: 2,
@@ -1538,13 +1632,27 @@
               max: 100,
               title: {
                 display: true,
-                text: '% Utilisation'
+                text: '% Utilisation',
+                color: chartColors.titleColor
+              },
+              ticks: {
+                color: chartColors.textColor
+              },
+              grid: {
+                color: chartColors.gridColor
               }
             },
             x: {
               title: {
                 display: true,
-                text: getXAxisTitle(period)
+                text: getXAxisTitle(period),
+                color: chartColors.titleColor
+              },
+              ticks: {
+                color: chartColors.textColor
+              },
+              grid: {
+                color: chartColors.gridColor
               }
             }
           },
@@ -1697,6 +1805,11 @@
       
       // Sauvegarder la préférence dans localStorage
       localStorage.setItem('vps_monitoring_dark_mode', isDark ? 'true' : 'false');
+      
+      // Rafraîchir les graphiques avec les nouvelles couleurs
+      if (typeof refreshAllCharts === 'function') {
+        refreshAllCharts();
+      }
     }
     
     // Charger la préférence de mode sombre au chargement de la page
