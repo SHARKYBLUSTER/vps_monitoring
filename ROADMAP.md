@@ -10,26 +10,26 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 
 ---
 
-## ✅ **État Actuel (v0.1.3)**
+## ✅ **État Actuel (v0.3.0)**
 - **Fonctionnalités implémentées** :
   - Surveillance en temps réel (CPU, RAM, disque, réseau, processus).
-  - API REST avec 8 endpoints (`/api/metrics`, `/api/network`, `/api/alerts`, etc.).
+  - API REST avec 15+ endpoints (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/processes`, `/api/ports`, etc.).
   - Alertes configurables (seuils CPU/RAM/disque).
-  - Historique des métriques (stockage JSON).
-  - Surveillance des ports ouverts et classification des services.
+  - Historique des métriques (stockage **SQLite**).
+  - Surveillance des ports ouverts et classification des services (25+ ports connus).
   - Interface responsive avec rafraîchissement automatique.
-
-- **À implémenter** :
-  - **Authentification (login/mot de passe)** : Middleware existant mais non intégré à toutes les routes.
-  - **Mode sombre** : Thème alternatif pour une meilleure expérience utilisateur.
-  - **Multi-langues** : Support du Français et de l'Anglais.
-  - **Surveillance Docker** : Lister les conteneurs Docker et leurs stats.
+  - **Authentification complète** : Page de login, gestion des sessions, protection de toutes les routes.
+  - **Mode sombre** : Thème alternatif avec toggle et persistance via localStorage.
+  - **Graphiques interactifs** : 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période.
+  - **Surveillance Docker** : Statut Docker Engine, liste des conteneurs, stats par conteneur.
 
 - **Stack technique** :
   - Backend : Node.js + Express
   - Frontend : Vanilla JS + HTML5 + CSS3
   - Métriques : `systeminformation`
-  - Stockage : JSON (fichiers `data/metrics_history.json` et `data/alerts_history.json`)
+  - Stockage : **SQLite** (better-sqlite3)
+  - Graphiques : Chart.js (v4.4.0)
+  - Authentification : express-session + bcryptjs
 
 ---
 
@@ -120,12 +120,12 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📊 **Métriques de Succès**
 | Métrique | Objectif | Statut |
 |----------|----------|--------|
-| **Endpoints API** | 10+ | ✅ 10/10 (avec authentification) |
+| **Endpoints API** | 10+ | ✅ **15+/15** (avec authentification) |
 | **Stockage historique** | Fonctionnel | ✅ **SQLite** (remplace JSON) |
-| **Surveillance Docker** | Implémentée | ❌ À venir |
+| **Surveillance Docker** | Implémentée | ✅ **Partielle** (Docker Engine + conteneurs) |
 | **Authentification** | Complète | ✅ **100%** (sessions + middleware) |
 | **Graphiques** | 4 graphiques | ✅ **100%** (CPU, RAM, Disque, Réseau) |
-| **Mode sombre** | Implémenté | ❌ À venir |
+| **Mode sombre** | Implémenté | ✅ **100%** (toggle + persistance) |
 | **Multi-langues** | Français/Anglais | ❌ À venir |
 | **Couverture des tests** | > 80% | ❌ 0% |
 | **Temps de réponse API** | < 200ms | ❌ Non mesuré |
@@ -133,6 +133,17 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ---
 
 ## 📝 Changelog des Versions
+
+### Version 0.3.0 - 27 juin 2026
+**Mode sombre + Graphiques améliorés**
+- ✅ **Mode sombre complet** : Thème alternatif avec toggle, persistance localStorage
+- ✅ Adaptation de toutes les couleurs (cartes, graphiques, tableaux, boutons, alertes)
+- ✅ Icône dynamique (lune/soleil) dans le header
+- ✅ Ajout de 3 nouveaux graphiques (CPU, RAM, Disque) avec Chart.js
+- ✅ Amélioration du graphique réseau existant
+- ✅ Filtres par période indépendants pour chaque graphique (Jour/Semaine/Mois)
+- ✅ Mise à jour automatique des graphiques toutes les minutes
+- ✅ Design responsive pour mobile
 
 ### Version 0.3.0 - 24 juin 2026
 **Graphiques interactifs**
@@ -166,4 +177,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **24 juin 2026** (Version 0.3.0).*
+> *Dernière mise à jour : **27 juin 2026** (Version 0.3.0 - Mode sombre ajouté).*

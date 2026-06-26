@@ -24,6 +24,7 @@
 - Design responsive (mobile-friendly)
 - Tableaux triables (par CPU ou RAM pour les processus)
 - Rafraîchissement dynamique sans rechargement de page
+- **Mode sombre** : Thème alternatif avec toggle et persistance via localStorage
 
 ### ⚠️ **Alertes intelligentes**
 - Seuils configurables pour CPU, RAM et Disque
@@ -379,6 +380,7 @@ vps_monitoring/
 
 | Version | Date | Modifications |
 |---------|------|---------------|
+| 0.3.0 | 27 juin 2026 | **Mode sombre** : Ajout d'un thème sombre avec toggle, persistance localStorage, adaptation de toutes les couleurs (cartes, graphiques, tableaux, alertes). |
 | 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
 | 0.2.6 | 24 juin 2026 | **Surveillance Docker complète** : Intégration de dockerode pour surveiller les conteneurs Docker (stats CPU/RAM/Réseau/Disque, alertes, contrôles start/stop/restart, historique SQLite, graphiques par conteneur). |
 | 0.2.5 | 24 juin 2026 | **Migration vers SQLite** : Remplacement du stockage JSON par une base SQLite avec tables metrics, alerts, users, index pour les performances. |
