@@ -207,6 +207,27 @@
       // Effacer le paramètre de l'URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+    
+    // Charger le nom d'utilisateur depuis le localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedUsername = localStorage.getItem('vps_monitoring_username');
+      const usernameInput = document.getElementById('username');
+      
+      if (savedUsername && usernameInput) {
+        usernameInput.value = savedUsername;
+      }
+      
+      // Sauvegarder le nom d'utilisateur dans le localStorage à la soumission
+      const loginForm = document.querySelector('.login-form');
+      if (loginForm) {
+        loginForm.addEventListener('submit', () => {
+          const username = usernameInput.value;
+          if (username) {
+            localStorage.setItem('vps_monitoring_username', username);
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
