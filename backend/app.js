@@ -53,8 +53,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware pour servir les fichiers statiques (frontend)
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Middleware pour servir les fichiers statiques (frontend) - sans index.html par défaut
+app.use(express.static(path.join(__dirname, '../frontend'), { index: false }));
 
 // Appliquer l'authentification sur TOUTES les routes API
 app.use('/api/*', requireApiAuth);
@@ -62,6 +62,11 @@ app.use('/api/*', requireApiAuth);
 // ====================
 // Routes d'authentification
 // ====================
+
+// Route racine - nécessite authentification
+app.get('/', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 // Page de login (formulaire HTML)
 app.get('/login', (req, res) => {
