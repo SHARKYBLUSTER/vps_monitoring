@@ -1196,6 +1196,12 @@
         const data = await response.json();
         if (!data.success || !data.data) return [];
         
+        // S'assurer que data.data est un tableau
+        if (!Array.isArray(data.data)) {
+          console.error(`❌ Données ${metric} non valides: attendu un tableau, reçu`, typeof data.data);
+          return [];
+        }
+        
         // Les données sont déjà filtrées/agregées par le backend selon la période
         return data.data;
       } catch (error) {
@@ -1246,6 +1252,12 @@
     function createOrUpdateChart(ctx, data, label, color, period = 'day') {
       if (window.Chart && window.Chart.getChart(ctx)) {
         window.Chart.getChart(ctx).destroy();
+      }
+
+      // Vérifier que data est un tableau
+      if (!Array.isArray(data)) {
+        console.error('❌ Données non valides pour le graphique:', data);
+        data = [];
       }
 
       return new Chart(ctx, {
@@ -1301,9 +1313,22 @@
 
     // Fonction pour mettre à jour un graphique spécifique
     async function updateChart(metric) {
+      // Ne traiter que les métriques supportées
+      const supportedMetrics = ['cpu', 'memory', 'disk'];
+      if (!supportedMetrics.includes(metric)) {
+        console.error(`❌ Métrique non supportée: ${metric}`);
+        return;
+      }
+      
       const period = chartPeriods[metric];
       const data = await loadChartData(metric, period);
-      const ctx = document.getElementById(`${metric}Chart`).getContext('2d');
+      
+      const canvas = document.getElementById(`${metric}Chart`);
+      if (!canvas) {
+        console.error(`❌ Canvas ${metric}Chart introuvable !`);
+        return;
+      }
+      const ctx = canvas.getContext('2d');
       
       // Couleurs par métrique
       const colors = {
