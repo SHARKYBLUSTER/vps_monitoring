@@ -766,6 +766,7 @@
         const data = await response.json();
         if (data.success && data.data && data.data.length > 0) {
           currentProcesses = data.data;
+          console.log('📊 Données processus reçues:', currentProcesses.map(p => ({ name: p.name, cpu: p.cpu, mem: p.mem })));
           renderProcesses(currentSort);
         } else {
           // Afficher un message utile si aucun processus n'est retourné
