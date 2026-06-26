@@ -11,21 +11,48 @@
       box-sizing: border-box;
     }
     
+    /* Variables CSS pour le mode sombre */
+    :root {
+      --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg-secondary: #f8f9fa;
+      --text-primary: #333;
+      --text-secondary: #7f8c8d;
+      --text-light: white;
+      --card-bg: white;
+      --card-text: #2c3e50;
+      --border-color: rgba(0,0,0,0.1);
+      --shadow-color: rgba(0,0,0,0.2);
+    }
+
+    /* Mode sombre */
+    .dark-mode {
+      --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      --bg-secondary: #2d3748;
+      --text-primary: #e2e8f0;
+      --text-secondary: #a0aec0;
+      --text-light: white;
+      --card-bg: #2d3748;
+      --card-text: #e2e8f0;
+      --border-color: rgba(255,255,255,0.1);
+      --shadow-color: rgba(0,0,0,0.3);
+    }
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--bg-primary);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 20px;
+      transition: background 0.3s ease;
     }
     
     .login-container {
-      background: white;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 40px;
-      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 16px 32px var(--shadow-color);
       width: 100%;
       max-width: 400px;
       text-align: center;
@@ -36,13 +63,13 @@
     }
     
     .login-header h1 {
-      color: #2c3e50;
+      color: var(--card-text);
       font-size: 1.8rem;
       margin-bottom: 10px;
     }
     
     .login-header p {
-      color: #7f8c8d;
+      color: var(--text-secondary);
       font-size: 1rem;
     }
     
@@ -59,7 +86,7 @@
     .form-group label {
       display: block;
       margin-bottom: 8px;
-      color: #2c3e50;
+      color: var(--card-text);
       font-weight: 600;
       font-size: 0.95rem;
     }
@@ -72,6 +99,8 @@
       font-size: 1rem;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
       outline: none;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
     }
     
     .form-group input:focus {
@@ -102,7 +131,7 @@
     }
     
     .error-message {
-      background: #f8d7da;
+      background: var(--alert-bg-danger);
       color: #721c24;
       padding: 12px 15px;
       border-radius: 8px;
@@ -132,31 +161,71 @@
     .credentials-info {
       margin-top: 20px;
       padding: 15px;
-      background: #f8f9fa;
+      background: var(--bg-secondary);
       border-radius: 8px;
       font-size: 0.85rem;
-      color: #495057;
+      color: var(--text-secondary);
       text-align: left;
     }
     
     .credentials-info strong {
-      color: #2c3e50;
+      color: var(--card-text);
     }
     
     .credentials-info code {
-      background: white;
+      background: var(--bg-secondary);
       padding: 2px 6px;
       border-radius: 4px;
       font-family: monospace;
       font-size: 0.8rem;
     }
+    
+    .theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .theme-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    .dark-mode .theme-toggle-btn {
+      background: var(--card-bg);
+      border-color: var(--table-border);
+      color: var(--text-primary);
+    }
+    
+    .dark-mode .theme-toggle-btn:hover {
+      background: #3a475a;
+    }
+    
+    .dark-mode .login-footer a {
+      color: #93c5fd;
+    }
   </style>
+  <!-- Font Awesome CDN pour les icônes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
 </head>
 <body>
   <div class="login-container">
-    <div class="login-header">
-      <h1>🔒 Connexion</h1>
-      <p>VPS Monitoring Dashboard</p>
+    <div class="login-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <h1>🔒 Connexion</h1>
+        <p>VPS Monitoring Dashboard</p>
+      </div>
+      <button id="theme-toggle" class="theme-toggle-btn" title="Basculer en mode sombre/clair">
+        <i class="fas fa-moon"></i>
+      </button>
     </div>
 
     <form class="login-form" action="/login" method="POST">
@@ -218,6 +287,31 @@
           if (username) {
             localStorage.setItem('vps_monitoring_username', username);
           }
+        });
+      }
+      
+      // Charger la préférence de mode sombre
+      const savedDarkMode = localStorage.getItem('vps_monitoring_dark_mode');
+      const isDark = savedDarkMode === 'true';
+      
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+        const toggleBtn = document.getElementById('theme-toggle');
+        if (toggleBtn && toggleBtn.querySelector('i')) {
+          toggleBtn.querySelector('i').className = 'fas fa-sun';
+        }
+      }
+      
+      // Ajouter l'écouteur d'événement au bouton
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          document.body.classList.toggle('dark-mode');
+          const isDark = document.body.classList.contains('dark-mode');
+          if (themeToggle.querySelector('i')) {
+            themeToggle.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+          }
+          localStorage.setItem('vps_monitoring_dark_mode', isDark ? 'true' : 'false');
         });
       }
     });
