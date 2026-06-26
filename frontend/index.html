@@ -630,6 +630,7 @@
             <tr>
               <th>Port</th>
               <th>Adresse</th>
+              <th>Version IP</th>
               <th>Service</th>
               <th>Type</th>
               <th>Sécurité</th>
@@ -637,7 +638,7 @@
           </thead>
           <tbody id="ports-list">
             <tr>
-              <td colspan="5" class="no-data">Chargement des ports...</td>
+              <td colspan="6" class="no-data">Chargement des ports...</td>
             </tr>
           </tbody>
         </table>
@@ -941,13 +942,28 @@
       return '<span class="port-status external" title="Externe (IPv4)">🟠</span>';
     }
 
+    // Fonction pour obtenir le type d'IP (IPv4 ou IPv6)
+    function getIPVersion(address) {
+      if (!address) return '?';
+      if (address.includes(':')) {
+        return 'IPv6';
+      }
+      return 'IPv4';
+    }
+
     // Fonction pour formater l'adresse avec plus de détails
     function formatPortAddress(address, port) {
       if (!address) return '--';
       
+      // Nettoyer l'adresse (supprimer les crochets éventuels comme dans [::1])
+      let cleanAddress = address.trim();
+      if (cleanAddress.startsWith('[') && cleanAddress.endsWith(']')) {
+        cleanAddress = cleanAddress.slice(1, -1);
+      }
+      
       // Pour les adresses IPv6
-      if (address.includes(':')) {
-        const normalized = address.toLowerCase().trim();
+      if (cleanAddress.includes(':')) {
+        const normalized = cleanAddress.toLowerCase();
         
         // Loopback IPv6
         if (normalized === '::1' || normalized === '0:0:0:0:0:0:0:1') {
@@ -969,8 +985,8 @@
           return `${address} (unique-local)`;
         }
         
-        // Adresses IPv6 globales
-        return address;
+        // Adresses IPv6 globales - ajouter annotation générique
+        return `${address} (global)`;
       }
       
       // Pour les adresses IPv4
@@ -998,11 +1014,13 @@
             const formattedAddress = formatPortAddress(port.address, port.port);
             const portInfo = getPortInfo(port.port);
             const securityStars = getSecurityStars(portInfo.security);
+            const ipVersion = getIPVersion(port.address);
             
             return `
               <tr>
                 <td>${icon} ${port.port || '--'}</td>
                 <td>${formattedAddress}</td>
+                <td>${ipVersion}</td>
                 <td>${portInfo.name}</td>
                 <td>${portInfo.type}</td>
                 <td title="Niveau de sécurité : ${portInfo.security}/3">${securityStars}</td>
@@ -1010,12 +1028,12 @@
             `;
           }).join('');
         } else {
-          portsList.innerHTML = '<tr><td colspan="5" class="no-data">Aucun port ouvert trouvé</td></tr>';
+          portsList.innerHTML = '<tr><td colspan="6" class="no-data">Aucun port ouvert trouvé</td></tr>';
         }
       } catch (error) {
         console.error('Erreur ports:', error);
         document.getElementById('ports-list').innerHTML = 
-          '<tr><td colspan="5" class="no-data">Impossible de charger les ports ouverts</td></tr>';
+          '<tr><td colspan="6" class="no-data">Impossible de charger les ports ouverts</td></tr>';
       }
     }
 
