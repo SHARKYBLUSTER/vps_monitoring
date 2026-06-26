@@ -1345,8 +1345,11 @@
 
     // Initialisation au chargement de la page
     document.addEventListener('DOMContentLoaded', () => {
-      // Attendre que Chart.js soit chargé
+      // Attendre que Chart.js soit chargé (max 10 secondes)
+      const maxAttempts = 100; // 100 * 100ms = 10 secondes
+      let attempts = 0;
       const checkChartJS = setInterval(() => {
+        attempts++;
         if (window.Chart) {
           clearInterval(checkChartJS);
           setupChartFilters();
@@ -1365,6 +1368,13 @@
             updateChart('memory');
             updateChart('disk');
           }, 60000);
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkChartJS);
+          console.error('❌ Chart.js ne s\'est pas chargé après 10 secondes. Vérifiez votre connexion internet.');
+          // Afficher un message dans tous les conteneurs de graphiques
+          document.querySelectorAll('.chart-wrapper').forEach(wrapper => {
+            wrapper.innerHTML = '<p style="text-align: center; color: #dc3545; padding: 20px;">Erreur : Chart.js non chargé. Vérifiez votre connexion internet.</p>';
+          });
         }
       }, 100);
     });
