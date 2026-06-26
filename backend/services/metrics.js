@@ -308,13 +308,24 @@ async function getTopProcesses(limit = 5) {
       .filter(p => p && p.pid && p.name && p.cpu !== undefined) // Filtrer les processus valides
       .sort((a, b) => (b.cpu || 0) - (a.cpu || 0)) // Tri par CPU (décroissant)
       .slice(0, limit)
-      .map(p => ({
-        pid: p.pid,
-        name: p.name || 'unknown',
-        cpu: p.cpu ? parseFloat(p.cpu.toFixed(1)) : 0,
-        mem: p.mem ? parseFloat(p.mem.toFixed(1)) : 0, // en %
-        user: p.user || 'unknown',
-      }));
+      .map(p => {
+        // Normaliser les valeurs : si cpu/mem sont entre 0 et 1, les convertir en pourcentage (0-100)
+        const cpuValue = p.cpu !== undefined && p.cpu !== null ? p.cpu : 0;
+        const memValue = p.mem !== undefined && p.mem !== null ? p.mem : 0;
+        
+        // Si la valeur est entre 0 et 1 (et non 0-100), la multiplier par 100
+        // On vérifie <= 1 POUR inclure les valeurs décimales comme 0.5, 0.8, etc.
+        const normalizedCpu = cpuValue >= 0 && cpuValue <= 1 ? cpuValue * 100 : cpuValue;
+        const normalizedMem = memValue >= 0 && memValue <= 1 ? memValue * 100 : memValue;
+        
+        return {
+          pid: p.pid,
+          name: p.name || 'unknown',
+          cpu: normalizedCpu ? parseFloat(normalizedCpu.toFixed(1)) : 0,
+          mem: normalizedMem ? parseFloat(normalizedMem.toFixed(1)) : 0, // en %
+          user: p.user || 'unknown',
+        };
+      });
   } catch (error) {
     console.error('❌ Erreur processus :', error.message);
     console.warn('💡 Pour activer la surveillance des processus :');
