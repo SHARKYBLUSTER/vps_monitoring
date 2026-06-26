@@ -1012,9 +1012,14 @@
     // Fonction pour mettre à jour le graphique
     async function updateNetworkChart(period) {
       currentPeriod = period;
-      const data = await loadNetworkHistory(period);
-      const chartWrapper = document.querySelector('.chart-wrapper');
       
+      // Récupérer le canvas et son conteneur parent spécifiquement pour le réseau
+      const canvas = document.getElementById('networkChart');
+      const chartWrapper = canvas ? canvas.closest('.chart-wrapper') : null;
+      
+      console.log('📊 Données réseau reçues pour période:', period);
+      
+      const data = await loadNetworkHistory(period);
       console.log('📊 Données réseau reçues:', data);
 
       if (!data.success || !data.data || !data.data.labels || data.data.labels.length === 0) {
@@ -1031,8 +1036,6 @@
         btn.classList.toggle('active', btn.dataset.period === period);
       });
 
-      // Crée ou met à jour le graphique
-      const canvas = document.getElementById('networkChart');
       if (!canvas) {
         console.error('❌ Canvas networkChart introuvable !');
         if (chartWrapper) {
@@ -1041,10 +1044,18 @@
         return;
       }
       const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        console.error('❌ Contexte 2D introuvable pour le canvas réseau !');
+        if (chartWrapper) {
+          chartWrapper.innerHTML = '<p style="text-align: center; color: #dc3545; padding: 20px;">Erreur : Contexte graphique introuvable.</p>';
+        }
+        return;
+      }
 
       // Detruit le graphique existant s'il existe
       if (networkChart) {
         networkChart.destroy();
+        networkChart = null;
       }
 
       // Vérifier que Chart.js est chargé
@@ -1058,6 +1069,13 @@
 
       // Utiliser window.Chart si Chart n'est pas disponible directement
       const ChartLib = typeof Chart !== 'undefined' ? Chart : window.Chart;
+      if (!ChartLib) {
+        console.error('❌ Impossible de trouver Chart.js !');
+        if (chartWrapper) {
+          chartWrapper.innerHTML = '<p style="text-align: center; color: #dc3545; padding: 20px;">Erreur : Bibliothèque Chart.js introuvable.</p>';
+        }
+        return;
+      }
       networkChart = new ChartLib(ctx, {
         type: 'line',
         data: {
@@ -1127,20 +1145,14 @@
       // Initialiser les boutons de filtre réseau (uniquement les boutons avec data-metric="network")
       document.querySelectorAll('.card-filters .filter-btn[data-metric="network"]').forEach(btn => {
         btn.addEventListener('click', () => {
-          // Mettre à jour les boutons actifs pour cette carte
-          const card = btn.closest('.chart-card');
-          if (card) {
-            card.querySelectorAll('.filter-btn').forEach(b => {
-              b.classList.remove('active');
-            });
-            btn.classList.add('active');
-          }
           updateNetworkChart(btn.dataset.period);
         });
       });
       
-      // Charge le graphique par défaut au démarrage
-      updateNetworkChart('day');
+      // Charge le graphique par défaut au démarrage avec un léger délai pour laisser Chart.js s'initialiser
+      setTimeout(() => {
+        updateNetworkChart('day');
+      }, 100);
     });
   </script>
 
