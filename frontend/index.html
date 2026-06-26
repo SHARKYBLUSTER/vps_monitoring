@@ -1149,10 +1149,7 @@
         });
       });
       
-      // Charge le graphique par défaut au démarrage avec un léger délai pour laisser Chart.js s'initialiser
-      setTimeout(() => {
-        updateNetworkChart('day');
-      }, 100);
+      // Le graphique réseau sera chargé après Chart.js dans le second DOMContentLoaded
     });
   </script>
 
@@ -1323,9 +1320,9 @@
       window[`${metric}Chart`] = createOrUpdateChart(ctx, data, labels[metric], colors[metric], period);
     }
 
-    // Gestion des boutons de filtre (par carte)
+    // Gestion des boutons de filtre (par carte) - EXCLUANT le réseau qui a son propre système
     function setupChartFilters() {
-      document.querySelectorAll('.card-filters .filter-btn').forEach(btn => {
+      document.querySelectorAll('.card-filters .filter-btn:not([data-metric="network"])').forEach(btn => {
         btn.addEventListener('click', () => {
           const metric = btn.dataset.metric;
           const period = btn.dataset.period;
@@ -1358,6 +1355,9 @@
           updateChart('cpu');
           updateChart('memory');
           updateChart('disk');
+          
+          // Charger aussi le graphique réseau avec la période par défaut
+          updateNetworkChart('day');
 
           // Mettre à jour les graphiques toutes les minutes
           setInterval(() => {
