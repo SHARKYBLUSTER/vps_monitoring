@@ -419,19 +419,12 @@ app.post('/api/history/clear-all', async (req, res) => {
     const fs = require('fs');
     const path = require('path');
     
-    // Utiliser le même fallback que history.js
-    let db;
-    try {
-      db = require('./services/db-sqlite');
-      console.log('✅ Utilisation de SQLite pour cleanup');
-    } catch (error) {
-      console.warn('⚠️ SQLite non disponible, utilisation du fallback JSON:', error.message);
-      db = require('./services/db');
-    }
-    
+    // Utiliser la variable db globale déjà requise au début du fichier
     // Appeler cleanupOldData avec un grand nombre négatif pour tout supprimer
     // -36500 jours = environ 100 ans dans le passé, donc tout sera supprimé
+    // Note: cleanupOldData gère maintenant le VACUUM automatiquement
     const deletedCount = await db.cleanupOldData(-36500);
+    console.log(`✅ Nettoyage SQLite: ${deletedCount} entrées supprimées`);
     
     // Supprimer aussi les fichiers JSON directement pour être sûr
     const dataDir = path.join(__dirname, '../data');

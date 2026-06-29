@@ -368,6 +368,16 @@ function cleanupOldData(days = 30) {
     console.warn('Table docker_alerts non trouvée:', error.message);
   }
 
+  // Si on supprime tout, exécuter VACUUM pour réduire la taille du fichier
+  if (deleteAll) {
+    try {
+      db.exec('VACUUM;');
+      console.log('✅ VACUUM exécuté - base SQLite nettoyée');
+    } catch (error) {
+      console.warn('⚠️ Impossible d\'exécuter VACUUM:', error.message);
+    }
+  }
+
   return changes;
 }
 
