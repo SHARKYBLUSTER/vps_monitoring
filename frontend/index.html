@@ -2394,7 +2394,7 @@
     // Fonction pour charger la configuration actuelle depuis l'API
     async function loadCurrentConfig() {
       try {
-        const response = await fetch('/api/config');
+        const response = await fetch('/api/config', { credentials: 'include' });
         if (!response.ok) throw new Error('Impossible de charger la configuration');
         
         const data = await response.json();
@@ -2499,7 +2499,8 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          credentials: 'include'
         });
         
         const data = await response.json();
@@ -2555,7 +2556,8 @@
           body: JSON.stringify({
             metricsInterval: newInterval,
             dataRetentionMonths: newRetention
-          })
+          }),
+          credentials: 'include'
         });
         
         const data = await response.json();

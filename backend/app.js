@@ -56,6 +56,26 @@ app.use((req, res, next) => {
 // Middleware pour servir les fichiers statiques (frontend) - sans index.html par défaut
 app.use(express.static(path.join(__dirname, '../frontend'), { index: false }));
 
+// Routes API qui ne nécessitent pas d'authentification (GET uniquement)
+// Route pour récupérer la configuration (lecture seule, pas de données sensibles)
+app.get('/api/config', (req, res) => {
+  try {
+    const config = require('./config/config');
+    res.json({
+      success: true,
+      data: {
+        metricsInterval: config.metricsInterval,
+        dataRetentionMonths: config.dataRetentionMonths,
+        alerts: config.alerts
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/config :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer la configuration' });
+  }
+});
+
 // Appliquer l'authentification sur TOUTES les routes API
 app.use('/api/*', requireApiAuth);
 
@@ -116,25 +136,6 @@ app.get('/logout', (req, res) => {
 // ====================
 // Routes API (REST)
 // ====================
-
-// Endpoint pour récupérer la configuration
-app.get('/api/config', (req, res) => {
-  try {
-    const config = require('./config/config');
-    res.json({
-      success: true,
-      data: {
-        metricsInterval: config.metricsInterval,
-        dataRetentionMonths: config.dataRetentionMonths,
-        alerts: config.alerts
-      },
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error('❌ Erreur API /api/config :', error);
-    res.status(500).json({ success: false, error: 'Impossible de récupérer la configuration' });
-  }
-});
 
 // Endpoint pour mettre à jour la configuration
 app.post('/api/config', (req, res) => {
