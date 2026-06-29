@@ -50,20 +50,22 @@ app.use((req, res, next) => {
   // Autoriser les credentials (cookies, headers d'authentification)
   res.header('Access-Control-Allow-Credentials', 'true');
   
-  // Autoriser l'origine spécifique ou * si pas de credentials
   // Pour le développement local et le déploiement, on autorise l'origine de la requête
+  // IMPORTANT: Avec credentials, on ne peut PAS utiliser '*' pour Access-Control-Allow-Origin
   const origin = req.headers.origin || req.headers.referer || '*';
   
-  // Si on a une origine spécifique, l'autoriser
-  if (origin !== '*') {
-    res.header('Access-Control-Allow-Origin', origin);
+  // Toujours autoriser l'origine (même si c'est '*', on le remplace par l'origine ou une valeur par défaut)
+  // En production, cela devrait être configuré avec une origine spécifique
+  if (origin === '*') {
+    // En développement local, autoriser localhost
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
   } else {
-    // Sinon autoriser toutes les origines (mais sans credentials)
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', origin);
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Vary', 'Origin');
   
   // Gérer les requêtes OPTIONS pour le préflight CORS
   if (req.method === 'OPTIONS') {
