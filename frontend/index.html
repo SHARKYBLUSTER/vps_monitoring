@@ -1115,23 +1115,42 @@
 <body>
   <!-- Vérification d'authentification au chargement -->
   <script>
-    // Vérifier l'authentification immédiatement au chargement
-    (async function() {
+    // Variable globale pour suivre l'état d'authentification
+    window.authCheckComplete = false;
+    window.userAuthenticated = false;
+    
+    // Fonction pour vérifier l'authentification
+    async function checkAuthentication() {
       try {
         const response = await fetch('/api/user', { credentials: 'include' });
         const data = await response.json();
         
+        window.userAuthenticated = data.authenticated;
+        window.authCheckComplete = true;
+        
         if (!data.authenticated) {
           // Rediriger vers la page de login
           window.location.href = '/login';
-          return;
+          return false;
         }
+        return true;
       } catch (error) {
         console.error('Erreur vérification auth:', error);
         // Si erreur de réseau, rediriger vers login aussi
         window.location.href = '/login';
+        return false;
       }
-    })();
+    }
+    
+    // Vérifier immédiatement et stocker la promesse
+    window.authPromise = checkAuthentication();
+    
+    // Attendre que l'auth soit vérifiée avant de continuer
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.authPromise;
+      // Le reste du code peut s'exécuter
+    });
+  </script>
   </script>
   
   <div class="container">
@@ -2737,8 +2756,9 @@
       });
       
       // Charger la configuration au démarrage et mettre à jour les intervalles
-      loadCurrentConfig().then(() => {
-        if (currentConfig.metricsInterval) {
+      // Mais seulement si l'authentification est vérifiée
+      Promise.all([window.authPromise, loadCurrentConfig()]).then(() => {
+        if (window.userAuthenticated && currentConfig.metricsInterval) {
           updateFrontendIntervals(currentConfig.metricsInterval);
         }
       });
