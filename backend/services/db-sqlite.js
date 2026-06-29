@@ -327,30 +327,47 @@ function resolveAlert(alertId) {
  * @returns {number} - Nombre de lignes supprimées
  */
 function cleanupOldData(days = 30) {
-  const deleteMetrics = db.prepare(`
-    DELETE FROM metrics
-    WHERE timestamp < datetime('now', ?)
-  `);
+  let changes = 0;
+  
+  try {
+    const deleteMetrics = db.prepare(`
+      DELETE FROM metrics
+      WHERE timestamp < datetime('now', ?)
+    `);
+    changes += deleteMetrics.run(`-${days} days`).changes;
+  } catch (error) {
+    console.warn('Table metrics non trouvée:', error.message);
+  }
 
-  const deleteAlerts = db.prepare(`
-    DELETE FROM alerts
-    WHERE timestamp < datetime('now', ?)
-  `);
+  try {
+    const deleteAlerts = db.prepare(`
+      DELETE FROM alerts
+      WHERE timestamp < datetime('now', ?)
+    `);
+    changes += deleteAlerts.run(`-${days} days`).changes;
+  } catch (error) {
+    console.warn('Table alerts non trouvée:', error.message);
+  }
 
-  const deleteDockerContainers = db.prepare(`
-    DELETE FROM docker_containers
-    WHERE timestamp < datetime('now', ?)
-  `);
+  try {
+    const deleteDockerContainers = db.prepare(`
+      DELETE FROM docker_containers
+      WHERE timestamp < datetime('now', ?)
+    `);
+    changes += deleteDockerContainers.run(`-${days} days`).changes;
+  } catch (error) {
+    console.warn('Table docker_containers non trouvée:', error.message);
+  }
 
-  const deleteDockerAlerts = db.prepare(`
-    DELETE FROM docker_alerts
-    WHERE timestamp < datetime('now', ?)
-  `);
-
-  const changes = deleteMetrics.run(`-${days} days`).changes;
-  changes += deleteAlerts.run(`-${days} days`).changes;
-  changes += deleteDockerContainers.run(`-${days} days`).changes;
-  changes += deleteDockerAlerts.run(`-${days} days`).changes;
+  try {
+    const deleteDockerAlerts = db.prepare(`
+      DELETE FROM docker_alerts
+      WHERE timestamp < datetime('now', ?)
+    `);
+    changes += deleteDockerAlerts.run(`-${days} days`).changes;
+  } catch (error) {
+    console.warn('Table docker_alerts non trouvée:', error.message);
+  }
 
   return changes;
 }
