@@ -2015,16 +2015,13 @@
       });
     }
 
-    // Initialisation
-    document.addEventListener('DOMContentLoaded', () => {
-      // Premier chargement immédiat
-      updateMetrics();
-      updateProcesses();
-      updatePorts();
-      updateDockerInfo();
-      
-      // Rafraîchir avec l'intervalle configuré
-      // Ces intervalles seront remplacés par updateFrontendIntervals si une configuration est chargée
+    // Initialisation - DÉSACTIVÉ : sera géré par le code de configuration après vérification d'auth
+    // document.addEventListener('DOMContentLoaded', () => {
+    //   updateMetrics();
+    //   updateProcesses();
+    //   updatePorts();
+    //   updateDockerInfo();
+    // });
       window.metricsIntervalId = setInterval(updateMetrics, 5000);
       window.processesIntervalId = setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
       window.portsIntervalId = setInterval(updatePorts, 30000); // Rafraîchir les ports toutes les 30 secondes
@@ -2642,27 +2639,34 @@
     }
 
     // Fonction pour mettre à jour les intervalles de rafraîchissement du frontend
-    function updateFrontendIntervals(newInterval) {
+    async function updateFrontendIntervals(newInterval) {
       // Arrêter les intervalles existants
       if (window.metricsIntervalId) clearInterval(window.metricsIntervalId);
       if (window.processesIntervalId) clearInterval(window.processesIntervalId);
       if (window.portsIntervalId) clearInterval(window.portsIntervalId);
       
       // Redémarrer avec le nouvel intervalle
+      const updates = [];
+      
       if (typeof updateMetrics === 'function') {
-        updateMetrics(); // Mise à jour immédiate
+        updates.push(updateMetrics()); // Mise à jour immédiate
         window.metricsIntervalId = setInterval(updateMetrics, newInterval);
       }
       if (typeof updateProcesses === 'function') {
-        updateProcesses();
+        updates.push(updateProcesses());
         // Garder un intervalle différent pour les processus (2x l'intervalle de base)
         window.processesIntervalId = setInterval(updateProcesses, newInterval * 2);
       }
       if (typeof updatePorts === 'function') {
-        updatePorts();
+        updates.push(updatePorts());
         window.portsIntervalId = setInterval(updatePorts, newInterval * 6);
       }
+      if (typeof updateDockerInfo === 'function') {
+        updates.push(updateDockerInfo());
+      }
       
+      // Attendre que toutes les mises à jour initiales soient terminées
+      await Promise.all(updates);
       console.log(`✅ Intervalles de rafraîchissement mis à jour: ${newInterval}ms`);
     }
 
