@@ -59,7 +59,9 @@ app.use((req, res, next) => {
   // Déterminer l'origine
   // Avec credentials, on NE PEUT PAS utiliser '*' - il faut une origine spécifique
   const origin = req.headers.origin || req.headers.referer;
-  const host = req.get('host');
+  
+  // Nettoyer le host (enlever les / à la fin)
+  const host = req.get('host').replace(/\/$/, '');
   
   // Détecter le protocole (en tenant compte des proxys comme Nginx)
   const forwardedProto = req.headers['x-forwarded-proto'];
@@ -69,9 +71,9 @@ app.use((req, res, next) => {
   let allowedOrigin;
   if (origin) {
     // Si origin est présent, l'utiliser directement
-    allowedOrigin = origin;
+    allowedOrigin = origin.replace(/\/$/, ''); // Nettoyer les / finaux
     // Pour localhost, forcer le port 3000
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    if (allowedOrigin.includes('localhost') || allowedOrigin.includes('127.0.0.1')) {
       allowedOrigin = 'http://localhost:3000';
     }
   } else {
