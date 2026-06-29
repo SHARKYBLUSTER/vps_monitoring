@@ -416,6 +416,9 @@ app.post('/api/history/cleanup', async (req, res) => {
 // Endpoint pour effacer TOUTES les données
 app.post('/api/history/clear-all', async (req, res) => {
   try {
+    const fs = require('fs');
+    const path = require('path');
+    
     // Utiliser le même fallback que history.js
     let db;
     try {
@@ -429,9 +432,37 @@ app.post('/api/history/clear-all', async (req, res) => {
     // Appeler cleanupOldData avec un grand nombre négatif pour tout supprimer
     // -36500 jours = environ 100 ans dans le passé, donc tout sera supprimé
     const deletedCount = await db.cleanupOldData(-36500);
+    
+    // Supprimer aussi les fichiers JSON directement pour être sûr
+    const dataDir = path.join(__dirname, '../data');
+    const jsonFiles = ['metrics_history.json', 'alerts_history.json', 'network_state.json'];
+    let deletedJsonFiles = 0;
+    
+    jsonFiles.forEach(file => {
+      const filePath = path.join(dataDir, file);
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          deletedJsonFiles++;
+          console.log(`✅ Fichier supprimé: ${file}`);
+        }
+      } catch (error) {
+        console.warn(`⚠️ Impossible de supprimer ${file}:`, error.message);
+      }
+    });
+    
+    // Recréer les fichiers vides pour éviter les erreurs
+    try {
+      fs.writeFileSync(path.join(dataDir, 'metrics_history.json'), JSON.stringify({ metrics: [] }, null, 2));
+      fs.writeFileSync(path.join(dataDir, 'alerts_history.json'), JSON.stringify({ alerts: [] }, null, 2));
+      fs.writeFileSync(path.join(dataDir, 'network_state.json'), JSON.stringify({ rx_bytes: 0, tx_bytes: 0, timestamp: null }, null, 2));
+    } catch (error) {
+      console.warn('⚠️ Impossible de recréer les fichiers JSON vides:', error.message);
+    }
+    
     res.json({
       success: true,
-      message: `✅ Toutes les données ont été supprimées (${deletedCount} entrées)`,
+      message: `✅ Toutes les données ont été supprimées (${deletedCount} entrées SQLite + ${deletedJsonFiles} fichiers JSON)`,
       deletedCount,
     });
   } catch (error) {
