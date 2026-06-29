@@ -294,9 +294,9 @@ async function getPortsFromSS() {
  */
 async function getTopProcesses(limit = 5) {
   try {
-    // si.processes() avec option percent:true pour forcer les valeurs en pourcentage (0-100)
-    // Cela garantit que cpu et mem sont bien des pourcentages de l'utilisation totale
-    const result = await si.processes({ percent: true });
+    // Récupérer les processus (sans option percent qui peut causer des erreurs)
+    // Note: Dans systeminformation v5+, les valeurs cpu et mem sont déjà en pourcentage (0-100)
+    const result = await si.processes();
     
     // Vérifier si on a bien un objet avec la propriété list
     const processes = result.list || result || [];
