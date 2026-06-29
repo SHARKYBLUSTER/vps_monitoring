@@ -2059,7 +2059,7 @@
       // Rafraîchir les graphiques CPU, RAM, Disk
       ['cpu', 'memory', 'disk'].forEach(metric => {
         const chart = window[`${metric}Chart`];
-        if (chart) {
+        if (chart && chart.data && chart.data.datasets && chart.data.datasets[0]) {
           const dataset = chart.data.datasets[0];
           const colorKey = metric;
           dataset.borderColor = colors[colorKey];
@@ -2075,7 +2075,8 @@
       });
       
       // Rafraîchir le graphique réseau
-      if (networkChart) {
+      if (networkChart && networkChart.data && networkChart.data.datasets && 
+          networkChart.data.datasets[0] && networkChart.data.datasets[1]) {
         const downloadDataset = networkChart.data.datasets[0];
         const uploadDataset = networkChart.data.datasets[1];
         downloadDataset.borderColor = colors.networkDownload;
@@ -2361,6 +2362,7 @@
         return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
       }
       return label;
+    }
   </script>
 
 
