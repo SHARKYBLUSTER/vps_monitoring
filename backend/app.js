@@ -419,10 +419,13 @@ app.post('/api/history/clear-all', async (req, res) => {
     const fs = require('fs');
     const path = require('path');
     
+    console.log('🔄 /api/history/clear-all appelé - début du traitement');
+    
     // Utiliser la variable db globale déjà requise au début du fichier
     // Appeler cleanupOldData avec un grand nombre négatif pour tout supprimer
     // -36500 jours = environ 100 ans dans le passé, donc tout sera supprimé
     // Note: cleanupOldData gère maintenant le VACUUM automatiquement
+    console.log('🔄 Appel de db.cleanupOldData(-36500)...');
     const deletedCount = await db.cleanupOldData(-36500);
     console.log(`✅ Nettoyage SQLite: ${deletedCount} entrées supprimées`);
     

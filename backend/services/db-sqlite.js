@@ -329,8 +329,11 @@ function resolveAlert(alertId) {
 function cleanupOldData(days = 30) {
   let changes = 0;
   
+  console.log(`🔄 cleanupOldData appelé avec days=${days}`);
+  
   // Si days est négatif et très grand, on interprète ça comme "tout supprimer"
   const deleteAll = days < 0 && Math.abs(days) > 3650;
+  console.log(`🔄 deleteAll=${deleteAll} (days < 0: ${days < 0}, Math.abs(days) > 3650: ${Math.abs(days) > 3650})`);
   
   try {
     const deleteMetrics = db.prepare(deleteAll 
