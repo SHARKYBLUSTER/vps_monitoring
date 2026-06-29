@@ -2760,9 +2760,12 @@
       
       // Charger la configuration au démarrage et mettre à jour les intervalles
       // Mais seulement si l'authentification est vérifiée
-      Promise.all([window.authPromise, loadCurrentConfig()]).then(() => {
-        if (window.userAuthenticated && currentConfig.metricsInterval) {
-          updateFrontendIntervals(currentConfig.metricsInterval);
+      window.authPromise.then(async () => {
+        if (window.userAuthenticated) {
+          await loadCurrentConfig();
+          if (currentConfig.metricsInterval) {
+            await updateFrontendIntervals(currentConfig.metricsInterval);
+          }
         }
       });
       
