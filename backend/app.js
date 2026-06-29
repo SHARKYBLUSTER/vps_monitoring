@@ -171,14 +171,22 @@ app.post('/login', async (req, res) => {
     const isValid = await validateCredentials(username, password);
     
     if (isValid) {
-      req.session.authenticated = true;
-      req.session.username = username;
-      req.session.save();
-      
-      // Rediriger vers la page précédente ou vers l'accueil
-      const returnTo = req.session.returnTo || '/';
-      delete req.session.returnTo;
-      return res.redirect(returnTo);
+      // Régénérer l'ID de session pour éviter les fixations de session
+      req.session.regenerate(err => {
+        if (err) {
+          console.error('❌ Erreur regeneration session:', err);
+          return res.status(500).redirect('/login?error=1');
+        }
+        
+        req.session.authenticated = true;
+        req.session.username = username;
+        req.session.save();
+        
+        // Rediriger vers la page précédente ou vers l'accueil
+        const returnTo = req.session.returnTo || '/';
+        delete req.session.returnTo;
+        return res.redirect(returnTo);
+      });
     } else {
       return res.status(401).redirect('/login?error=1');
     }
