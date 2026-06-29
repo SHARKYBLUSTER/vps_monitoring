@@ -339,7 +339,7 @@ function cleanupOldData(days = 30) {
     const deleteMetrics = db.prepare(deleteAll 
       ? `DELETE FROM metrics` 
       : `DELETE FROM metrics WHERE timestamp < datetime('now', ?)`);
-    changes += deleteMetrics.run(deleteAll ? undefined : `-${days} days`).changes;
+    changes += deleteMetrics.run(deleteAll ? [] : [`-${days} days`]).changes;
   } catch (error) {
     console.warn('Table metrics non trouvée:', error.message);
   }
@@ -348,7 +348,7 @@ function cleanupOldData(days = 30) {
     const deleteAlerts = db.prepare(deleteAll 
       ? `DELETE FROM alerts` 
       : `DELETE FROM alerts WHERE timestamp < datetime('now', ?)`);
-    changes += deleteAlerts.run(deleteAll ? undefined : `-${days} days`).changes;
+    changes += deleteAlerts.run(deleteAll ? [] : [`-${days} days`]).changes;
   } catch (error) {
     console.warn('Table alerts non trouvée:', error.message);
   }
@@ -357,7 +357,7 @@ function cleanupOldData(days = 30) {
     const deleteDockerContainers = db.prepare(deleteAll 
       ? `DELETE FROM docker_containers` 
       : `DELETE FROM docker_containers WHERE timestamp < datetime('now', ?)`);
-    changes += deleteDockerContainers.run(deleteAll ? undefined : `-${days} days`).changes;
+    changes += deleteDockerContainers.run(deleteAll ? [] : [`-${days} days`]).changes;
   } catch (error) {
     console.warn('Table docker_containers non trouvée:', error.message);
   }
@@ -366,7 +366,7 @@ function cleanupOldData(days = 30) {
     const deleteDockerAlerts = db.prepare(deleteAll 
       ? `DELETE FROM docker_alerts` 
       : `DELETE FROM docker_alerts WHERE timestamp < datetime('now', ?)`);
-    changes += deleteDockerAlerts.run(deleteAll ? undefined : `-${days} days`).changes;
+    changes += deleteDockerAlerts.run(deleteAll ? [] : [`-${days} days`]).changes;
   } catch (error) {
     console.warn('Table docker_alerts non trouvée:', error.message);
   }
