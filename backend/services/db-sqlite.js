@@ -329,42 +329,41 @@ function resolveAlert(alertId) {
 function cleanupOldData(days = 30) {
   let changes = 0;
   
+  // Si days est négatif et très grand, on interprète ça comme "tout supprimer"
+  const deleteAll = days < 0 && Math.abs(days) > 3650;
+  
   try {
-    const deleteMetrics = db.prepare(`
-      DELETE FROM metrics
-      WHERE timestamp < datetime('now', ?)
-    `);
-    changes += deleteMetrics.run(`-${days} days`).changes;
+    const deleteMetrics = db.prepare(deleteAll 
+      ? `DELETE FROM metrics` 
+      : `DELETE FROM metrics WHERE timestamp < datetime('now', ?)`);
+    changes += deleteMetrics.run(deleteAll ? undefined : `-${days} days`).changes;
   } catch (error) {
     console.warn('Table metrics non trouvée:', error.message);
   }
 
   try {
-    const deleteAlerts = db.prepare(`
-      DELETE FROM alerts
-      WHERE timestamp < datetime('now', ?)
-    `);
-    changes += deleteAlerts.run(`-${days} days`).changes;
+    const deleteAlerts = db.prepare(deleteAll 
+      ? `DELETE FROM alerts` 
+      : `DELETE FROM alerts WHERE timestamp < datetime('now', ?)`);
+    changes += deleteAlerts.run(deleteAll ? undefined : `-${days} days`).changes;
   } catch (error) {
     console.warn('Table alerts non trouvée:', error.message);
   }
 
   try {
-    const deleteDockerContainers = db.prepare(`
-      DELETE FROM docker_containers
-      WHERE timestamp < datetime('now', ?)
-    `);
-    changes += deleteDockerContainers.run(`-${days} days`).changes;
+    const deleteDockerContainers = db.prepare(deleteAll 
+      ? `DELETE FROM docker_containers` 
+      : `DELETE FROM docker_containers WHERE timestamp < datetime('now', ?)`);
+    changes += deleteDockerContainers.run(deleteAll ? undefined : `-${days} days`).changes;
   } catch (error) {
     console.warn('Table docker_containers non trouvée:', error.message);
   }
 
   try {
-    const deleteDockerAlerts = db.prepare(`
-      DELETE FROM docker_alerts
-      WHERE timestamp < datetime('now', ?)
-    `);
-    changes += deleteDockerAlerts.run(`-${days} days`).changes;
+    const deleteDockerAlerts = db.prepare(deleteAll 
+      ? `DELETE FROM docker_alerts` 
+      : `DELETE FROM docker_alerts WHERE timestamp < datetime('now', ?)`);
+    changes += deleteDockerAlerts.run(deleteAll ? undefined : `-${days} days`).changes;
   } catch (error) {
     console.warn('Table docker_alerts non trouvée:', error.message);
   }
