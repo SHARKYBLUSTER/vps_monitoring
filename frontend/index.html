@@ -1151,7 +1151,6 @@
       // Le reste du code peut s'exécuter
     });
   </script>
-  </script>
   
   <div class="container">
     <header>
@@ -1859,7 +1858,7 @@
     // ====================
     // Graphique Réseau
     // ====================
-    let networkChart = null;
+    window.networkChart = null;
     let currentPeriod = 'day';
 
     // Fonction pour charger l'historique réseau
@@ -1918,9 +1917,9 @@
       }
 
       // Detruit le graphique existant s'il existe
-      if (networkChart) {
-        networkChart.destroy();
-        networkChart = null;
+      if (window.networkChart) {
+        window.networkChart.destroy();
+        window.networkChart = null;
       }
 
       // Vérifier que Chart.js est chargé
@@ -1944,7 +1943,7 @@
       const isDark = document.body.classList.contains('dark-mode');
       const colors = getChartColors(isDark);
       
-      networkChart = new ChartLib(ctx, {
+      window.networkChart = new ChartLib(ctx, {
         type: 'line',
         data: {
           labels: data.data.labels,
@@ -2024,16 +2023,6 @@
     // });
     // Les intervalles sont maintenant gérés uniquement par updateFrontendIntervals
     // qui est appelé après vérification d'auth et chargement de la config
-      
-      // Initialiser les boutons de filtre réseau (uniquement les boutons avec data-metric="network")
-      document.querySelectorAll('.card-filters .filter-btn[data-metric="network"]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          updateNetworkChart(btn.dataset.period);
-        });
-      });
-      
-      // Le graphique réseau sera chargé après Chart.js dans le second DOMContentLoaded
-    });
   </script>
 
   <!-- Récupérer et afficher le nom d'utilisateur -->
@@ -2111,19 +2100,19 @@
       });
       
       // Rafraîchir le graphique réseau
-      if (networkChart && networkChart.data && networkChart.data.datasets && 
-          networkChart.data.datasets[0] && networkChart.data.datasets[1]) {
-        const downloadDataset = networkChart.data.datasets[0];
-        const uploadDataset = networkChart.data.datasets[1];
+      if (window.networkChart && window.networkChart.data && window.networkChart.data.datasets && 
+          window.networkChart.data.datasets[0] && window.networkChart.data.datasets[1]) {
+        const downloadDataset = window.networkChart.data.datasets[0];
+        const uploadDataset = window.networkChart.data.datasets[1];
         downloadDataset.borderColor = colors.networkDownload;
         downloadDataset.backgroundColor = colors.networkDownload.replace('rgb', 'rgba').replace(')', ', 0.2)');
         uploadDataset.borderColor = colors.networkUpload;
         uploadDataset.backgroundColor = colors.networkUpload.replace('rgb', 'rgba').replace(')', ', 0.2)');
-        networkChart.options.scales.y.title.color = colors.titleColor;
-        networkChart.options.scales.y.ticks.color = colors.textColor;
-        networkChart.options.scales.y.grid.color = colors.gridColor;
-        networkChart.options.scales.x.grid.color = colors.gridColor;
-        networkChart.update();
+        window.networkChart.options.scales.y.title.color = colors.titleColor;
+        window.networkChart.options.scales.y.ticks.color = colors.textColor;
+        window.networkChart.options.scales.y.grid.color = colors.gridColor;
+        window.networkChart.options.scales.x.grid.color = colors.gridColor;
+        window.networkChart.update();
       }
     }
     
@@ -2337,33 +2326,64 @@
           updateChart(metric);
         });
       });
+      
+      // Configurer les event listeners pour les boutons réseau
+      document.querySelectorAll('.card-filters .filter-btn[data-metric="network"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const period = btn.dataset.period;
+          
+          // Mettre à jour les boutons actifs pour le réseau
+          document.querySelectorAll('.card-filters .filter-btn[data-metric="network"]').forEach(b => {
+            b.classList.remove('active');
+          });
+          btn.classList.add('active');
+          
+          // Mettre à jour le graphique réseau
+          if (typeof updateNetworkChart === 'function') {
+            updateNetworkChart(period);
+          }
+        });
+      });
     }
 
     // Initialisation au chargement de la page
     document.addEventListener('DOMContentLoaded', () => {
-      // Attendre que Chart.js soit chargé (max 10 secondes)
-      const maxAttempts = 100; // 100 * 100ms = 10 secondes
-      let attempts = 0;
-      const checkChartJS = setInterval(() => {
-        attempts++;
-        if (window.Chart) {
-          clearInterval(checkChartJS);
-          setupChartFilters();
-          
-          // Charger tous les graphiques avec leurs périodes par défaut
-          updateChart('cpu');
-          updateChart('memory');
-          updateChart('disk');
-          
-          // Charger aussi le graphique réseau avec la période par défaut
-          updateNetworkChart('day');
+      // Attendre que l'auth soit vérifiée et que Chart.js soit chargé
+      window.authPromise.then(() => {
+        if (!window.userAuthenticated) {
+          console.error('❌ Utilisateur non authentifié, ne pas charger les graphiques');
+          return;
+        }
+        
+        // Attendre que Chart.js soit chargé (max 10 secondes)
+        const maxAttempts = 100; // 100 * 100ms = 10 secondes
+        let attempts = 0;
+        const checkChartJS = setInterval(() => {
+          attempts++;
+          if (window.Chart) {
+            clearInterval(checkChartJS);
+            setupChartFilters();
+            
+            // Charger tous les graphiques avec leurs périodes par défaut
+            if (typeof updateChart === 'function') {
+              updateChart('cpu');
+              updateChart('memory');
+              updateChart('disk');
+            }
+            
+            // Charger aussi le graphique réseau avec la période par défaut
+            if (typeof updateNetworkChart === 'function') {
+              updateNetworkChart('day');
+            }
 
-          // Mettre à jour les graphiques toutes les minutes
-          setInterval(() => {
-            updateChart('cpu');
-            updateChart('memory');
-            updateChart('disk');
-          }, 60000);
+            // Mettre à jour les graphiques toutes les minutes
+            if (typeof updateChart === 'function') {
+              setInterval(() => {
+                updateChart('cpu');
+                updateChart('memory');
+                updateChart('disk');
+              }, 60000);
+            }
         } else if (attempts >= maxAttempts) {
           clearInterval(checkChartJS);
           console.error('❌ Chart.js ne s\'est pas chargé après 10 secondes. Vérifiez votre connexion internet.');
@@ -2373,6 +2393,7 @@
           });
         }
       }, 100);
+      });
     });
   </script>
 
