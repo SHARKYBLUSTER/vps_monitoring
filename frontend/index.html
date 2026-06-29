@@ -2015,16 +2015,15 @@
       });
     }
 
-    // Initialisation - DÉSACTIVÉ : sera géré par le code de configuration après vérification d'auth
+    // Initialisation - DÉSACTIVÉ : sera géré par updateFrontendIntervals après vérification d'auth
     // document.addEventListener('DOMContentLoaded', () => {
     //   updateMetrics();
     //   updateProcesses();
     //   updatePorts();
     //   updateDockerInfo();
     // });
-      window.metricsIntervalId = setInterval(updateMetrics, 5000);
-      window.processesIntervalId = setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
-      window.portsIntervalId = setInterval(updatePorts, 30000); // Rafraîchir les ports toutes les 30 secondes
+    // Les intervalles sont maintenant gérés uniquement par updateFrontendIntervals
+    // qui est appelé après vérification d'auth et chargement de la config
       
       // Initialiser les boutons de filtre réseau (uniquement les boutons avec data-metric="network")
       document.querySelectorAll('.card-filters .filter-btn[data-metric="network"]').forEach(btn => {

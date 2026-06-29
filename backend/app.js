@@ -45,8 +45,10 @@ app.use(session({
   cookie: { 
     secure: false, 
     maxAge: 24 * 60 * 60 * 1000, // 24h
-    httpOnly: true
-    // sameSite: 'lax' // Désactivé pour éviter les problèmes de cookies cross-site
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    domain: false
   }
 }));
 // Middleware CORS pour autoriser les requêtes depuis le frontend
@@ -68,19 +70,18 @@ app.use((req, res, next) => {
   if (origin) {
     // Si origin est présent, l'utiliser directement
     allowedOrigin = origin;
+    // Pour localhost, forcer le port 3000
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      allowedOrigin = 'http://localhost:3000';
+    }
   } else {
     // Pour les requêtes same-origin, construire à partir de l'host et protocole
     allowedOrigin = `${protocol}://${host}`;
     
     // Ajouter le port si nécessaire (pour le développement local)
     if (host.includes('localhost') || host.includes('127.0.0.1')) {
-      allowedOrigin = `${protocol}://${host}:3000`;
+      allowedOrigin = 'http://localhost:3000';
     }
-  }
-  
-  // Garantir que localhost utilise toujours le port 3000 en développement
-  if (host && (host.includes('localhost') || host.includes('127.0.0.1'))) {
-    allowedOrigin = 'http://localhost:3000';
   }
   
   res.header('Access-Control-Allow-Origin', allowedOrigin);
