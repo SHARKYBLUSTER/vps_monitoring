@@ -42,28 +42,29 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'votre_cle_secrete_par_defaut_changez_la',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24h
+  cookie: { 
+    secure: false, 
+    maxAge: 24 * 60 * 60 * 1000, // 24h
+    httpOnly: true,
+    sameSite: 'lax'
+  }
 }));
-
 // Middleware CORS pour autoriser les requêtes depuis le frontend
 app.use((req, res, next) => {
   // Autoriser les credentials (cookies, headers d'authentification)
   res.header('Access-Control-Allow-Credentials', 'true');
   
-  // Pour le développement local et le déploiement, on autorise l'origine de la requête
-  // IMPORTANT: Avec credentials, on ne peut PAS utiliser '*' pour Access-Control-Allow-Origin
-  const origin = req.headers.origin || req.headers.referer || '*';
+  // Déterminer l'origine
+  // Avec credentials, on NE PEUT PAS utiliser '*' - il faut une origine spécifique
+  const origin = req.headers.origin;
   
-  // Toujours autoriser l'origine (même si c'est '*', on le remplace par l'origine ou une valeur par défaut)
-  // En production, cela devrait être configuré avec une origine spécifique
-  if (origin === '*') {
-    // En développement local, autoriser localhost
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  } else {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
+  // Si c'est une requête same-origin (pas de header Origin), on utilise une valeur par défaut
+  // En développement: http://localhost:3000, en production: utiliser l'host
+  const defaultOrigin = 'http://localhost:3000';
+  const allowedOrigin = origin || defaultOrigin;
   
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Vary', 'Origin');
   
@@ -78,6 +79,11 @@ app.use((req, res, next) => {
 
 // Middleware pour servir les fichiers statiques (frontend) - sans index.html par défaut
 app.use(express.static(path.join(__dirname, '../frontend'), { index: false }));
+
+// Bloquer l'accès direct à /index.html - rediriger vers / qui nécessite authentification
+app.get('/index.html', (req, res) => {
+  res.redirect('/');
+});
 
 // Routes API qui ne nécessitent pas d'authentification (GET uniquement)
 // Route pour récupérer la configuration (lecture seule, pas de données sensibles)
@@ -99,7 +105,23 @@ app.get('/api/config', (req, res) => {
   }
 });
 
-// Appliquer l'authentification sur TOUTES les routes API
+// Endpoint pour vérifier l'authentification de l'utilisateur (public, pour permettre la vérification côté client)
+app.get('/api/user', (req, res) => {
+  if (req.session && req.session.authenticated) {
+    res.json({
+      success: true,
+      authenticated: true,
+      username: req.session.username || 'admin'
+    });
+  } else {
+    res.json({
+      success: true,
+      authenticated: false
+    });
+  }
+});
+
+// Appliquer l'authentification sur TOUTES les autres routes API
 app.use('/api/*', requireApiAuth);
 
 // ====================
@@ -216,22 +238,6 @@ app.post('/api/config', (req, res) => {
   } catch (error) {
     console.error('❌ Erreur API /api/config :', error);
     res.status(500).json({ success: false, error: 'Impossible de mettre à jour la configuration' });
-  }
-});
-
-// Endpoint pour récupérer l'utilisateur connecté
-app.get('/api/user', (req, res) => {
-  if (req.session && req.session.authenticated) {
-    res.json({
-      success: true,
-      authenticated: true,
-      username: req.session.username || 'admin'
-    });
-  } else {
-    res.json({
-      success: true,
-      authenticated: false
-    });
   }
 });
 

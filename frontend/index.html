@@ -1113,6 +1113,27 @@
   </script>
 </head>
 <body>
+  <!-- Vérification d'authentification au chargement -->
+  <script>
+    // Vérifier l'authentification immédiatement au chargement
+    (async function() {
+      try {
+        const response = await fetch('/api/user', { credentials: 'include' });
+        const data = await response.json();
+        
+        if (!data.authenticated) {
+          // Rediriger vers la page de login
+          window.location.href = '/login';
+          return;
+        }
+      } catch (error) {
+        console.error('Erreur vérification auth:', error);
+        // Si erreur de réseau, rediriger vers login aussi
+        window.location.href = '/login';
+      }
+    })();
+  </script>
+  
   <div class="container">
     <header>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -2364,8 +2385,6 @@
       return label;
     }
   </script>
-
-
 
   <!-- Script pour la configuration -->
   <script>
