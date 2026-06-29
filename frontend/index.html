@@ -2564,8 +2564,8 @@
         
         if (data.success) {
           showConfigStatus(`✅ ${data.message}`, 'success');
-          // Actualiser les graphiques (ils seront vides maintenant)
-          setTimeout(() => {
+          // Actualiser toutes les données (graphiques, métriques, processus, ports)
+          setTimeout(async () => {
             if (typeof updateChart === 'function') {
               updateChart('cpu');
               updateChart('memory');
@@ -2573,6 +2573,22 @@
             }
             if (typeof updateNetworkChart === 'function') {
               updateNetworkChart('day');
+            }
+            // Rafraîchir aussi les métriques, processus, ports et alertes
+            if (typeof updateMetrics === 'function') {
+              await updateMetrics();
+            }
+            if (typeof updateProcesses === 'function') {
+              await updateProcesses();
+            }
+            if (typeof updatePorts === 'function') {
+              await updatePorts();
+            }
+            if (typeof updateAlerts === 'function') {
+              await updateAlerts([]);
+            }
+            if (typeof updateDockerInfo === 'function') {
+              await updateDockerInfo();
             }
           }, 1000);
         } else {

@@ -337,8 +337,20 @@ function cleanupOldData(days = 30) {
     WHERE timestamp < datetime('now', ?)
   `);
 
+  const deleteDockerContainers = db.prepare(`
+    DELETE FROM docker_containers
+    WHERE timestamp < datetime('now', ?)
+  `);
+
+  const deleteDockerAlerts = db.prepare(`
+    DELETE FROM docker_alerts
+    WHERE timestamp < datetime('now', ?)
+  `);
+
   const changes = deleteMetrics.run(`-${days} days`).changes;
   changes += deleteAlerts.run(`-${days} days`).changes;
+  changes += deleteDockerContainers.run(`-${days} days`).changes;
+  changes += deleteDockerAlerts.run(`-${days} days`).changes;
 
   return changes;
 }
