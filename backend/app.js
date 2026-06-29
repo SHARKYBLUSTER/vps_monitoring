@@ -416,7 +416,16 @@ app.post('/api/history/cleanup', async (req, res) => {
 // Endpoint pour effacer TOUTES les données
 app.post('/api/history/clear-all', async (req, res) => {
   try {
-    const db = require('./services/db-sqlite');
+    // Utiliser le même fallback que history.js
+    let db;
+    try {
+      db = require('./services/db-sqlite');
+      console.log('✅ Utilisation de SQLite pour cleanup');
+    } catch (error) {
+      console.warn('⚠️ SQLite non disponible, utilisation du fallback JSON:', error.message);
+      db = require('./services/db');
+    }
+    
     // Appeler cleanupOldData avec un grand nombre négatif pour tout supprimer
     // -36500 jours = environ 100 ans dans le passé, donc tout sera supprimé
     const deletedCount = await db.cleanupOldData(-36500);
