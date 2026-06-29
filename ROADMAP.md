@@ -10,18 +10,20 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 
 ---
 
-## ✅ **État Actuel (v0.3.0)**
+## ✅ **État Actuel (v0.4.0)**
 - **Fonctionnalités implémentées** :
   - Surveillance en temps réel (CPU, RAM, disque, réseau, processus).
-  - API REST avec 15+ endpoints (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/processes`, `/api/ports`, etc.).
+  - API REST avec 17+ endpoints (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/processes`, `/api/ports`, `/api/config`, etc.).
   - Alertes configurables (seuils CPU/RAM/disque).
   - Historique des métriques (stockage **SQLite**).
   - Surveillance des ports ouverts et classification des services (25+ ports connus).
   - Interface responsive avec rafraîchissement automatique.
   - **Authentification complète** : Page de login, gestion des sessions, protection de toutes les routes.
-  - **Mode sombre** : Thème alternatif avec toggle et persistance via localStorage.
+  - **Mode sombre** : Thème alternatif avec persistance via localStorage, intégré dans le menu configuration.
   - **Graphiques interactifs** : 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période.
   - **Surveillance Docker** : Statut Docker Engine, liste des conteneurs, stats par conteneur.
+  - **Menu de configuration** : Interface complète pour paramétrer l'application.
+  - **Gestion des données** : Paramétrage de l'intervalle de collecte, de la rétention (1-24 mois), et bouton d'effacement total.
 
 - **Stack technique** :
   - Backend : Node.js + Express
@@ -30,6 +32,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
   - Stockage : **SQLite** (better-sqlite3)
   - Graphiques : Chart.js (v4.4.0)
   - Authentification : express-session + bcryptjs
+  - Configuration : Menu intégré avec gestion des paramètres
 
 ---
 
@@ -38,26 +41,27 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ---
 
 ### 🔹 **1. Améliorations Immédiates (Haute Priorité)**
-| ID | Tâche | Description | Impact | Estimation |
-|----|-------|-------------|--------|------------|
-| **P1-001** | **Graphiques interactifs** | Intégrer **Chart.js** pour visualiser l'historique des métriques (CPU, RAM, disque). | 🟢 Élevé | 2 jours |
-| **P1-002** | **Base de données SQLite** | Remplacer le stockage JSON par **SQLite** pour l'historique (meilleure performance, requêtes avancées). | 🟢 Élevé | 3 jours |
-| **P1-003** | **Page de configuration** | Interface pour modifier les **seuils d'alerte** et les paramètres du dashboard. | 🟢 Élevé | 2 jours |
-| **P1-004** | **Mode sombre** | Ajouter un thème sombre avec un bouton de bascule (CSS + JavaScript). | 🟢 Élevé | 2 jours |
-| **P1-006** | **Amélioration de l'UI** | Refonte du design (animations fluides, icônes). | 🟡 Moyen | 3 jours |
+| ID | Tâche | Description | Impact | Estimation | Statut |
+|----|-------|-------------|--------|------------|--------|
+| **P1-001** | **Graphiques interactifs** | Intégrer **Chart.js** pour visualiser l'historique des métriques (CPU, RAM, disque). | 🟢 Élevé | 2 jours | ✅ **Terminé** |
+| **P1-002** | **Base de données SQLite** | Remplacer le stockage JSON par **SQLite** pour l'historique (meilleure performance, requêtes avancées). | 🟢 Élevé | 3 jours | ✅ **Terminé** |
+| **P1-003** | **Page de configuration** | Interface pour modifier les **seuils d'alerte** et les paramètres du dashboard. | 🟢 Élevé | 2 jours | ✅ **Terminé** |
+| **P1-004** | **Mode sombre** | Ajouter un thème sombre avec un bouton de bascule (CSS + JavaScript). | 🟢 Élevé | 2 jours | ✅ **Terminé** |
+| **P1-006** | **Amélioration de l'UI** | Refonte du design (animations fluides, icônes). | 🟡 Moyen | 3 jours | ✅ **Terminé** |
+| **P1-007** | **Gestion des données** | Menu de configuration avec intervalle de collecte, rétention, effacement total. | 🟢 Élevé | 3 jours | ✅ **Terminé v0.4.0** |
 
 ---
 
 ### 🔹 **2. Fonctionnalités Avancées (Moyenne Priorité)**
-| ID | Tâche | Description | Impact | Estimation |
-|----|-------|-------------|--------|------------|
-| **P2-001** | **Surveillance des services** | Vérifier l'état des services (HTTP, MySQL, Redis, SSH, etc.) via des **ping/port checks**. | 🟢 Élevé | 3 jours |
-| **P2-003** | **Support multi-langues (Français/Anglais)** | Internationalisation (i18n) avec des fichiers JSON pour les traductions. | 🟢 Élevé | 3 jours |
-| **P2-004** | **Implémentation complète du login** | Finaliser l'authentification (intégration du middleware sur toutes les pages, gestion des sessions). | 🟢 Élevé | 2 jours |
-| **P2-005** | **Notifications en temps réel** | Envoyer des alertes par **email** ou **webhook** (Discord/Slack). | 🟢 Élevé | 4 jours |
-| **P2-006** | **Tableau de bord personnalisable** | Permettre aux utilisateurs de **choisir les widgets** à afficher. | 🟡 Moyen | 5 jours |
-| **P2-007** | **Export des données** | Exporter l'historique en **CSV/JSON** pour analyse externe. | 🟡 Moyen | 2 jours |
-| **P1-005** | **Sécurisation des routes API** | Appliquer le middleware d'authentification sur **toutes les routes API**. | 🟢 Élevé | 1 jour |
+| ID | Tâche | Description | Impact | Estimation | Statut |
+|----|-------|-------------|--------|------------|--------|
+| **P2-001** | **Surveillance des services** | Vérifier l'état des services (HTTP, MySQL, Redis, SSH, etc.) via des **ping/port checks**. | 🟢 Élevé | 3 jours | ⏳ À venir |
+| **P2-003** | **Support multi-langues (Français/Anglais)** | Internationalisation (i18n) avec des fichiers JSON pour les traductions. | 🟢 Élevé | 3 jours | ⏳ À venir |
+| **P2-004** | **Implémentation complète du login** | Finaliser l'authentification (intégration du middleware sur toutes les pages, gestion des sessions). | 🟢 Élevé | 2 jours | ✅ **Terminé** |
+| **P2-005** | **Notifications en temps réel** | Envoyer des alertes par **email** ou **webhook** (Discord/Slack). | 🟢 Élevé | 4 jours | ⏳ À venir |
+| **P2-006** | **Tableau de bord personnalisable** | Permettre aux utilisateurs de **choisir les widgets** à afficher. | 🟡 Moyen | 5 jours | ⏳ À venir |
+| **P2-007** | **Export des données** | Exporter l'historique en **CSV/JSON** pour analyse externe. | 🟡 Moyen | 2 jours | ⏳ À venir |
+| **P1-005** | **Sécurisation des routes API** | Appliquer le middleware d'authentification sur **toutes les routes API**. | 🟢 Élevé | 1 jour | ✅ **Terminé** |
 
 ---
 
@@ -94,8 +98,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📅 **Calendrier Prévisionnel**
 | Phase | Objectif | Début | Durée |
 |-------|----------|-------|-------|
-| **Phase 1** | Améliorations immédiates (P1-001 à P1-004, P1-006) | Immédiat | ~12 jours |
-| **Phase 2** | Fonctionnalités avancées (P2-001, P2-003 à P2-007, P1-005) | Après Phase 1 | ~20 jours |
+| **Phase 1** | Améliorations immédiates (P1-001 à P1-007) | Immédiat | ~12 jours | ✅ **Terminée v0.4.0** |
+| **Phase 2** | Fonctionnalités avancées (P2-001, P2-003 à P2-007, P1-005) | Après Phase 1 | ~20 jours | ⏳ En cours |
 | **Phase 3** | Optimisation & Sécurité (P3-001 à P3-004) | Après Phase 2 | ~10 jours |
 | **Phase 4** | Déploiement & Automatisation (P4-001 à P4-004, P2-002) | Après Phase 3 | ~11 jours |
 | **Phase 5** | Évolutions futures (P5-001 à P5-003) | 2027 | À définir |
@@ -103,10 +107,10 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ---
 
 ## 🎯 **Objectifs à Court Terme (3 mois)**
-- [ ] **Terminer la Phase 1** (Graphiques, SQLite, page de configuration, mode sombre, UI améliorée).
-- [ ] **Terminer la Phase 2** (Surveillance des services, multi-langues, login, sécurisation API, notifications, etc.).
+- [x] **Terminer la Phase 1** (Graphiques, SQLite, page de configuration, mode sombre, UI améliorée, gestion des données).
+- [ ] **Terminer la Phase 2** (Surveillance des services, multi-langues, notifications, etc.).
 - [ ] **Atteindre 100% de couverture des tests** pour les fonctionnalités critiques.
-- [ ] **Publier une version v0.2.0** avec les améliorations majeures.
+- [x] **Publier une version v0.4.0** avec les améliorations majeures.
 
 ---
 
@@ -120,12 +124,14 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📊 **Métriques de Succès**
 | Métrique | Objectif | Statut |
 |----------|----------|--------|
-| **Endpoints API** | 10+ | ✅ **15+/15** (avec authentification) |
+| **Endpoints API** | 10+ | ✅ **17+/17** (avec authentification + config) |
 | **Stockage historique** | Fonctionnel | ✅ **SQLite** (remplace JSON) |
 | **Surveillance Docker** | Implémentée | ✅ **Partielle** (Docker Engine + conteneurs) |
 | **Authentification** | Complète | ✅ **100%** (sessions + middleware) |
 | **Graphiques** | 4 graphiques | ✅ **100%** (CPU, RAM, Disque, Réseau) |
-| **Mode sombre** | Implémenté | ✅ **100%** (toggle + persistance) |
+| **Mode sombre** | Implémenté | ✅ **100%** (intégré dans menu config) |
+| **Menu de configuration** | Fonctionnel | ✅ **100%** (v0.4.0) |
+| **Gestion des données** | Complète | ✅ **100%** (rétention + effacement) |
 | **Multi-langues** | Français/Anglais | ❌ À venir |
 | **Couverture des tests** | > 80% | ❌ 0% |
 | **Temps de réponse API** | < 200ms | ❌ Non mesuré |
@@ -134,21 +140,23 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 
 ## 📝 Changelog des Versions
 
+### Version 0.4.0 - 29 juin 2026
+**Menu de configuration et gestion des données**
+- ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
+- ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
+- ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
+- ✅ **Effacement total** : Bouton pour supprimer toutes les données historiques (SQLite + JSON)
+- ✅ **Intégration du mode sombre** : Basculer entre mode clair/sombre depuis le menu configuration
+- ✅ **Style unifié** : Cohérence des boutons (logout, configuration) et ajout d'icônes
+- ✅ **Rechargement automatique** : La page se recharge après effacement pour afficher les changements
+- ✅ **Corrections de bugs** : Résolution des problèmes d'affichage des processus et ports
+
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
 - ✅ **Mode sombre complet** : Thème alternatif avec toggle, persistance localStorage
 - ✅ Adaptation de toutes les couleurs (cartes, graphiques, tableaux, boutons, alertes)
 - ✅ Icône dynamique (lune/soleil) dans le header
-- ✅ Ajout de 3 nouveaux graphiques (CPU, RAM, Disque) avec Chart.js
-- ✅ Amélioration du graphique réseau existant
-- ✅ Filtres par période indépendants pour chaque graphique (Jour/Semaine/Mois)
-- ✅ Mise à jour automatique des graphiques toutes les minutes
-- ✅ Design responsive pour mobile
-
-### Version 0.3.0 - 24 juin 2026
-**Graphiques interactifs**
-- ✅ Ajout de 3 nouveaux graphiques (CPU, RAM, Disque) avec Chart.js
-- ✅ Amélioration du graphique réseau existant
+- ✅ Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js
 - ✅ Filtres par période indépendants pour chaque graphique (Jour/Semaine/Mois)
 - ✅ Mise à jour automatique des graphiques toutes les minutes
 - ✅ Design responsive pour mobile
@@ -177,4 +185,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **27 juin 2026** (Version 0.3.0 - Mode sombre ajouté).*
+> *Dernière mise à jour : **29 juin 2026** (Version 0.4.0 - Menu de configuration et gestion des données).*

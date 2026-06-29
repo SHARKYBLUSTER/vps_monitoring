@@ -24,7 +24,9 @@
 - Design responsive (mobile-friendly)
 - Tableaux triables (par CPU ou RAM pour les processus)
 - Rafraîchissement dynamique sans rechargement de page
-- **Mode sombre** : Thème alternatif avec toggle et persistance via localStorage
+- **Mode sombre** : Thème alternatif avec persistance via localStorage
+- **Boutons unifiés** : Style CSS cohérent pour tous les boutons (logout, configuration, etc.)
+- **Icônes** : Ajout d'icônes pour les boutons du menu configuration
 
 ### ⚠️ **Alertes intelligentes**
 - Seuils configurables pour CPU, RAM et Disque
@@ -33,13 +35,22 @@
 
 ### 📈 **Historique et analyse**
 - Stockage des métriques historiques (SQLite)
-- Collecte automatique toutes les 5 minutes
+- **Paramètre de rétention configurable** : Durée de stockage des données en mois (1-24 mois)
+- Collecte automatique avec intervalle configurable
 - Endpoints API pour récupérer les données historiques
+
+### ⚙️ **Configuration avancée**
+- **Menu de configuration** accessible depuis l'interface
+- **Intervalle de collecte** : Ajustement de la fréquence de collecte des métriques (en ms)
+- **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
+- **Effacement des données** : Bouton pour supprimer toutes les données historiques
+- **Gestion du thème** : Basculer entre mode clair/sombre directement depuis le menu configuration
 
 ### 🔍 **Surveillance avancée**
 - **Top 5 processus** : Identification des processus les plus gourmands
 - Tri dynamique par CPU ou mémoire
 - Visualisation avec barres de progression
+- **Analyse améliorée** : Données cohérentes avec l'utilisation globale CPU/RAM
 
 ### 🔌 **Sécurité des ports**
 - **Surveillance des ports ouverts** : Liste des ports TCP en écoute
@@ -317,6 +328,9 @@ Le backend expose plusieurs endpoints pour récupérer les données :
 | GET | `/api/history/:metric` | Données pour graphique (cpu, memory, disk) |
 | GET | `/api/history/alerts` | Historique des alertes |
 | POST | `/api/history/cleanup` | Nettoyer l'historique |
+| POST | `/api/history/clear-all` | **EFFACER TOUTES les données** |
+| GET | `/api/config` | Configuration actuelle |
+| POST | `/api/config` | Mettre à jour la configuration |
 
 ### 🐳 **Endpoints Docker**
 
@@ -380,6 +394,9 @@ vps_monitoring/
 
 | Version | Date | Modifications |
 |---------|------|---------------|
+| **0.4.0** | **29 juin 2026** | **Menu de configuration complet** : Interface pour modifier l'intervalle de collecte, la rétention des données (1-24 mois), bouton d'effacement total, intégration du mode sombre, style unifié des boutons, icônes ajoutées. |
+| **0.4.0** | **29 juin 2026** | **Effacement des données** : Bouton pour supprimer toutes les données historiques (SQLite + JSON), avec VACUUM pour réduire la taille du fichier, rechargement automatique de la page. |
+| **0.4.0** | **29 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |
 | 0.3.0 | 27 juin 2026 | **Mode sombre** : Ajout d'un thème sombre avec toggle, persistance localStorage, adaptation de toutes les couleurs (cartes, graphiques, tableaux, alertes). |
 | 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
 | 0.2.6 | 24 juin 2026 | **Surveillance Docker complète** : Intégration de dockerode pour surveiller les conteneurs Docker (stats CPU/RAM/Réseau/Disque, alertes, contrôles start/stop/restart, historique SQLite, graphiques par conteneur). |
