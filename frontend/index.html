@@ -1071,10 +1071,7 @@
           <span id="user-info" style="color: white; margin-right: 15px; font-size: 0.95rem;">
             Connecté en tant que : <strong id="username-display">admin</strong>
           </span>
-          <button id="theme-toggle" class="theme-toggle-btn" title="Basculer en mode sombre/clair (raccourci)">
-            <i class="fas fa-moon"></i>
-          </button>
-          <button id="config-btn" class="config-btn" title="Configuration">
+          <button id="config-btn" class="config-btn" title="Configuration"
             <i class="fas fa-cog"></i>
           </button>
           <a href="/logout" class="logout-btn">Déconnexion</a>
@@ -2285,48 +2282,7 @@
       return label;
   </script>
 
-  <!-- Gestion du mode sombre -->
-  <script>
-    // Fonction pour activer/désactiver le mode sombre
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      
-      // Changer l'icône selon le mode
-      const toggleBtn = document.getElementById('theme-toggle');
-      if (toggleBtn && toggleBtn.querySelector('i')) {
-        toggleBtn.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-      }
-      
-      // Sauvegarder la préférence dans localStorage
-      localStorage.setItem('vps_monitoring_dark_mode', isDark ? 'true' : 'false');
-      
-      // Rafraîchir les graphiques avec les nouvelles couleurs
-      if (typeof refreshAllCharts === 'function') {
-        refreshAllCharts();
-      }
-    }
-    
-    // Charger la préférence de mode sombre au chargement de la page
-    document.addEventListener('DOMContentLoaded', () => {
-      const savedDarkMode = localStorage.getItem('vps_monitoring_dark_mode');
-      const isDark = savedDarkMode === 'true';
-      
-      if (isDark) {
-        document.body.classList.add('dark-mode');
-        const toggleBtn = document.getElementById('theme-toggle');
-        if (toggleBtn && toggleBtn.querySelector('i')) {
-          toggleBtn.querySelector('i').className = 'fas fa-sun';
-        }
-      }
-      
-      // Ajouter l'écouteur d'événement au bouton
-      const themeToggle = document.getElementById('theme-toggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', toggleDarkMode);
-      }
-    });
-  </script>
+
 
   <!-- Script pour la configuration -->
   <script>
@@ -2402,12 +2358,6 @@
       
       // Appliquer le changement
       document.body.classList.toggle('dark-mode', newDarkMode);
-      
-      // Mettre à jour l'icône dans le header
-      const toggleBtn = document.getElementById('theme-toggle');
-      if (toggleBtn && toggleBtn.querySelector('i')) {
-        toggleBtn.querySelector('i').className = newDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-      }
       
       // Sauvegarder la préférence
       localStorage.setItem('vps_monitoring_dark_mode', newDarkMode ? 'true' : 'false');
@@ -2595,12 +2545,6 @@
             // Appliquer le thème
             document.body.classList.toggle('dark-mode', isDark);
             
-            // Mettre à jour l'icône dans le header
-            const headerToggleBtn = document.getElementById('theme-toggle');
-            if (headerToggleBtn && headerToggleBtn.querySelector('i')) {
-              headerToggleBtn.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-            }
-            
             // Sauvegarder la préférence
             localStorage.setItem('vps_monitoring_dark_mode', isDark ? 'true' : 'false');
             
@@ -2629,6 +2573,17 @@
           updateFrontendIntervals(currentConfig.metricsInterval);
         }
       });
+      
+      // Charger la préférence de mode sombre au démarrage
+      const savedDarkMode = localStorage.getItem('vps_monitoring_dark_mode');
+      const isDark = savedDarkMode === 'true';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+        // Rafraîchir les graphiques avec les bonnes couleurs
+        if (typeof refreshAllCharts === 'function') {
+          refreshAllCharts();
+        }
+      }
     });
   </script>
 </body>
