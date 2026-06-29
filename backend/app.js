@@ -45,8 +45,8 @@ app.use(session({
   cookie: { 
     secure: false, 
     maxAge: 24 * 60 * 60 * 1000, // 24h
-    httpOnly: true,
-    sameSite: 'lax'
+    httpOnly: true
+    // sameSite: 'lax' // Désactivé pour éviter les problèmes de cookies cross-site
   }
 }));
 // Middleware CORS pour autoriser les requêtes depuis le frontend
@@ -56,12 +56,32 @@ app.use((req, res, next) => {
   
   // Déterminer l'origine
   // Avec credentials, on NE PEUT PAS utiliser '*' - il faut une origine spécifique
-  const origin = req.headers.origin;
+  const origin = req.headers.origin || req.headers.referer;
+  const host = req.get('host');
   
-  // Si c'est une requête same-origin (pas de header Origin), on utilise une valeur par défaut
-  // En développement: http://localhost:3000, en production: utiliser l'host
-  const defaultOrigin = 'http://localhost:3000';
-  const allowedOrigin = origin || defaultOrigin;
+  // Détecter le protocole (en tenant compte des proxys comme Nginx)
+  const forwardedProto = req.headers['x-forwarded-proto'];
+  const protocol = forwardedProto ? forwardedProto : (req.secure ? 'https' : 'http');
+  
+  // Construire l'URL complète de l'origine
+  let allowedOrigin;
+  if (origin) {
+    // Si origin est présent, l'utiliser directement
+    allowedOrigin = origin;
+  } else {
+    // Pour les requêtes same-origin, construire à partir de l'host et protocole
+    allowedOrigin = `${protocol}://${host}`;
+    
+    // Ajouter le port si nécessaire (pour le développement local)
+    if (host.includes('localhost') || host.includes('127.0.0.1')) {
+      allowedOrigin = `${protocol}://${host}:3000`;
+    }
+  }
+  
+  // Garantir que localhost utilise toujours le port 3000 en développement
+  if (host && (host.includes('localhost') || host.includes('127.0.0.1'))) {
+    allowedOrigin = 'http://localhost:3000';
+  }
   
   res.header('Access-Control-Allow-Origin', allowedOrigin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
