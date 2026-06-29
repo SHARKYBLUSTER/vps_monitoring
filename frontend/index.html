@@ -2761,12 +2761,23 @@
       // Charger la configuration au démarrage et mettre à jour les intervalles
       // Mais seulement si l'authentification est vérifiée
       window.authPromise.then(async () => {
+        console.log('🔍 [DEBUG] Auth check complete. userAuthenticated:', window.userAuthenticated);
         if (window.userAuthenticated) {
           await loadCurrentConfig();
+          console.log('🔍 [DEBUG] Config loaded. metricsInterval:', currentConfig.metricsInterval);
           if (currentConfig.metricsInterval) {
+            console.log('🔍 [DEBUG] Starting updateFrontendIntervals with interval:', currentConfig.metricsInterval);
             await updateFrontendIntervals(currentConfig.metricsInterval);
+          } else {
+            console.error('❌ [DEBUG] metricsInterval is undefined!');
           }
+        } else {
+          console.error('❌ [DEBUG] User is NOT authenticated! Redirecting...');
+          window.location.href = '/login';
         }
+      }).catch(error => {
+        console.error('❌ [DEBUG] Error in auth flow:', error);
+        window.location.href = '/login';
       });
       
       // Charger la préférence de mode sombre au démarrage
