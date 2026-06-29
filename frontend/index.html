@@ -619,7 +619,362 @@
     .dark-mode .logout-btn:hover {
       background: var(--table-header-bg);
     }
-  </style>
+
+    /* ==================== MODAL DE CONFIGURATION ==================== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px var(--shadow-color);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 25px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--table-header-bg);
+    }
+
+    .modal-header h2 {
+      color: var(--card-text);
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+      background: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 25px;
+    }
+
+    .config-section {
+      margin-bottom: 25px;
+    }
+
+    .config-section h3 {
+      color: var(--card-text);
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      color: var(--card-text);
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .input-with-hint {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-with-hint input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-secondary);
+      color: var(--card-text);
+      transition: all 0.2s;
+    }
+
+    .input-with-hint input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .interval-presets {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .preset-btn {
+      padding: 10px 15px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--card-text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      background: var(--table-header-bg);
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .preset-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .config-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .save-btn, .cancel-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .save-btn {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .save-btn:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+    }
+
+    .cancel-btn {
+      background: var(--bg-secondary);
+      color: var(--card-text);
+      border: 1px solid var(--border-color);
+    }
+
+    .cancel-btn:hover {
+      background: var(--border-color);
+    }
+
+    .config-status {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .config-status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-status.success {
+      background: var(--alert-bg-success);
+      color: #155724;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-status.error {
+      background: var(--alert-bg-danger);
+      color: #721c24;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Bouton de configuration dans le header */
+    .config-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+      margin-right: 10px;
+    }
+
+    .config-btn:hover {
+      background: var(--table-header-bg);
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .dark-mode .config-btn {
+      background: var(--card-bg);
+      border-color: var(--table-border);
+      color: var(--text-primary);
+    }
+
+    .dark-mode .config-btn:hover {
+      background: var(--table-header-bg);
+    }
+
+    .dark-mode .modal-content {
+      background: var(--card-bg);
+      box-shadow: 0 20px 60px var(--shadow-color);
+    }
+
+    .dark-mode .modal-header {
+      background: var(--table-header-bg);
+      border-bottom-color: var(--border-color);
+    }
+
+    .dark-mode .modal-header h2 {
+      color: var(--text-light);
+    }
+
+    .dark-mode .close-btn:hover {
+      background: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .dark-mode .form-group label {
+      color: var(--text-primary);
+    }
+
+    .dark-mode .input-with-hint input {
+      background: var(--table-header-bg);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .dark-mode .input-with-hint input:focus {
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .dark-mode .preset-btn {
+      background: var(--table-header-bg);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .dark-mode .preset-btn:hover {
+      background: var(--table-border);
+    }
+
+    .dark-mode .preset-btn.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .dark-mode .cancel-btn {
+      background: var(--table-header-bg);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .dark-mode .cancel-btn:hover {
+      background: var(--border-color);
+    }
+
+    .dark-mode .config-description {
+      color: var(--text-secondary);
+    }
+
+    .dark-mode .config-status.info {
+      background: #1d3a4a;
+      color: #90e0ef;
+    }
+
+    .dark-mode .config-status.success {
+      background: var(--alert-bg-success);
+      color: #90e0ef;
+    }
+
+    .dark-mode .config-status.error {
+      background: var(--alert-bg-danger);
+      color: #f5c6cb;
+    }
+    </style>
   <!-- Font Awesome CDN pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
   <!-- Alternative Font Awesome si le CDN principal échoue -->
@@ -652,6 +1007,9 @@
           </span>
           <button id="theme-toggle" class="theme-toggle-btn" title="Basculer en mode sombre/clair">
             <i class="fas fa-moon"></i>
+          </button>
+          <button id="config-btn" class="config-btn" title="Configuration">
+            <i class="fas fa-cog"></i>
           </button>
           <a href="/logout" class="logout-btn">Déconnexion</a>
         </div>
@@ -831,6 +1189,52 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL DE CONFIGURATION ==================== -->
+    <div id="config-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-cogs"></i> Configuration</h2>
+          <button id="close-config" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="config-section">
+            <h3><i class="fas fa-clock"></i> Fréquence d'enregistrement</h3>
+            <p class="config-description">
+              Configurez l'intervalle de collecte des données (en millisecondes).
+              <br>Plus l'intervalle est court, plus la surveillance est précise, mais plus le serveur est sollicité.
+            </p>
+            
+            <div class="form-group">
+              <label for="metrics-interval">Intervalle de collecte (ms):</label>
+              <div class="input-with-hint">
+                <input type="number" id="metrics-interval" min="1000" step="1000" value="5000">
+                <span class="hint">Recommandé: 5000-30000ms</span>
+              </div>
+            </div>
+            
+            <div class="interval-presets">
+              <button class="preset-btn" data-value="5000">5 secondes</button>
+              <button class="preset-btn" data-value="10000">10 secondes</button>
+              <button class="preset-btn" data-value="30000">30 secondes</button>
+              <button class="preset-btn" data-value="60000">1 minute</button>
+              <button class="preset-btn" data-value="300000">5 minutes</button>
+            </div>
+          </div>
+          
+          <div class="config-actions">
+            <button id="save-config" class="save-btn">
+              <i class="fas fa-save"></i> Sauvegarder
+            </button>
+            <button id="cancel-config" class="cancel-btn">
+              <i class="fas fa-times"></i> Annuler
+            </button>
+          </div>
+          
+          <div id="config-status" class="config-status"></div>
+        </div>
       </div>
     </div>
 
@@ -1414,10 +1818,11 @@
       updatePorts();
       updateDockerInfo();
       
-      // Rafraîchir toutes les 5 secondes (sans recharger la page)
-      setInterval(updateMetrics, 5000);
-      setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
-      setInterval(updatePorts, 30000); // Rafraîchir les ports toutes les 30 secondes
+      // Rafraîchir avec l'intervalle configuré
+      // Ces intervalles seront remplacés par updateFrontendIntervals si une configuration est chargée
+      window.metricsIntervalId = setInterval(updateMetrics, 5000);
+      window.processesIntervalId = setInterval(updateProcesses, 10000); // Rafraîchir les processus toutes les 10 secondes
+      window.portsIntervalId = setInterval(updatePorts, 30000); // Rafraîchir les ports toutes les 30 secondes
       
       // Initialiser les boutons de filtre réseau (uniquement les boutons avec data-metric="network")
       document.querySelectorAll('.card-filters .filter-btn[data-metric="network"]').forEach(btn => {
@@ -1833,6 +2238,226 @@
       if (themeToggle) {
         themeToggle.addEventListener('click', toggleDarkMode);
       }
+    });
+  </script>
+
+  <!-- Script pour la configuration -->
+  <script>
+    // Variables globales pour la configuration
+    let currentConfig = { metricsInterval: 5000 };
+
+    // Fonction pour ouvrir la modal de configuration
+    function openConfigModal() {
+      const modal = document.getElementById('config-modal');
+      if (modal) {
+        modal.classList.add('active');
+        loadCurrentConfig();
+      }
+    }
+
+    // Fonction pour fermer la modal de configuration
+    function closeConfigModal() {
+      const modal = document.getElementById('config-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        hideConfigStatus();
+      }
+    }
+
+    // Fonction pour charger la configuration actuelle depuis l'API
+    async function loadCurrentConfig() {
+      try {
+        const response = await fetch('/api/config');
+        if (!response.ok) throw new Error('Impossible de charger la configuration');
+        
+        const data = await response.json();
+        if (data.success && data.data) {
+          currentConfig = data.data;
+          
+          // Mettre à jour l'interface
+          const intervalInput = document.getElementById('metrics-interval');
+          if (intervalInput) {
+            intervalInput.value = currentConfig.metricsInterval;
+          }
+          
+          // Mettre à jour les boutons de présélection
+          updatePresetButtons();
+        }
+      } catch (error) {
+        console.error('❌ Erreur chargement configuration:', error);
+        showConfigStatus('❌ Impossible de charger la configuration', 'error');
+      }
+    }
+
+    // Fonction pour mettre à jour les boutons de présélection
+    function updatePresetButtons() {
+      const interval = currentConfig.metricsInterval;
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        const value = parseInt(btn.dataset.value);
+        if (value === interval) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // Fonction pour appliquer une valeur de présélection
+    function applyPresetValue(value) {
+      const intervalInput = document.getElementById('metrics-interval');
+      if (intervalInput) {
+        intervalInput.value = value;
+        currentConfig.metricsInterval = parseInt(value);
+        updatePresetButtons();
+      }
+    }
+
+    // Fonction pour sauvegarder la configuration
+    async function saveConfig() {
+      const intervalInput = document.getElementById('metrics-interval');
+      const newInterval = parseInt(intervalInput.value);
+      
+      if (isNaN(newInterval) || newInterval < 1000) {
+        showConfigStatus('❌ L\'intervalle doit être un nombre valide ≥ 1000ms', 'error');
+        return;
+      }
+
+      try {
+        showConfigStatus('🔄 Sauvegarde en cours...', 'info');
+        
+        const response = await fetch('/api/config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            metricsInterval: newInterval
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          currentConfig.metricsInterval = newInterval;
+          showConfigStatus('✅ Configuration sauvegardée avec succès!', 'success');
+          
+          // Mettre à jour l'intervalle de rafraîchissement du frontend immédiatement
+          updateFrontendIntervals(newInterval);
+          
+          // Fermer la modal après un délai
+          setTimeout(() => {
+            closeConfigModal();
+          }, 1500);
+        } else {
+          showConfigStatus(`❌ Erreur: ${data.error || 'Impossible de sauvegarder'}`, 'error');
+        }
+      } catch (error) {
+        console.error('❌ Erreur sauvegarde configuration:', error);
+        showConfigStatus('❌ Impossible de sauvegarder la configuration', 'error');
+      }
+    }
+
+    // Fonction pour afficher un message de statut
+    function showConfigStatus(message, type = 'info') {
+      const statusElement = document.getElementById('config-status');
+      if (statusElement) {
+        statusElement.textContent = message;
+        statusElement.className = `config-status ${type}`;
+        statusElement.style.display = 'flex';
+      }
+    }
+
+    // Fonction pour cacher le message de statut
+    function hideConfigStatus() {
+      const statusElement = document.getElementById('config-status');
+      if (statusElement) {
+        statusElement.style.display = 'none';
+      }
+    }
+
+    // Fonction pour mettre à jour les intervalles de rafraîchissement du frontend
+    function updateFrontendIntervals(newInterval) {
+      // Arrêter les intervalles existants
+      if (window.metricsIntervalId) clearInterval(window.metricsIntervalId);
+      if (window.processesIntervalId) clearInterval(window.processesIntervalId);
+      if (window.portsIntervalId) clearInterval(window.portsIntervalId);
+      
+      // Redémarrer avec le nouvel intervalle
+      if (typeof updateMetrics === 'function') {
+        updateMetrics(); // Mise à jour immédiate
+        window.metricsIntervalId = setInterval(updateMetrics, newInterval);
+      }
+      if (typeof updateProcesses === 'function') {
+        updateProcesses();
+        // Garder un intervalle différent pour les processus (2x l'intervalle de base)
+        window.processesIntervalId = setInterval(updateProcesses, newInterval * 2);
+      }
+      if (typeof updatePorts === 'function') {
+        updatePorts();
+        window.portsIntervalId = setInterval(updatePorts, newInterval * 6);
+      }
+      
+      console.log(`✅ Intervalles de rafraîchissement mis à jour: ${newInterval}ms`);
+    }
+
+    // Initialisation de la gestion de configuration
+    document.addEventListener('DOMContentLoaded', () => {
+      // Charger le bouton de configuration
+      const configBtn = document.getElementById('config-btn');
+      if (configBtn) {
+        configBtn.addEventListener('click', openConfigModal);
+      }
+      
+      // Charger la modal
+      const modal = document.getElementById('config-modal');
+      if (modal) {
+        // Fermer quand on clique en dehors de la modal
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            closeConfigModal();
+          }
+        });
+      }
+      
+      // Bouton de fermeture
+      const closeBtn = document.getElementById('close-config');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeConfigModal);
+      }
+      
+      // Bouton annuler
+      const cancelBtn = document.getElementById('cancel-config');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeConfigModal);
+      }
+      
+      // Bouton sauvegarder
+      const saveBtn = document.getElementById('save-config');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', saveConfig);
+      }
+      
+      // Boutons de présélection
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const value = parseInt(btn.dataset.value);
+          applyPresetValue(value);
+        });
+      });
+      
+      // Fermer avec la touche Échap
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeConfigModal();
+        }
+      });
+      
+      // Charger la configuration au démarrage et mettre à jour les intervalles
+      loadCurrentConfig().then(() => {
+        if (currentConfig.metricsInterval) {
+          updateFrontendIntervals(currentConfig.metricsInterval);
+        }
+      });
     });
   </script>
 </body>

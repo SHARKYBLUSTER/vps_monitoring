@@ -117,6 +117,66 @@ app.get('/logout', (req, res) => {
 // Routes API (REST)
 // ====================
 
+// Endpoint pour récupérer la configuration
+app.get('/api/config', (req, res) => {
+  try {
+    const config = require('./config/config');
+    res.json({
+      success: true,
+      data: {
+        metricsInterval: config.metricsInterval,
+        alerts: config.alerts
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/config :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer la configuration' });
+  }
+});
+
+// Endpoint pour mettre à jour la configuration
+app.post('/api/config', (req, res) => {
+  try {
+    const { metricsInterval } = req.body;
+    
+    if (metricsInterval === undefined) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'metricsInterval est requis' 
+      });
+    }
+    
+    const newInterval = parseInt(metricsInterval);
+    if (isNaN(newInterval) || newInterval < 1000) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'metricsInterval doit être un nombre valide >= 1000ms' 
+      });
+    }
+    
+    // Mettre à jour la configuration en mémoire
+    const config = require('./config/config');
+    config.metricsInterval = newInterval;
+    
+    // Mettre à jour l'intervalle dans le service d'historique
+    const historyService = require('./services/history');
+    historyService.setSaveInterval(newInterval);
+    
+    res.json({
+      success: true,
+      message: 'Configuration mise à jour avec succès',
+      data: {
+        metricsInterval: newInterval
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/config :', error);
+    res.status(500).json({ success: false, error: 'Impossible de mettre à jour la configuration' });
+  }
+});
+
 // Endpoint pour récupérer l'utilisateur connecté
 app.get('/api/user', (req, res) => {
   if (req.session && req.session.authenticated) {
@@ -362,6 +422,8 @@ app.listen(PORT, () => {
   console.log(`   - POST /api/history/cleanup (Nettoyer l'historique)`);
   console.log(`   - GET /api/network-history?period=day|week|month|quarter (Historique réseau)`);
   console.log(`   - GET /api/docker-simple       (Infos Docker de base)`);
+  console.log(`   - GET /api/config        (Configuration actuelle)`);
+  console.log(`   - POST /api/config       (Mettre à jour la configuration)`);
 });
 
 module.exports = app;

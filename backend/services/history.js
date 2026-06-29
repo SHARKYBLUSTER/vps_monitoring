@@ -22,8 +22,16 @@ try {
 const metricsService = require('./metrics');
 const config = require('../config/config');
 
-// Intervalle de sauvegarde (en ms) - par défaut 5 minutes
-const SAVE_INTERVAL = process.env.HISTORY_SAVE_INTERVAL || 300000; // 5 minutes
+// Intervalle de sauvegarde (en ms) - utilise la configuration ou 5 minutes par défaut
+let SAVE_INTERVAL = process.env.HISTORY_SAVE_INTERVAL || config.metricsInterval || 300000; // 5 minutes
+
+// Fonction pour mettre à jour l'intervalle de sauvegarde
+function setSaveInterval(newInterval) {
+  SAVE_INTERVAL = newInterval;
+  // Redémarrer la collecte avec le nouvel intervalle
+  stopAutoCollect();
+  startAutoCollect();
+}
 
 // TTL pour les données réseau : 91 jours (3 mois + 1 jour)
 const NETWORK_DATA_TTL = 91;
@@ -392,4 +400,5 @@ module.exports = {
   cleanupHistory,
   getNetworkHistory,
   cleanupNetworkHistory,
+  setSaveInterval,
 };
