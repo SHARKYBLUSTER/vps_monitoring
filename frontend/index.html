@@ -708,6 +708,11 @@
       margin-bottom: 25px;
     }
 
+    .config-section:not(:last-child) {
+      padding-bottom: 25px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
     .config-section h3 {
       color: var(--card-text);
       font-size: 1.1rem;
@@ -960,6 +965,67 @@
       color: var(--text-secondary);
     }
 
+    .dark-mode .config-section:not(:last-child) {
+      border-bottom-color: var(--border-color);
+    }
+
+    /* Theme switch button in config modal */
+    .theme-toggle-container {
+      margin-top: 10px;
+    }
+
+    .theme-switch-btn {
+      display: flex;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 25px;
+      padding: 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: var(--card-text);
+      transition: all 0.2s;
+      background: transparent;
+    }
+
+    .theme-option {
+      cursor: pointer;
+    }
+
+    .theme-option:hover {
+      background: var(--table-header-bg);
+    }
+
+    .theme-option.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .theme-option i {
+      font-size: 0.9rem;
+    }
+
+    .dark-mode .theme-switch-btn {
+      background: var(--table-header-bg);
+      border-color: var(--border-color);
+    }
+
+    .dark-mode .theme-option {
+      color: var(--text-primary);
+    }
+
+    .dark-mode .theme-option:hover {
+      background: var(--border-color);
+    }
+
     .dark-mode .config-status.info {
       background: #1d3a4a;
       color: #90e0ef;
@@ -1005,7 +1071,7 @@
           <span id="user-info" style="color: white; margin-right: 15px; font-size: 0.95rem;">
             Connecté en tant que : <strong id="username-display">admin</strong>
           </span>
-          <button id="theme-toggle" class="theme-toggle-btn" title="Basculer en mode sombre/clair">
+          <button id="theme-toggle" class="theme-toggle-btn" title="Basculer en mode sombre/clair (raccourci)">
             <i class="fas fa-moon"></i>
           </button>
           <button id="config-btn" class="config-btn" title="Configuration">
@@ -1221,6 +1287,27 @@
               <button class="preset-btn" data-value="30000">30 secondes</button>
               <button class="preset-btn" data-value="60000">1 minute</button>
               <button class="preset-btn" data-value="300000">5 minutes</button>
+            </div>
+          </div>
+
+          <div class="config-section">
+            <h3><i class="fas fa-moon"></i> Apparence</h3>
+            <p class="config-description">
+              Personnalisez l'apparence de l'interface utilisateur.
+            </p>
+            
+            <div class="form-group">
+              <label>Mode sombre</label>
+              <div class="theme-toggle-container">
+                <button id="config-dark-toggle" class="theme-switch-btn">
+                  <span class="theme-option active" data-theme="light">
+                    <i class="fas fa-sun"></i> Clair
+                  </span>
+                  <span class="theme-option" data-theme="dark">
+                    <i class="fas fa-moon"></i> Sombre
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
           
@@ -2287,6 +2374,53 @@
         console.error('❌ Erreur chargement configuration:', error);
         showConfigStatus('❌ Impossible de charger la configuration', 'error');
       }
+      
+      // Mettre à jour le bouton de thème selon l'état actuel
+      updateThemeToggleButton();
+    }
+
+    // Fonction pour mettre à jour le bouton de basculement de thème
+    function updateThemeToggleButton() {
+      const isDark = document.body.classList.contains('dark-mode');
+      const themeOptions = document.querySelectorAll('#config-dark-toggle .theme-option');
+      themeOptions.forEach(option => {
+        const theme = option.dataset.theme;
+        if (theme === 'dark' && isDark) {
+          option.classList.add('active');
+        } else if (theme === 'light' && !isDark) {
+          option.classList.add('active');
+        } else {
+          option.classList.remove('active');
+        }
+      });
+    }
+
+    // Fonction pour basculer le mode sombre depuis la modal
+    function toggleDarkModeFromConfig() {
+      const isDark = document.body.classList.contains('dark-mode');
+      const newDarkMode = !isDark;
+      
+      // Appliquer le changement
+      document.body.classList.toggle('dark-mode', newDarkMode);
+      
+      // Mettre à jour l'icône dans le header
+      const toggleBtn = document.getElementById('theme-toggle');
+      if (toggleBtn && toggleBtn.querySelector('i')) {
+        toggleBtn.querySelector('i').className = newDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+      }
+      
+      // Sauvegarder la préférence
+      localStorage.setItem('vps_monitoring_dark_mode', newDarkMode ? 'true' : 'false');
+      
+      // Rafraîchir les graphiques avec les nouvelles couleurs
+      if (typeof refreshAllCharts === 'function') {
+        refreshAllCharts();
+      }
+      
+      // Mettre à jour le bouton dans la modal
+      updateThemeToggleButton();
+      
+      showConfigStatus('✅ Thème mis à jour!', 'success');
     }
 
     // Fonction pour mettre à jour les boutons de présélection
@@ -2444,6 +2578,43 @@
           applyPresetValue(value);
         });
       });
+      
+      // Bouton de basculement de thème dans la modal
+      const themeToggleBtn = document.getElementById('config-dark-toggle');
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+          toggleDarkModeFromConfig();
+        });
+        // Gérer les clics sur les options de thème directement
+        themeToggleBtn.querySelectorAll('.theme-option').forEach(option => {
+          option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const desiredTheme = option.dataset.theme;
+            const isDark = desiredTheme === 'dark';
+            
+            // Appliquer le thème
+            document.body.classList.toggle('dark-mode', isDark);
+            
+            // Mettre à jour l'icône dans le header
+            const headerToggleBtn = document.getElementById('theme-toggle');
+            if (headerToggleBtn && headerToggleBtn.querySelector('i')) {
+              headerToggleBtn.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            
+            // Sauvegarder la préférence
+            localStorage.setItem('vps_monitoring_dark_mode', isDark ? 'true' : 'false');
+            
+            // Rafraîchir les graphiques
+            if (typeof refreshAllCharts === 'function') {
+              refreshAllCharts();
+            }
+            
+            // Mettre à jour les boutons
+            updateThemeToggleButton();
+            showConfigStatus('✅ Thème mis à jour!', 'success');
+          });
+        });
+      }
       
       // Fermer avec la touche Échap
       document.addEventListener('keydown', (e) => {
