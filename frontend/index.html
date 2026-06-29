@@ -876,31 +876,23 @@
 
     /* Bouton de configuration dans le header */
     .config-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 10px 15px;
-      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 0.9rem;
       cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.2s;
+      transition: background 0.3s ease;
       margin-right: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .config-btn:hover {
-      background: var(--table-header-bg);
-      border-color: #667eea;
-      color: #667eea;
-    }
-
-    .dark-mode .config-btn {
-      background: var(--card-bg);
-      border-color: var(--table-border);
-      color: var(--text-primary);
-    }
-
-    .dark-mode .config-btn:hover {
-      background: var(--table-header-bg);
+      background: rgba(255, 255, 255, 0.3);
     }
 
     .dark-mode .modal-content {
@@ -1071,7 +1063,7 @@
           <span id="user-info" style="color: white; margin-right: 15px; font-size: 0.95rem;">
             Connecté en tant que : <strong id="username-display">admin</strong>
           </span>
-          <button id="config-btn" class="config-btn" title="Configuration"
+          <button id="config-btn" class="config-btn" title="Configuration">
             <i class="fas fa-cog"></i>
           </button>
           <a href="/logout" class="logout-btn">Déconnexion</a>
