@@ -412,6 +412,25 @@
       padding: 20px;
     }
 
+    .processes-hint {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #6c757d;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .processes-hint i {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .dark-mode .processes-hint {
+      color: var(--text-secondary);
+    }
+
     /* Barres de progression pour CPU/RAM dans le tableau */
     .process-bar {
       display: inline-block;
@@ -1199,6 +1218,11 @@
             </tr>
           </tbody>
         </table>
+        <p class="processes-hint">
+          <i class="fas fa-info-circle"></i> 
+          Les pourcentages CPU/RAM sont calculés par rapport à la capacité totale du système.
+          La somme peut dépasser 100% (multi-cœurs).
+        </p>
       </div>
     </div>
 

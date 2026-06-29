@@ -294,8 +294,9 @@ async function getPortsFromSS() {
  */
 async function getTopProcesses(limit = 5) {
   try {
-    // si.processes() retourne un objet avec une propriété 'list'
-    const result = await si.processes();
+    // si.processes() avec option percent:true pour forcer les valeurs en pourcentage (0-100)
+    // Cela garantit que cpu et mem sont bien des pourcentages de l'utilisation totale
+    const result = await si.processes({ percent: true });
     
     // Vérifier si on a bien un objet avec la propriété list
     const processes = result.list || result || [];
@@ -311,20 +312,25 @@ async function getTopProcesses(limit = 5) {
       .sort((a, b) => (b.cpu || 0) - (a.cpu || 0)) // Tri par CPU (décroissant)
       .slice(0, limit)
       .map(p => {
-        // Normaliser les valeurs : si cpu/mem sont entre 0 et 1, les convertir en pourcentage (0-100)
-        const cpuValue = p.cpu !== undefined && p.cpu !== null ? p.cpu : 0;
-        const memValue = p.mem !== undefined && p.mem !== null ? p.mem : 0;
+        // Avec {percent: true}, cpu et mem devraient déjà être en pourcentage (0-100)
+        // Mais on normalise pour être sûr (compatibilité avec d'anciennes versions)
+        let cpuValue = p.cpu !== undefined && p.cpu !== null ? p.cpu : 0;
+        let memValue = p.mem !== undefined && p.mem !== null ? p.mem : 0;
         
-        // Si la valeur est entre 0 et 1 (et non 0-100), la multiplier par 100
-        // On vérifie <= 1 POUR inclure les valeurs décimales comme 0.5, 0.8, etc.
-        const normalizedCpu = cpuValue >= 0 && cpuValue <= 1 ? cpuValue * 100 : cpuValue;
-        const normalizedMem = memValue >= 0 && memValue <= 1 ? memValue * 100 : memValue;
+        // Si la valeur est entre 0 et 1 (fraction), la convertir en pourcentage
+        // Note: avec percent:true, cela ne devrait pas arriver, mais on garde pour sécurité
+        if (cpuValue >= 0 && cpuValue <= 1) cpuValue *= 100;
+        if (memValue >= 0 && memValue <= 1) memValue *= 100;
+        
+        // Limiter à 0-100 pour éviter les valeurs aberrantes
+        cpuValue = Math.max(0, Math.min(100, cpuValue));
+        memValue = Math.max(0, Math.min(100, memValue));
         
         return {
           pid: p.pid,
           name: p.name || 'unknown',
-          cpu: normalizedCpu ? parseFloat(normalizedCpu.toFixed(1)) : 0,
-          mem: normalizedMem ? parseFloat(normalizedMem.toFixed(1)) : 0, // en %
+          cpu: parseFloat(cpuValue.toFixed(1)),
+          mem: parseFloat(memValue.toFixed(1)), // en %
           user: p.user || 'unknown',
         };
       });
