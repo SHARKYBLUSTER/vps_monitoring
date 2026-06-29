@@ -1426,9 +1426,9 @@
       try {
         // Récupérer les métriques et le réseau en parallèle
         const [metricsResponse, networkResponse, alertsResponse] = await Promise.all([
-          fetch('/api/metrics'),
-          fetch('/api/network'),
-          fetch('/api/alerts')
+          fetch('/api/metrics', { credentials: 'include' }),
+          fetch('/api/network', { credentials: 'include' }),
+          fetch('/api/alerts', { credentials: 'include' })
         ]);
 
         if (!metricsResponse.ok || !networkResponse.ok || !alertsResponse.ok) {
@@ -1519,7 +1519,7 @@
     // Fonction pour mettre à jour les processus
     async function updateProcesses() {
       try {
-        const response = await fetch('/api/processes');
+        const response = await fetch('/api/processes', { credentials: 'include' });
         if (!response.ok) throw new Error('Impossible de charger les processus');
         
         const data = await response.json();
@@ -1760,7 +1760,7 @@
     // Fonction pour mettre à jour les ports ouverts
     async function updatePorts() {
       try {
-        const response = await fetch('/api/ports');
+        const response = await fetch('/api/ports', { credentials: 'include' });
         if (!response.ok) throw new Error('Impossible de charger les ports');
         
         const data = await response.json();
@@ -1798,7 +1798,7 @@
     // Fonction pour mettre à jour les infos Docker
     async function updateDockerInfo() {
       try {
-        const response = await fetch('/api/docker-simple');
+        const response = await fetch('/api/docker-simple', { credentials: 'include' });
         const data = await response.json();
         if (data.success && data.data) {
           const info = data.data;
@@ -1825,7 +1825,7 @@
     // Fonction pour charger l'historique réseau
     async function loadNetworkHistory(period = 'day') {
       try {
-        const response = await fetch(`/api/network-history?period=${period}`);
+        const response = await fetch(`/api/network-history?period=${period}`, { credentials: 'include' });
         const data = await response.json();
         return data;
       } catch (error) {
@@ -2004,7 +2004,7 @@
   <script>
     async function updateUserInfo() {
       try {
-        const response = await fetch('/api/user');
+        const response = await fetch('/api/user', { credentials: 'include' });
         const data = await response.json();
         
         if (data.authenticated && data.username) {
@@ -2103,7 +2103,7 @@
         // Pour le jour, on veut toutes les données (limite plus élevée)
         // Pour semaine/mois, 100 points suffisent (max 30 ou 7 jours)
         const limit = period === 'day' ? 500 : 100;
-        const response = await fetch(`/api/history/${metric}?period=${period}&limit=${limit}`);
+        const response = await fetch(`/api/history/${metric}?period=${period}&limit=${limit}`, { credentials: 'include' });
         if (!response.ok) throw new Error('Impossible de charger les données');
 
         const data = await response.json();
@@ -2564,6 +2564,7 @@
         
         if (data.success) {
           currentConfig.metricsInterval = newInterval;
+          currentConfig.dataRetentionMonths = newRetention;
           showConfigStatus('✅ Configuration sauvegardée avec succès!', 'success');
           
           // Mettre à jour l'intervalle de rafraîchissement du frontend immédiatement
