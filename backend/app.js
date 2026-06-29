@@ -125,6 +125,7 @@ app.get('/api/config', (req, res) => {
       success: true,
       data: {
         metricsInterval: config.metricsInterval,
+        dataRetentionMonths: config.dataRetentionMonths,
         alerts: config.alerts
       },
       timestamp: new Date().toISOString(),
@@ -138,36 +139,53 @@ app.get('/api/config', (req, res) => {
 // Endpoint pour mettre à jour la configuration
 app.post('/api/config', (req, res) => {
   try {
-    const { metricsInterval } = req.body;
+    const { metricsInterval, dataRetentionMonths } = req.body;
     
-    if (metricsInterval === undefined) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'metricsInterval est requis' 
-      });
+    // Validation des paramètres
+    if (metricsInterval !== undefined) {
+      const newInterval = parseInt(metricsInterval);
+      if (isNaN(newInterval) || newInterval < 1000) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'metricsInterval doit être un nombre valide >= 1000ms' 
+        });
+      }
+      
+      // Mettre à jour la configuration en mémoire
+      const config = require('./config/config');
+      config.metricsInterval = newInterval;
+      
+      // Mettre à jour l'intervalle dans le service d'historique
+      const historyService = require('./services/history');
+      historyService.setSaveInterval(newInterval);
     }
     
-    const newInterval = parseInt(metricsInterval);
-    if (isNaN(newInterval) || newInterval < 1000) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'metricsInterval doit être un nombre valide >= 1000ms' 
-      });
+    if (dataRetentionMonths !== undefined) {
+      const newRetention = parseInt(dataRetentionMonths);
+      if (isNaN(newRetention) || newRetention < 1 || newRetention > 24) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'dataRetentionMonths doit être entre 1 et 24 mois' 
+        });
+      }
+      
+      // Mettre à jour la rétention dans la configuration
+      const config = require('./config/config');
+      config.dataRetentionMonths = newRetention;
+      
+      // Mettre à jour le TTL dans le service d'historique
+      const historyService = require('./services/history');
+      // Note: Le nettoyage automatique utilisera la nouvelle valeur au prochain cycle
     }
     
-    // Mettre à jour la configuration en mémoire
+    // Retourner la configuration complète
     const config = require('./config/config');
-    config.metricsInterval = newInterval;
-    
-    // Mettre à jour l'intervalle dans le service d'historique
-    const historyService = require('./services/history');
-    historyService.setSaveInterval(newInterval);
-    
     res.json({
       success: true,
       message: 'Configuration mise à jour avec succès',
       data: {
-        metricsInterval: newInterval
+        metricsInterval: config.metricsInterval,
+        dataRetentionMonths: config.dataRetentionMonths
       },
       timestamp: new Date().toISOString(),
     });
@@ -334,6 +352,24 @@ app.post('/api/history/cleanup', async (req, res) => {
   }
 });
 
+// Endpoint pour effacer TOUTES les données
+app.post('/api/history/clear-all', async (req, res) => {
+  try {
+    const db = require('./services/db-sqlite');
+    // Appeler cleanupOldData avec un grand nombre négatif pour tout supprimer
+    // -36500 jours = environ 100 ans dans le passé, donc tout sera supprimé
+    const deletedCount = await db.cleanupOldData(-36500);
+    res.json({
+      success: true,
+      message: `✅ Toutes les données ont été supprimées (${deletedCount} entrées)`,
+      deletedCount,
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/history/clear-all :', error);
+    res.status(500).json({ success: false, error: 'Impossible de supprimer toutes les données' });
+  }
+});
+
 // Endpoint pour l'historique réseau avec filtres temporels
 app.get('/api/network-history', async (req, res) => {
   try {
@@ -373,19 +409,23 @@ app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Planifie le nettoyage automatique de TOUTES les données (91 jours = 3 mois + 1 jour)
+// Planifie le nettoyage automatique de TOUTES les données
 const scheduleCleanup = () => {
+  const config = require('./config/config');
+  // Calculer le nombre de jours à partir des mois de rétention (avec 1 jour de marge)
+  const retentionDays = (config.dataRetentionMonths || 3) * 30 + 1;
+  
   // Nettoyage tous les jours à minuit
   const now = new Date();
   const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
   const delay = midnight - now;
 
   setTimeout(() => {
-    // Nettoyer metrics ET alerts après 91 jours (3 mois + 1 jour)
-    db.cleanupOldData(91);
+    // Nettoyer metrics ET alerts après la période de rétention
+    db.cleanupOldData(retentionDays);
     // Relance le nettoyage tous les jours
     setInterval(() => {
-      db.cleanupOldData(91);
+      db.cleanupOldData(retentionDays);
     }, 24 * 60 * 60 * 1000);
   }, delay);
 };
@@ -420,6 +460,7 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/history/:metric (Données pour graphique)`);
   console.log(`   - GET /api/history/alerts (Historique des alertes)`);
   console.log(`   - POST /api/history/cleanup (Nettoyer l'historique)`);
+  console.log(`   - POST /api/history/clear-all (EFFACER TOUTES les données)`);
   console.log(`   - GET /api/network-history?period=day|week|month|quarter (Historique réseau)`);
   console.log(`   - GET /api/docker-simple       (Infos Docker de base)`);
   console.log(`   - GET /api/config        (Configuration actuelle)`);

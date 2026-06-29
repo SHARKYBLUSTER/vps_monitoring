@@ -25,6 +25,9 @@ module.exports = {
   // Intervalle de collecte des métriques (en ms)
   metricsInterval: 5000, // 5 secondes
 
+  // Rétention des données (en mois)
+  dataRetentionMonths: 3, // 3 mois par défaut
+
   // Logs
   logLevel: process.env.LOG_LEVEL || 'info',
 };

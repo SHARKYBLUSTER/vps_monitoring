@@ -1051,6 +1051,48 @@
       background: var(--alert-bg-danger);
       color: #f5c6cb;
     }
+
+    /* Bouton pour effacer toutes les données */
+    .clear-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .clear-btn:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    .clear-warning {
+      display: inline-block;
+      margin-left: 10px;
+      font-size: 0.85rem;
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .dark-mode .clear-btn {
+      background: #491d25;
+      color: #f5c6cb;
+    }
+
+    .dark-mode .clear-btn:hover {
+      background: #5f2630;
+    }
+
+    .dark-mode .clear-warning {
+      color: #f5c6cb;
+    }
     </style>
   <!-- Font Awesome CDN pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
@@ -1321,6 +1363,29 @@
                   </span>
                 </button>
               </div>
+            </div>
+          </div>
+
+          <div class="config-section">
+            <h3><i class="fas fa-database"></i> Stockage des données</h3>
+            <p class="config-description">
+              Configurez la durée de conservation des données historiques dans la base de données.
+            </p>
+            
+            <div class="form-group">
+              <label for="data-retention">Durée de rétention (mois):</label>
+              <div class="input-with-hint">
+                <input type="number" id="data-retention" min="1" max="24" step="1" value="3">
+                <span class="hint">1-24 mois</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button id="clear-all-data" class="clear-btn">
+                <i class="fas fa-trash-alt"></i> Effacer TOUTES les données
+              </button>
+              <span class="clear-warning">⚠️ Irréversible !</span>
             </div>
           </div>
           
@@ -2303,7 +2368,10 @@
   <!-- Script pour la configuration -->
   <script>
     // Variables globales pour la configuration
-    let currentConfig = { metricsInterval: 5000 };
+    let currentConfig = { 
+      metricsInterval: 5000,
+      dataRetentionMonths: 3
+    };
 
     // Fonction pour ouvrir la modal de configuration
     function openConfigModal() {
@@ -2337,6 +2405,12 @@
           const intervalInput = document.getElementById('metrics-interval');
           if (intervalInput) {
             intervalInput.value = currentConfig.metricsInterval;
+          }
+          
+          // Mettre à jour la rétention des données
+          const retentionInput = document.getElementById('data-retention');
+          if (retentionInput) {
+            retentionInput.value = currentConfig.dataRetentionMonths || 3;
           }
           
           // Mettre à jour les boutons de présélection
@@ -2412,6 +2486,46 @@
       }
     }
 
+    // Fonction pour effacer toutes les données
+    async function clearAllData() {
+      if (!confirm('⚠️ Êtes-vous SÛR de vouloir effacer TOUTES les données historiques ? Cette action est IRRÉVERSIBLE !')) {
+        return;
+      }
+
+      try {
+        showConfigStatus('🔄 Suppression en cours...', 'info');
+        
+        const response = await fetch('/api/history/clear-all', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showConfigStatus(`✅ ${data.message}`, 'success');
+          // Actualiser les graphiques (ils seront vides maintenant)
+          setTimeout(() => {
+            if (typeof updateChart === 'function') {
+              updateChart('cpu');
+              updateChart('memory');
+              updateChart('disk');
+            }
+            if (typeof updateNetworkChart === 'function') {
+              updateNetworkChart('day');
+            }
+          }, 1000);
+        } else {
+          showConfigStatus(`❌ Erreur: ${data.error || 'Impossible de supprimer les données'}`, 'error');
+        }
+      } catch (error) {
+        console.error('❌ Erreur suppression données:', error);
+        showConfigStatus('❌ Impossible de supprimer les données', 'error');
+      }
+    }
+
     // Fonction pour sauvegarder la configuration
     async function saveConfig() {
       const intervalInput = document.getElementById('metrics-interval');
@@ -2419,6 +2533,14 @@
       
       if (isNaN(newInterval) || newInterval < 1000) {
         showConfigStatus('❌ L\'intervalle doit être un nombre valide ≥ 1000ms', 'error');
+        return;
+      }
+
+      const retentionInput = document.getElementById('data-retention');
+      const newRetention = parseInt(retentionInput.value);
+      
+      if (isNaN(newRetention) || newRetention < 1 || newRetention > 24) {
+        showConfigStatus('❌ La rétention doit être entre 1 et 24 mois', 'error');
         return;
       }
 
@@ -2431,7 +2553,8 @@
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            metricsInterval: newInterval
+            metricsInterval: newInterval,
+            dataRetentionMonths: newRetention
           })
         });
         
@@ -2544,6 +2667,12 @@
           applyPresetValue(value);
         });
       });
+      
+      // Bouton pour effacer toutes les données
+      const clearAllBtn = document.getElementById('clear-all-data');
+      if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', clearAllData);
+      }
       
       // Bouton de basculement de thème dans la modal
       const themeToggleBtn = document.getElementById('config-dark-toggle');

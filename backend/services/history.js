@@ -33,8 +33,9 @@ function setSaveInterval(newInterval) {
   startAutoCollect();
 }
 
-// TTL pour les données réseau : 91 jours (3 mois + 1 jour)
-const NETWORK_DATA_TTL = 91;
+// TTL pour les données réseau : calculé à partir de la configuration (en jours)
+// On ajoute 1 jour pour être sûr de tout nettoyer
+const NETWORK_DATA_TTL = (config.dataRetentionMonths || 3) * 30 + 1;
 
 // Fichier pour stocker les dernières valeurs réseau (pour calculer les deltas)
 const NETWORK_STATE_FILE = path.join(__dirname, '../../data/network_state.json');
