@@ -119,6 +119,7 @@ app.get('/api/config', (req, res) => {
         metricsInterval: config.metricsInterval,
         dataRetentionMonths: config.dataRetentionMonths,
         timezoneOffset: config.timezoneOffset,
+        showDockerSection: config.showDockerSection,
         alerts: config.alerts
       },
       timestamp: new Date().toISOString(),
@@ -217,7 +218,7 @@ app.get('/logout', (req, res) => {
 // Endpoint pour mettre à jour la configuration
 app.post('/api/config', (req, res) => {
   try {
-    const { metricsInterval, dataRetentionMonths, timezoneOffset } = req.body;
+    const { metricsInterval, dataRetentionMonths, timezoneOffset, showDockerSection } = req.body;
     
     // Validation des paramètres
     if (metricsInterval !== undefined) {
@@ -271,6 +272,12 @@ app.post('/api/config', (req, res) => {
       config.timezoneOffset = newOffset;
     }
     
+    // Gestion de l'affichage de la section Docker
+    if (showDockerSection !== undefined) {
+      const config = require('./config/config');
+      config.showDockerSection = showDockerSection === true || showDockerSection === 'true';
+    }
+    
     // Retourner la configuration complète
     const config = require('./config/config');
     res.json({
@@ -279,7 +286,8 @@ app.post('/api/config', (req, res) => {
       data: {
         metricsInterval: config.metricsInterval,
         dataRetentionMonths: config.dataRetentionMonths,
-        timezoneOffset: config.timezoneOffset
+        timezoneOffset: config.timezoneOffset,
+        showDockerSection: config.showDockerSection
       },
       timestamp: new Date().toISOString(),
     });

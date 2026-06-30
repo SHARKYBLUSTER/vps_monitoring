@@ -985,6 +985,64 @@
       margin-top: 10px;
     }
 
+    /* Toggle switch for boolean options */
+    .toggle-container {
+      margin-top: 10px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .dark-mode .slider {
+      background-color: #555;
+    }
+
+    .dark-mode input:checked + .slider {
+      background-color: #4CAF50;
+    }
+
     .theme-switch-btn {
       display: flex;
       background: var(--bg-secondary);
@@ -1401,6 +1459,16 @@
                     <i class="fas fa-moon"></i> Sombre
                   </span>
                 </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Afficher la section Docker Engine</label>
+              <div class="toggle-container">
+                <label class="switch">
+                  <input type="checkbox" id="show-docker-toggle">
+                  <span class="slider round"></span>
+                </label>
               </div>
             </div>
           </div>
@@ -2193,6 +2261,14 @@
       }
     }
 
+    // Fonction pour appliquer la visibilité de la section Docker
+    function applyDockerSectionVisibility() {
+      const dockerSection = document.getElementById('docker-section');
+      if (dockerSection) {
+        dockerSection.style.display = currentConfig.showDockerSection ? 'block' : 'none';
+      }
+    }
+
     // Fonction pour formater les labels selon la période
     // Pour 'day': les données ont un champ 'timestamp' (ISO string)
     // Pour 'week'/'month': les données ont un champ 'label' (format YYYY-MM-DD)
@@ -2472,7 +2548,8 @@
     let currentConfig = { 
       metricsInterval: 5000,
       dataRetentionMonths: 3,
-      timezoneOffset: 0
+      timezoneOffset: 0,
+      showDockerSection: true
     };
 
     // Fonction pour ouvrir la modal de configuration
@@ -2520,6 +2597,15 @@
           if (timezoneInput) {
             timezoneInput.value = currentConfig.timezoneOffset || 0;
           }
+          
+          // Mettre à jour l'affichage de la section Docker
+          const dockerToggle = document.getElementById('show-docker-toggle');
+          if (dockerToggle) {
+            dockerToggle.checked = currentConfig.showDockerSection !== false;
+          }
+          
+          // Appliquer l'affichage de la section Docker immédiatement
+          applyDockerSectionVisibility();
           
           // Mettre à jour les boutons de présélection
           updatePresetButtons();
@@ -2654,6 +2740,10 @@
         return;
       }
 
+      // Récupérer l'état du toggle Docker
+      const dockerToggle = document.getElementById('show-docker-toggle');
+      const newShowDockerSection = dockerToggle ? dockerToggle.checked : true;
+
       try {
         showConfigStatus('🔄 Sauvegarde en cours...', 'info');
         
@@ -2665,7 +2755,8 @@
           body: JSON.stringify({
             metricsInterval: newInterval,
             dataRetentionMonths: newRetention,
-            timezoneOffset: newTimezoneOffset
+            timezoneOffset: newTimezoneOffset,
+            showDockerSection: newShowDockerSection
           }),
           credentials: 'include'
         });
@@ -2676,6 +2767,7 @@
           currentConfig.metricsInterval = newInterval;
           currentConfig.dataRetentionMonths = newRetention;
           currentConfig.timezoneOffset = newTimezoneOffset;
+          currentConfig.showDockerSection = newShowDockerSection;
           showConfigStatus('✅ Configuration sauvegardée avec succès!', 'success');
           
           // Fermer la modal immédiatement
@@ -2793,6 +2885,15 @@
       const clearAllBtn = document.getElementById('clear-all-data');
       if (clearAllBtn) {
         clearAllBtn.addEventListener('click', clearAllData);
+      }
+
+      // Toggle pour afficher/masquer Docker Engine
+      const dockerToggle = document.getElementById('show-docker-toggle');
+      if (dockerToggle) {
+        dockerToggle.addEventListener('change', function() {
+          currentConfig.showDockerSection = this.checked;
+          applyDockerSectionVisibility();
+        });
       }
       
       // Bouton de basculement de thème dans la modal
