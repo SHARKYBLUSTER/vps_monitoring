@@ -162,6 +162,7 @@
     "telegram_test_button": "Envoyer un message test",
     "telegram_test_success": "✅ Message test envoyé avec succès!",
     "telegram_test_error": "❌ Échec de l'envoi du message test"
+  },
   "security": {
     "level_0": "Inconnu",
     "level_1": "Faible",
