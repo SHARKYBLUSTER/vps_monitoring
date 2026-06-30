@@ -3,7 +3,11 @@
  * Retourne uniquement les infos de base sur les conteneurs
  */
 
-const { exec } = require('child_process');
+const Docker = require('dockerode');
+
+// Créer une instance Dockerode
+// En mode host ou avec /var/run/docker.sock monté, le socket est accessible
+const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
 /**
  * Vérifie si Docker est disponible et récupère les infos de base
@@ -11,17 +15,21 @@ const { exec } = require('child_process');
  */
 async function getSimpleDockerInfo() {
   try {
-    const { stdout: psOutput } = await execPromise('docker ps --format "{{.ID}}"');
-    const runningContainers = psOutput.trim().split('\n').filter(line => line.trim());
+    // Tester la connexion Docker
+    await docker.info();
     
-    const { stdout: allOutput } = await execPromise('docker ps -a --format "{{.ID}}"');
-    const allContainers = allOutput.trim().split('\n').filter(line => line.trim());
+    // Récupérer tous les conteneurs (y compris arrêtés)
+    const containers = await docker.listContainers({ all: true });
+    
+    // Compter les conteneurs en cours d'exécution et arrêtés
+    const runningContainers = containers.filter(c => c.State === 'running');
+    const stoppedContainers = containers.filter(c => c.State !== 'running');
     
     return {
       available: true,
       running: runningContainers.length,
-      stopped: allContainers.length - runningContainers.length,
-      total: allContainers.length,
+      stopped: stoppedContainers.length,
+      total: containers.length,
       error: null
     };
   } catch (error) {
@@ -33,16 +41,6 @@ async function getSimpleDockerInfo() {
       error: 'Docker non disponible'
     };
   }
-}
-
-function execPromise(command) {
-  return new Promise((resolve, reject) => {
-    exec(command, { timeout: 5000 }, (error, stdout, stderr) => {
-      if (error) reject(error);
-      else if (stderr) reject(new Error(stderr));
-      else resolve({ stdout, stderr });
-    });
-  });
 }
 
 module.exports = { getSimpleDockerInfo };
