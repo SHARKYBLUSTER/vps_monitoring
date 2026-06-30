@@ -1512,6 +1512,35 @@
           </div>
 
           <div class="config-section">
+            <h3><i class="fas fa-exclamation-triangle"></i> <span data-i18n="config.alerts_title"></span></h3>
+            <p class="config-description" data-i18n="config.alerts_desc"></p>
+            
+            <div class="form-group">
+              <label for="cpu-threshold" data-i18n="config.cpu_threshold_label"></label>
+              <div class="input-with-hint">
+                <input type="number" id="cpu-threshold" min="0" max="100" step="1" value="80">
+                <span class="hint" data-i18n="config.threshold_hint"></span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="memory-threshold" data-i18n="config.memory_threshold_label"></label>
+              <div class="input-with-hint">
+                <input type="number" id="memory-threshold" min="0" max="100" step="1" value="85">
+                <span class="hint" data-i18n="config.threshold_hint"></span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="disk-threshold" data-i18n="config.disk_threshold_label"></label>
+              <div class="input-with-hint">
+                <input type="number" id="disk-threshold" min="0" max="100" step="1" value="90">
+                <span class="hint" data-i18n="config.threshold_hint"></span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="config-section">
             <h3><i class="fas fa-database"></i> <span data-i18n="config.storage_title"></span></h3>
             <p class="config-description" data-i18n="config.storage_desc"></p>
             
@@ -2640,6 +2669,28 @@
             dockerToggle.checked = currentConfig.showDockerSection !== false;
           }
           
+          // Mettre à jour les seuils d'alerte
+          const cpuThresholdInput = document.getElementById('cpu-threshold');
+          const memoryThresholdInput = document.getElementById('memory-threshold');
+          const diskThresholdInput = document.getElementById('disk-threshold');
+          
+          if (currentConfig.alerts) {
+            if (cpuThresholdInput) {
+              cpuThresholdInput.value = currentConfig.alerts.cpuThreshold || 80;
+            }
+            if (memoryThresholdInput) {
+              memoryThresholdInput.value = currentConfig.alerts.memoryThreshold || 85;
+            }
+            if (diskThresholdInput) {
+              diskThresholdInput.value = currentConfig.alerts.diskThreshold || 90;
+            }
+          } else {
+            // Valeurs par défaut si alerts non défini
+            if (cpuThresholdInput) cpuThresholdInput.value = 80;
+            if (memoryThresholdInput) memoryThresholdInput.value = 85;
+            if (diskThresholdInput) diskThresholdInput.value = 90;
+          }
+          
           // Appliquer l'affichage de la section Docker immédiatement
           applyDockerSectionVisibility();
           
@@ -2780,6 +2831,30 @@
       const dockerToggle = document.getElementById('show-docker-toggle');
       const newShowDockerSection = dockerToggle ? dockerToggle.checked : true;
 
+      // Récupérer les seuils d'alerte
+      const cpuThresholdInput = document.getElementById('cpu-threshold');
+      const memoryThresholdInput = document.getElementById('memory-threshold');
+      const diskThresholdInput = document.getElementById('disk-threshold');
+      
+      const newCpuThreshold = parseInt(cpuThresholdInput.value);
+      const newMemoryThreshold = parseInt(memoryThresholdInput.value);
+      const newDiskThreshold = parseInt(diskThresholdInput.value);
+      
+      if (isNaN(newCpuThreshold) || newCpuThreshold < 0 || newCpuThreshold > 100) {
+        showConfigStatus('❌ Le seuil CPU doit être entre 0 et 100%', 'error');
+        return;
+      }
+      
+      if (isNaN(newMemoryThreshold) || newMemoryThreshold < 0 || newMemoryThreshold > 100) {
+        showConfigStatus('❌ Le seuil RAM doit être entre 0 et 100%', 'error');
+        return;
+      }
+      
+      if (isNaN(newDiskThreshold) || newDiskThreshold < 0 || newDiskThreshold > 100) {
+        showConfigStatus('❌ Le seuil Disque doit être entre 0 et 100%', 'error');
+        return;
+      }
+
       try {
         showConfigStatus('🔄 Sauvegarde en cours...', 'info');
         
@@ -2792,7 +2867,10 @@
             metricsInterval: newInterval,
             dataRetentionMonths: newRetention,
             timezoneOffset: newTimezoneOffset,
-            showDockerSection: newShowDockerSection
+            showDockerSection: newShowDockerSection,
+            cpuThreshold: newCpuThreshold,
+            memoryThreshold: newMemoryThreshold,
+            diskThreshold: newDiskThreshold
           }),
           credentials: 'include'
         });
@@ -2804,6 +2882,11 @@
           currentConfig.dataRetentionMonths = newRetention;
           currentConfig.timezoneOffset = newTimezoneOffset;
           currentConfig.showDockerSection = newShowDockerSection;
+          currentConfig.alerts = {
+            cpuThreshold: newCpuThreshold,
+            memoryThreshold: newMemoryThreshold,
+            diskThreshold: newDiskThreshold
+          };
           showConfigStatus('✅ Configuration sauvegardée avec succès!', 'success');
           
           // Fermer la modal immédiatement

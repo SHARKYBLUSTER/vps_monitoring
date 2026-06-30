@@ -240,7 +240,7 @@ app.get('/logout', (req, res) => {
 // Endpoint pour mettre à jour la configuration
 app.post('/api/config', (req, res) => {
   try {
-    const { metricsInterval, dataRetentionMonths, timezoneOffset, showDockerSection } = req.body;
+    const { metricsInterval, dataRetentionMonths, timezoneOffset, showDockerSection, cpuThreshold, memoryThreshold, diskThreshold } = req.body;
     
     // Validation des paramètres
     if (metricsInterval !== undefined) {
@@ -300,6 +300,52 @@ app.post('/api/config', (req, res) => {
       config.showDockerSection = showDockerSection === true || showDockerSection === 'true';
     }
     
+    // Gestion des seuils d'alerte
+    if (cpuThreshold !== undefined || memoryThreshold !== undefined || diskThreshold !== undefined) {
+      const config = require('./config/config');
+      
+      if (cpuThreshold !== undefined) {
+        const newCpuThreshold = parseInt(cpuThreshold);
+        if (isNaN(newCpuThreshold) || newCpuThreshold < 0 || newCpuThreshold > 100) {
+          return res.status(400).json({ 
+            success: false, 
+            error: 'cpuThreshold doit être un nombre entre 0 et 100' 
+          });
+        }
+        config.alerts.cpuThreshold = newCpuThreshold;
+        // Réinitialiser les alertes précédentes pour forcer une nouvelle vérification
+        const metricsService = require('./services/metrics');
+        if (typeof metricsService.resetPreviousAlerts === 'function') {
+          metricsService.resetPreviousAlerts();
+        }
+      }
+      
+      if (memoryThreshold !== undefined) {
+        const newMemoryThreshold = parseInt(memoryThreshold);
+        if (isNaN(newMemoryThreshold) || newMemoryThreshold < 0 || newMemoryThreshold > 100) {
+          return res.status(400).json({ 
+            success: false, 
+            error: 'memoryThreshold doit être un nombre entre 0 et 100' 
+          });
+        }
+        config.alerts.memoryThreshold = newMemoryThreshold;
+      }
+      
+      if (diskThreshold !== undefined) {
+        const newDiskThreshold = parseInt(diskThreshold);
+        if (isNaN(newDiskThreshold) || newDiskThreshold < 0 || newDiskThreshold > 100) {
+          return res.status(400).json({ 
+            success: false, 
+            error: 'diskThreshold doit être un nombre entre 0 et 100' 
+          });
+        }
+        config.alerts.diskThreshold = newDiskThreshold;
+      }
+      
+      // Log pour confirmation
+      console.log(`✅ Seuils d'alerte mis à jour: CPU=${config.alerts.cpuThreshold}%, RAM=${config.alerts.memoryThreshold}%, Disque=${config.alerts.diskThreshold}%`);
+    }
+    
     // Retourner la configuration complète
     const config = require('./config/config');
     res.json({
@@ -309,7 +355,12 @@ app.post('/api/config', (req, res) => {
         metricsInterval: config.metricsInterval,
         dataRetentionMonths: config.dataRetentionMonths,
         timezoneOffset: config.timezoneOffset,
-        showDockerSection: config.showDockerSection
+        showDockerSection: config.showDockerSection,
+        alerts: {
+          cpuThreshold: config.alerts.cpuThreshold,
+          memoryThreshold: config.alerts.memoryThreshold,
+          diskThreshold: config.alerts.diskThreshold
+        }
       },
       timestamp: new Date().toISOString(),
     });
