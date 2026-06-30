@@ -12,6 +12,7 @@ const path = require('path');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const session = require('express-session');
+const rateLimit = require('express-rate-limit');
 const metricsService = require('./services/metrics');
 const historyService = require('./services/history');
 const dockerSimple = require('./services/docker-simple');
@@ -27,6 +28,22 @@ const PORT = process.env.PORT || 3000;
 
 // Initialiser l'utilisateur admin (doit être fait avant les requêtes)
 initializeAdminUser();
+
+// Configuration du rate limiting pour le login
+// 5 tentatives par fenêtre de 15 minutes
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 tentatives max
+  message: '❌ Trop de tentatives de connexion. Veuillez réessayer dans 15 minutes.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => !req.path.startsWith('/login') || req.method !== 'POST',
+  keyGenerator: (req) => req.ip, // Basé sur l'IP
+  handler: (req, res) => {
+    console.warn(`⚠️  Rate limit dépassé pour l'IP: ${req.ip}`);
+    res.status(429).redirect('/login?error=rate_limit');
+  }
+});
 
 // Démarrer la collecte automatique de l'historique
 historyService.startAutoCollect();
@@ -183,7 +200,7 @@ app.get('/login', (req, res) => {
 });
 
 // Traitement du login (POST)
-app.post('/login', async (req, res) => {
+app.post('/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     const { validateCredentials } = require('./middleware/auth');
