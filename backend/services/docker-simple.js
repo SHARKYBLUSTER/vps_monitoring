@@ -82,21 +82,38 @@ async function getDockerDetailedInfo() {
       const name = names.length > 0 ? names[0].replace('/', '') : container.Id.substring(0, 12);
       
       // Extraire les ports exposés (disponible directement dans container.Ports)
-      // container.Ports est un objet comme: { "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "80" }] }
-      const ports = container.Ports || {};
+      // Dans Docker API v1.24+, Ports est un tableau d'objets
+      // Exemple: [{ PrivatePort: 80, PublicPort: 8080, Type: 'tcp', IP: '0.0.0.0' }]
+      // Dans les anciennes versions, Ports peut être null ou un objet
+      const ports = container.Ports || [];
       const portBindings = [];
-      for (const [containerPort, bindings] of Object.entries(ports)) {
-        if (bindings && bindings.length > 0) {
-          bindings.forEach(binding => {
-            if (binding.HostIp && binding.HostPort) {
-              portBindings.push(`${binding.HostIp}:${binding.HostPort}->${containerPort}`);
-            } else if (binding.HostPort) {
-              portBindings.push(`${binding.HostPort}->${containerPort}`);
-            } else {
-              // Port exposé sans binding spécifique
-              portBindings.push(containerPort);
-            }
-          });
+      
+      if (Array.isArray(ports)) {
+        // Format tableau (API v1.24+)
+        ports.forEach(port => {
+          if (port.IP && port.PublicPort) {
+            portBindings.push(`${port.IP}:${port.PublicPort}->${port.PrivatePort}/${port.Type}`);
+          } else if (port.PublicPort) {
+            portBindings.push(`${port.PublicPort}->${port.PrivatePort}/${port.Type}`);
+          } else if (port.PrivatePort) {
+            portBindings.push(`${port.PrivatePort}/${port.Type}`);
+          }
+        });
+      } else if (typeof ports === 'object' && ports !== null) {
+        // Format objet (anciennes versions API)
+        // { "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "80" }] }
+        for (const [containerPort, bindings] of Object.entries(ports)) {
+          if (bindings && bindings.length > 0) {
+            bindings.forEach(binding => {
+              if (binding.HostIp && binding.HostPort) {
+                portBindings.push(`${binding.HostIp}:${binding.HostPort}->${containerPort}`);
+              } else if (binding.HostPort) {
+                portBindings.push(`${binding.HostPort}->${containerPort}`);
+              } else {
+                portBindings.push(containerPort);
+              }
+            });
+          }
         }
       }
       
