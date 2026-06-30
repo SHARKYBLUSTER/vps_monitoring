@@ -73,65 +73,50 @@ async function getDockerDetailedInfo() {
     
     const danglingImages = images.filter(img => img.Dangling === true);
     
-    // Détails des conteneurs (avec inspection pour plus d'infos)
-    const containerDetails = await Promise.all(
-      containers.slice(0, 50).map(async (container) => {
-        try {
-          const containerObj = docker.getContainer(container.Id);
-          const details = await containerObj.inspect();
-          
-          // Extraire les noms (format: "/nom-conteneur")
-          const names = container.Names || [];
-          const name = names.length > 0 ? names[0].replace('/', '') : container.Id.substring(0, 12);
-          
-          // Extraire les ports exposés
-          const ports = details.NetworkSettings?.Ports || {};
-          const portBindings = [];
-          for (const [containerPort, bindings] of Object.entries(ports)) {
-            if (bindings && bindings.length > 0) {
-              bindings.forEach(binding => {
-                if (binding.HostIp && binding.HostPort) {
-                  portBindings.push(`${binding.HostIp}:${binding.HostPort}->${containerPort}`);
-                } else if (binding.HostPort) {
-                  portBindings.push(`${binding.HostPort}->${containerPort}`);
-                }
-              });
+    // Détails des conteneurs
+    // Utiliser directement les données de listContainers() qui contiennent déjà
+    // Created (timestamp) et Ports, évite les appels d'inspection inutiles
+    const containerDetails = containers.slice(0, 50).map((container) => {
+      // Extraire les noms (format: "/nom-conteneur")
+      const names = container.Names || [];
+      const name = names.length > 0 ? names[0].replace('/', '') : container.Id.substring(0, 12);
+      
+      // Extraire les ports exposés (disponible directement dans container.Ports)
+      // container.Ports est un objet comme: { "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "80" }] }
+      const ports = container.Ports || {};
+      const portBindings = [];
+      for (const [containerPort, bindings] of Object.entries(ports)) {
+        if (bindings && bindings.length > 0) {
+          bindings.forEach(binding => {
+            if (binding.HostIp && binding.HostPort) {
+              portBindings.push(`${binding.HostIp}:${binding.HostPort}->${containerPort}`);
+            } else if (binding.HostPort) {
+              portBindings.push(`${binding.HostPort}->${containerPort}`);
+            } else {
+              // Port exposé sans binding spécifique
+              portBindings.push(containerPort);
             }
-          }
-          
-          // Formater la date de création (Docker retourne des timestamps en SECONDES)
-          const createdDate = details.Created ? new Date(details.Created * 1000).toISOString() : '';
-          
-          // Extraire la commande
-          const cmd = details.Config?.Cmd || [];
-          const entrypoint = details.Config?.Entrypoint || [];
-          const command = [...entrypoint, ...cmd].join(' ').substring(0, 100) || 'N/A';
-          
-          return {
-            id: container.Id.substring(0, 12),
-            name: name,
-            image: container.Image || 'N/A',
-            state: container.State,
-            status: container.Status,
-            ports: portBindings.length > 0 ? portBindings.join(', ') : '-',
-            created: createdDate,
-            command: command
-          };
-        } catch (err) {
-          // Si on ne peut pas inspecter un conteneur, retourner les infos de base
-          return {
-            id: container.Id.substring(0, 12),
-            name: container.Names?.[0]?.replace('/', '') || container.Id.substring(0, 12),
-            image: container.Image || 'N/A',
-            state: container.State,
-            status: container.Status,
-            ports: '-',
-            created: '',
-            command: 'N/A'
-          };
+          });
         }
-      })
-    );
+      }
+      
+      // Formater la date de création (Docker retourne des timestamps en SECONDES)
+      const createdDate = container.Created ? new Date(container.Created * 1000).toISOString() : '';
+      
+      // Extraire la commande depuis container.Command si disponible
+      const command = container.Command ? container.Command.substring(0, 100) : 'N/A';
+      
+      return {
+        id: container.Id.substring(0, 12),
+        name: name,
+        image: container.Image || 'N/A',
+        state: container.State,
+        status: container.Status,
+        ports: portBindings.length > 0 ? portBindings.join(', ') : '-',
+        created: createdDate,
+        command: command
+      };
+    });
     
     // Détails des images
     const imageDetails = images.slice(0, 50).map(img => {
