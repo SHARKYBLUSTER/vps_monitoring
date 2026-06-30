@@ -48,6 +48,7 @@
 - **Décalage horaire** : Paramétrage du décalage UTC (+/- heures) pour l'affichage des graphiques historiques
 - **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard
 - **Multi-langues** : Sélecteur de langue (Français/Anglais) avec persistance via localStorage
+- **Seuils d'alerte** : Configuration des seuils CPU/RAM/Disque directement depuis la modale de configuration
 
 ### 🔍 **Surveillance avancée**
 - **Top 5 processus** : Identification des processus les plus gourmands
@@ -126,17 +127,7 @@
    nano .env  # Modifier selon vos besoins
    ```
 
-4. **Configurer les seuils d'alerte** (optionnel) :
-   Modifiez les valeurs dans `backend/config/config.js` :
-   ```javascript
-   alerts: {
-     cpuThreshold: 80,     // Alerte si CPU > 80%
-     memoryThreshold: 85,  // Alerte si RAM > 85%
-     diskThreshold: 90,    // Alerte si disque > 90%
-   }
-   ```
-
-5. **Démarrer le serveur** :
+4. **Démarrer le serveur** :
    ```bash
    # Mode développement
    npm run dev
@@ -484,6 +475,17 @@ vps_monitoring/
 
 ---
 
+## 📊 Configuration des seuils d'alerte
+
+Les seuils d'alerte (CPU, RAM, Disque) sont désormais **configurables directement depuis l'interface** :
+1. Cliquez sur l'icône ⚙️ **Configuration** dans le menu
+2. Accédez à la section **"Seuils d'alerte"**
+3. Modifiez les valeurs (0-100%) et sauvegardez
+
+Les modifications sont appliquées **immédiatement** sans redémarrage du serveur.
+
+---
+
 ## 📊 Exemple de sortie API
 
 ### `/api/metrics`
@@ -610,4 +612,4 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 
 ---
 
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte via la modale**, **notifications Telegram**).*

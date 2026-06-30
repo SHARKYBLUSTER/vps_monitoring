@@ -145,7 +145,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📝 Changelog des Versions
 
 ### Version 0.4.0 - 30 juin 2026
-**Menu de configuration, gestion des données, décalage horaire, visibilité Docker, support multi-langues et support Docker complet**
+**Menu de configuration, gestion des données, décalage horaire, visibilité Docker, support multi-langues, support Docker complet, configuration des seuils d'alerte et notifications Telegram**
 - ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
 - ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
 - ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
@@ -164,6 +164,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - ✅ **Support Docker complet** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé avec accès aux métriques système globales (mode host + privileged)
 - ✅ **Correction Docker Engine sous Docker** : Remplacement de child_process par dockerode pour la détection Docker dans les containers, permettant l'affichage de la carte Docker Engine sous Docker
 - ✅ **Correction Top 5 Processes** : Utilisation de `ps aux` au lieu de systeminformation.processes() pour obtenir directement les pourcentages CPU/MEM, ajout de procps au Dockerfile pour Alpine
+- ✅ **Configuration des seuils d'alerte** : Ajout des champs CPU/RAM/Disque dans la modale de configuration, avec validation et application immédiate
+- ✅ **Notifications Telegram** : Intégration d'un bot Telegram pour recevoir les alertes en temps réel, avec cooldown et notification de résolution
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -199,4 +201,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte via la modale**, **notifications Telegram**).*
