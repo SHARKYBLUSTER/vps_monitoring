@@ -106,7 +106,7 @@
     "title": "Configuration",
     "close": "×",
     "save": "Sauvegarder",
-    "cancel": "✕ Annuler",
+    "cancel": "Annuler",
     "saved": "✅ Configuration sauvegardée avec succès !",
     "error_saving": "❌ Erreur lors de la sauvegarde de la configuration.",
     "status_saving": "Sauvegarde en cours..."

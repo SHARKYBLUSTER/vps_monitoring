@@ -106,7 +106,7 @@
     "title": "Configuration",
     "close": "×",
     "save": "Save",
-    "cancel": "✕ Cancel",
+    "cancel": "Cancel",
     "saved": "✅ Configuration saved successfully!",
     "error_saving": "❌ Error saving configuration.",
     "status_saving": "Saving..."
