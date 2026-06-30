@@ -99,8 +99,8 @@ async function getDockerDetailedInfo() {
             }
           }
           
-          // Formater la date de création
-          const createdDate = details.Created ? new Date(details.Created).toISOString() : '';
+          // Formater la date de création (Docker retourne des timestamps en SECONDES)
+          const createdDate = details.Created ? new Date(details.Created * 1000).toISOString() : '';
           
           // Extraire la commande
           const cmd = details.Config?.Cmd || [];
@@ -140,7 +140,8 @@ async function getDockerDetailedInfo() {
       // Les valeurs sont déjà des nombres en octets
       const rawSize = img.Size || img.VirtualSize || 0;
       const size = typeof rawSize === 'number' ? rawSize : parseInt(rawSize) || 0;
-      const createdDate = img.Created ? new Date(img.Created).toISOString() : '';
+      // Docker retourne des timestamps en SECONDES, il faut multiplier par 1000
+      const createdDate = img.Created ? new Date(img.Created * 1000).toISOString() : '';
       
       return {
         id: img.Id.substring(0, 12),
