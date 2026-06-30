@@ -1210,8 +1210,6 @@
     </style>
   <!-- Font Awesome CDN pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
-  <!-- i18n Manager -->
-  <script src="/js/i18n.js" defer></script>
   <!-- Alternative Font Awesome si le CDN principal échoue -->
   <script>
     // Fallback pour Font Awesome si le CDN échoue
@@ -1668,6 +1666,9 @@
 
   <!-- Charger Chart.js avant les scripts qui l'utilisent -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- Charger i18n avant le script principal -->
+  <script src="/js/i18n.js"></script>
 
   <script>
     // Fonction pour formater les octets en GB/MB/KB
