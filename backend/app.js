@@ -76,50 +76,34 @@ app.use(session({
     domain: false
   }
 }));
-// Middleware CORS pour autoriser les requêtes depuis le frontend
+// Vérification des origines autorisées pour CORS
+if (!process.env.ALLOWED_ORIGINS) {
+  throw new Error('❌ ALLOWED_ORIGINS doit être défini dans les variables d\'environnement (ex: http://localhost:3000,https://monvps.com)');
+}
+
+// Middleware CORS avec liste blanche des origines autorisées
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
 app.use((req, res, next) => {
-  // Autoriser les credentials (cookies, headers d'authentification)
-  res.header('Access-Control-Allow-Credentials', 'true');
+  const origin = req.headers.origin;
   
-  // Déterminer l'origine
-  // Avec credentials, on NE PEUT PAS utiliser '*' - il faut une origine spécifique
-  const origin = req.headers.origin || req.headers.referer;
-  
-  // Nettoyer le host (enlever les / à la fin)
-  const host = req.get('host').replace(/\/$/, '');
-  
-  // Détecter le protocole (en tenant compte des proxys comme Nginx)
-  const forwardedProto = req.headers['x-forwarded-proto'];
-  const protocol = forwardedProto ? forwardedProto : (req.secure ? 'https' : 'http');
-  
-  // Construire l'URL complète de l'origine
-  let allowedOrigin;
-  if (origin) {
-    // Si origin est présent, l'utiliser directement
-    allowedOrigin = origin.replace(/\/$/, ''); // Nettoyer les / finaux
-    // Pour localhost, forcer le port 3000
-    if (allowedOrigin.includes('localhost') || allowedOrigin.includes('127.0.0.1')) {
-      allowedOrigin = 'http://localhost:3000';
-    }
-  } else {
-    // Pour les requêtes same-origin, construire à partir de l'host et protocole
-    allowedOrigin = `${protocol}://${host}`;
-    
-    // Ajouter le port si nécessaire (pour le développement local)
-    if (host.includes('localhost') || host.includes('127.0.0.1')) {
-      allowedOrigin = 'http://localhost:3000';
-    }
+  // Autoriser les requêtes sans origin (ex: requêtes same-origin, curl, etc.)
+  if (!origin) {
+    return next();
   }
   
-  res.header('Access-Control-Allow-Origin', allowedOrigin);
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Vary', 'Origin');
-  
-  // Gérer les requêtes OPTIONS pour le préflight CORS
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Max-Age', '86400'); // 24h
-    return res.status(204).end();
+  // Vérifier si l'origine est dans la liste blanche
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Vary', 'Origin');
+    
+    // Gérer les requêtes OPTIONS pour le préflight CORS
+    if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Max-Age', '86400'); // 24h
+      return res.status(204).end();
+    }
   }
   
   next();
