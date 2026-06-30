@@ -6,7 +6,7 @@
 
 ## 📌 À propos
 
-**VPS Monitoring Dashboard** est une solution complète pour superviser les métriques clés de votre serveur (CPU, RAM, Disque, Réseau, Processus) directement depuis un navigateur web. Le projet utilise une **architecture API REST + SSR** avec rafraîchissement automatique des données.
+**VPS Monitoring Dashboard** est une solution complète pour superviser les métriques clés de votre serveur (CPU, RAM, Disque, Réseau, Processus) directement depuis un navigateur web. Le projet utilise une **architecture API REST + SSR** avec rafraîchissement automatique des données et prend en charge le **multi-langues (Français/Anglais)**.
 
 ---
 
@@ -47,6 +47,7 @@
 - **Gestion du thème** : Basculer entre mode clair/sombre depuis le menu configuration, appliqué automatiquement sur toutes les pages y compris la page de login
 - **Décalage horaire** : Paramétrage du décalage UTC (+/- heures) pour l'affichage des graphiques historiques
 - **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard
+- **Multi-langues** : Sélecteur de langue (Français/Anglais) avec persistance via localStorage
 
 ### 🔍 **Surveillance avancée**
 - **Top 5 processus** : Identification des processus les plus gourmands
@@ -396,6 +397,7 @@ vps_monitoring/
 
 | Version | Date | Modifications |
 |---------|------|---------------|
+| **0.4.0** | **30 juin 2026** | **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections (Open Ports, Alerts, Metrics, Configuration, etc.). |
 | **0.4.0** | **30 juin 2026** | **Décalage horaire** : Ajout du paramètre UTC Heure locale dans le menu configuration pour ajuster l'affichage des abscisses des graphiques historiques (CPU, RAM, Disque, Réseau). |
 | **0.4.0** | **30 juin 2026** | **Visibilité Docker Engine** : Ajout d'un bouton dans le menu configuration pour afficher ou masquer la carte Docker Engine sur la page index.html, avec rechargement automatique. |
 | **0.4.0** | **29 juin 2026** | **Menu de configuration complet** : Interface pour modifier l'intervalle de collecte, la rétention des données (1-24 mois), bouton d'effacement total, intégration du mode sombre, style unifié des boutons, icônes ajoutées. |
@@ -538,3 +540,7 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 - [systeminformation](https://github.com/sebhildebrandt/systeminformation) pour la collecte des métriques système
 - [Express.js](https://expressjs.com/) pour le framework backend
 - À tous les contributeurs et utilisateurs !
+
+---
+
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI).*

@@ -6,7 +6,7 @@
 
 ## 🎯 **Vision**
 Fournir un **tableau de bord léger, open-source et facile à déployer** pour surveiller en temps réel les métriques clés d'un VPS (CPU, RAM, disque, réseau, processus, ports, **Docker**).
-**Fonctionnalités clés** : Mode sombre, multi-langues (Français/Anglais), authentification, et surveillance avancée.
+**Fonctionnalités clés** : Mode sombre, **multi-langues (Français/Anglais)**, authentification, et surveillance avancée.
 
 ---
 
@@ -26,6 +26,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
   - **Gestion des données** : Paramétrage de l'intervalle de collecte, de la rétention (1-24 mois), et bouton d'effacement total.
   - **Décalage horaire** : Paramétrage du décalage UTC pour ajuster l'affichage des graphiques historiques.
   - **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard.
+  - **Support multi-langues** : Système i18n complet avec Français et Anglais, sélecteur de langue dans le header.
 
 - **Stack technique** :
   - Backend : Node.js + Express
@@ -58,7 +59,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | ID | Tâche | Description | Impact | Estimation | Statut |
 |----|-------|-------------|--------|------------|--------|
 | **P2-001** | **Surveillance des services** | Vérifier l'état des services (HTTP, MySQL, Redis, SSH, etc.) via des **ping/port checks**. | 🟢 Élevé | 3 jours | ⏳ À venir |
-| **P2-003** | **Support multi-langues (Français/Anglais)** | Internationalisation (i18n) avec des fichiers JSON pour les traductions. | 🟢 Élevé | 3 jours | ⏳ À venir |
+| **P2-003** | **Support multi-langues (Français/Anglais)** | Internationalisation (i18n) avec des fichiers JSON pour les traductions. | 🟢 Élevé | 3 jours | ✅ **Terminé v0.4.0** |
 | **P2-004** | **Implémentation complète du login** | Finaliser l'authentification (intégration du middleware sur toutes les pages, gestion des sessions). | 🟢 Élevé | 2 jours | ✅ **Terminé** |
 | **P2-005** | **Notifications en temps réel** | Envoyer des alertes par **email** ou **webhook** (Discord/Slack). | 🟢 Élevé | 4 jours | ⏳ À venir |
 | **P2-006** | **Tableau de bord personnalisable** | Permettre aux utilisateurs de **choisir les widgets** à afficher. | 🟡 Moyen | 5 jours | ⏳ À venir |
@@ -110,7 +111,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 
 ## 🎯 **Objectifs à Court Terme (3 mois)**
 - [x] **Terminer la Phase 1** (Graphiques, SQLite, page de configuration, mode sombre, UI améliorée, gestion des données).
-- [ ] **Terminer la Phase 2** (Surveillance des services, multi-langues, notifications, etc.).
+- [x] **Terminer le multi-langues** (Support Français/Anglais complet avec i18n).
+- [ ] **Terminer la Phase 2** (Surveillance des services, notifications, etc.).
 - [ ] **Atteindre 100% de couverture des tests** pour les fonctionnalités critiques.
 - [x] **Publier une version v0.4.0** avec les améliorations majeures.
 
@@ -134,7 +136,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | **Mode sombre** | Implémenté | ✅ **100%** (intégré dans menu config) |
 | **Menu de configuration** | Fonctionnel | ✅ **100%** (v0.4.0) |
 | **Gestion des données** | Complète | ✅ **100%** (rétention + effacement) |
-| **Multi-langues** | Français/Anglais | ❌ À venir |
+| **Multi-langues** | Français/Anglais | ✅ **100%** (i18n complet) |
 | **Couverture des tests** | > 80% | ❌ 0% |
 | **Temps de réponse API** | < 200ms | ❌ Non mesuré |
 
@@ -143,7 +145,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📝 Changelog des Versions
 
 ### Version 0.4.0 - 30 juin 2026
-**Menu de configuration, gestion des données, décalage horaire et visibilité Docker**
+**Menu de configuration, gestion des données, décalage horaire, visibilité Docker et support multi-langues**
 - ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
 - ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
 - ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
@@ -156,6 +158,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - ✅ **Thème cohérent** : Suppression du bouton de basculement de la page login, application automatique du thème depuis la configuration globale
 - ✅ **Décalage horaire** : Ajout du paramètre UTC Heure locale pour ajuster les abscisses des graphiques historiques
 - ✅ **Visibilité Docker Engine** : Bouton pour afficher/masquer la carte Docker Engine avec rechargement automatique
+- ✅ **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -191,4 +194,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques et thème).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, **support multi-langues complet**).*
