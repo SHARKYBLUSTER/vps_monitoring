@@ -159,6 +159,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - ✅ **Décalage horaire** : Ajout du paramètre UTC Heure locale pour ajuster les abscisses des graphiques historiques
 - ✅ **Visibilité Docker Engine** : Bouton pour afficher/masquer la carte Docker Engine avec rechargement automatique
 - ✅ **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections
+- ✅ **Suppression des emojis** : Retrait des emojis (🔧,🕐,🌙,⏰,💾,✕) de la modale de configuration pour une interface plus épurée
+- ✅ **Labels graphiques nettoyés** : Suppression des mots "Heure" et "Jour" sous les abscisses des graphiques historiques
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -194,4 +196,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, **support multi-langues complet**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés).*
