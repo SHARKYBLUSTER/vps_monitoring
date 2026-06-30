@@ -243,7 +243,7 @@ function getMetricChartData(metric, options = {}) {
     const query = `
       SELECT timestamp, ${columnMap[metric]} as value
       FROM metrics
-      WHERE timestamp >= ?
+      WHERE timestamp >= datetime(?, 'utc')
       ORDER BY timestamp
       LIMIT ?
     `;
@@ -256,7 +256,7 @@ function getMetricChartData(metric, options = {}) {
         ${groupFormat} as label,
         MAX(${columnMap[metric]}) as value
       FROM metrics
-      WHERE timestamp >= ?
+      WHERE timestamp >= datetime(?, 'utc')
       GROUP BY ${groupFormat}
       ORDER BY label
       LIMIT ?
@@ -476,7 +476,7 @@ function getNetworkHistory(options = {}) {
         AVG(network_upload) as upload,
         COUNT(*) as count
       FROM metrics
-      WHERE timestamp >= ?
+      WHERE timestamp >= datetime(?, 'utc')
       GROUP BY ${groupBy}
       ORDER BY date
     `;
@@ -490,7 +490,7 @@ function getNetworkHistory(options = {}) {
         AVG(network_upload) as upload,
         COUNT(*) as count
       FROM metrics
-      WHERE timestamp >= ?
+      WHERE timestamp >= datetime(?, 'utc')
       GROUP BY ${groupBy}
       ORDER BY date
     `;
@@ -697,7 +697,7 @@ function getDockerContainerChartData(containerId, options = {}) {
     const query = `
       SELECT timestamp, cpu_percent as cpu, memory_percent as memory
       FROM docker_containers
-      WHERE container_id = ? AND timestamp >= ?
+      WHERE container_id = ? AND timestamp >= datetime(?, 'utc')
       ORDER BY timestamp
       LIMIT ?
     `;
@@ -710,7 +710,7 @@ function getDockerContainerChartData(containerId, options = {}) {
         AVG(cpu_percent) as cpu,
         AVG(memory_percent) as memory
       FROM docker_containers
-      WHERE container_id = ? AND timestamp >= ?
+      WHERE container_id = ? AND timestamp >= datetime(?, 'utc')
       GROUP BY ${groupFormat}
       ORDER BY label
       LIMIT ?
