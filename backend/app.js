@@ -698,6 +698,21 @@ app.get('/api/docker-simple', async (req, res) => {
   }
 });
 
+// Infos Docker détaillées (conteneurs + images)
+app.get('/api/docker-detailed', async (req, res) => {
+  try {
+    const info = await dockerSimple.getDockerDetailedInfo();
+    res.json({
+      success: true,
+      data: info,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Erreur API /api/docker-detailed :', error);
+    res.status(500).json({ success: false, error: 'Impossible de récupérer les infos Docker détaillées' });
+  }
+});
+
 // ====================
 // Route principale : Servir le frontend (protégée par auth)
 // ====================
@@ -760,6 +775,7 @@ app.listen(PORT, () => {
   console.log(`   - POST /api/history/clear-all (EFFACER TOUTES les données)`);
   console.log(`   - GET /api/network-history?period=day|week|month|quarter (Historique réseau)`);
   console.log(`   - GET /api/docker-simple       (Infos Docker de base)`);
+  console.log(`   - GET /api/docker-detailed     (Infos Docker détaillées: conteneurs + images)`);
   console.log(`   - GET /api/config        (Configuration actuelle)`);
   console.log(`   - POST /api/config       (Mettre à jour la configuration)`);
   console.log(`   - GET /api/telegram/test  (Tester notification Telegram)`);
