@@ -24,7 +24,7 @@
 - Design responsive (mobile-friendly)
 - Tableaux triables (par CPU ou RAM pour les processus)
 - Rafraîchissement dynamique sans rechargement de page
-- **Mode sombre** : Thème alternatif avec persistance via localStorage
+- **Mode sombre** : Thème alternatif avec persistance via localStorage, appliqué de manière cohérente sur toutes les pages (dashboard, configuration, login)
 - **Boutons unifiés** : Style CSS cohérent pour tous les boutons (logout, configuration, etc.)
 - **Icônes** : Ajout d'icônes pour les boutons du menu configuration
 
@@ -44,7 +44,7 @@
 - **Intervalle de collecte** : Ajustement de la fréquence de collecte des métriques (en ms)
 - **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
 - **Effacement des données** : Bouton pour supprimer toutes les données historiques
-- **Gestion du thème** : Basculer entre mode clair/sombre directement depuis le menu configuration
+- **Gestion du thème** : Basculer entre mode clair/sombre depuis le menu configuration, appliqué automatiquement sur toutes les pages y compris la page de login
 
 ### 🔍 **Surveillance avancée**
 - **Top 5 processus** : Identification des processus les plus gourmands
@@ -396,7 +396,9 @@ vps_monitoring/
 |---------|------|---------------|
 | **0.4.0** | **29 juin 2026** | **Menu de configuration complet** : Interface pour modifier l'intervalle de collecte, la rétention des données (1-24 mois), bouton d'effacement total, intégration du mode sombre, style unifié des boutons, icônes ajoutées. |
 | **0.4.0** | **29 juin 2026** | **Effacement des données** : Bouton pour supprimer toutes les données historiques (SQLite + JSON), avec VACUUM pour réduire la taille du fichier, rechargement automatique de la page. |
-| **0.4.0** | **29 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |
+| **0.4.0** | **30 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |
+| **0.4.0** | **30 juin 2026** | **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau. |
+| **0.4.0** | **30 juin 2026** | **Thème cohérent** : Suppression du bouton de basculement mode sombre de la page login, application automatique du thème depuis la configuration globale (persistance localStorage). |
 | 0.3.0 | 27 juin 2026 | **Mode sombre** : Ajout d'un thème sombre avec toggle, persistance localStorage, adaptation de toutes les couleurs (cartes, graphiques, tableaux, alertes). |
 | 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
 | 0.2.6 | 24 juin 2026 | **Surveillance Docker complète** : Intégration de dockerode pour surveiller les conteneurs Docker (stats CPU/RAM/Réseau/Disque, alertes, contrôles start/stop/restart, historique SQLite, graphiques par conteneur). |

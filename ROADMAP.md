@@ -19,8 +19,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
   - Surveillance des ports ouverts et classification des services (25+ ports connus).
   - Interface responsive avec rafraîchissement automatique.
   - **Authentification complète** : Page de login, gestion des sessions, protection de toutes les routes.
-  - **Mode sombre** : Thème alternatif avec persistance via localStorage, intégré dans le menu configuration.
-  - **Graphiques interactifs** : 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période.
+  - **Mode sombre** : Thème alternatif avec persistance via localStorage, appliqué de manière cohérente sur toutes les pages.
+  - **Graphiques interactifs** : 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période, affichage complet des 24h.
   - **Surveillance Docker** : Statut Docker Engine, liste des conteneurs, stats par conteneur.
   - **Menu de configuration** : Interface complète pour paramétrer l'application.
   - **Gestion des données** : Paramétrage de l'intervalle de collecte, de la rétention (1-24 mois), et bouton d'effacement total.
@@ -140,16 +140,18 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 
 ## 📝 Changelog des Versions
 
-### Version 0.4.0 - 29 juin 2026
-**Menu de configuration et gestion des données**
+### Version 0.4.0 - 30 juin 2026
+**Menu de configuration, gestion des données et corrections**
 - ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
 - ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
 - ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
 - ✅ **Effacement total** : Bouton pour supprimer toutes les données historiques (SQLite + JSON)
-- ✅ **Intégration du mode sombre** : Basculer entre mode clair/sombre depuis le menu configuration
+- ✅ **Intégration du mode sombre** : Basculer entre mode clair/sombre depuis le menu configuration, appliqué sur toutes les pages
 - ✅ **Style unifié** : Cohérence des boutons (logout, configuration) et ajout d'icônes
 - ✅ **Rechargement automatique** : La page se recharge après effacement pour afficher les changements
 - ✅ **Corrections de bugs** : Résolution des problèmes d'affichage des processus et ports
+- ✅ **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau
+- ✅ **Thème cohérent** : Suppression du bouton de basculement de la page login, application automatique du thème depuis la configuration globale
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -185,4 +187,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **29 juin 2026** (Version 0.4.0 - Menu de configuration et gestion des données).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, corrections graphiques et thème).*
