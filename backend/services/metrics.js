@@ -127,7 +127,7 @@ async function getNetworkMetrics() {
 /**
  * Vérifie les alertes en fonction des seuils
  * @param {Object} metrics - Métriques à vérifier
- * @returns {Array} - Liste des alertes
+ * @returns {Array} - Liste des alertes (sans message, généré côté frontend pour i18n)
  */
 function checkAlerts(metrics) {
   const alerts = [];
@@ -137,7 +137,6 @@ function checkAlerts(metrics) {
     alerts.push({
       type: 'warning',
       metric: 'cpu',
-      message: `⚠️ Utilisation CPU élevée : ${metrics.cpu.usage.toFixed(1)}%`,
       value: metrics.cpu.usage,
       threshold: thresholds.cpuThreshold,
     });
@@ -147,7 +146,6 @@ function checkAlerts(metrics) {
     alerts.push({
       type: 'warning',
       metric: 'memory',
-      message: `⚠️ Utilisation mémoire élevée : ${metrics.memory.usagePercent.toFixed(1)}%`,
       value: metrics.memory.usagePercent,
       threshold: thresholds.memoryThreshold,
     });
@@ -157,7 +155,6 @@ function checkAlerts(metrics) {
     alerts.push({
       type: 'danger',
       metric: 'disk',
-      message: `🚨 Espace disque critique : ${metrics.disk.usagePercent.toFixed(1)}% utilisé`,
       value: metrics.disk.usagePercent,
       threshold: thresholds.diskThreshold,
     });

@@ -44,6 +44,11 @@
     "stopped": "Arrêtés",
     "total": "Total"
   },
+  "alerts": {
+    "cpu_high": "⚠️ Utilisation CPU élevée : {value}%",
+    "memory_high": "⚠️ Utilisation mémoire élevée : {value}%",
+    "disk_critical": "🚨 Espace disque critique : {value}% utilisé"
+  },
   "processes": {
     "pid": "PID",
     "name": "Nom",

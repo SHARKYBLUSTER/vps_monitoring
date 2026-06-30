@@ -1658,6 +1658,34 @@
       }
     }
 
+    // Fonction pour générer le message d'alerte en fonction du type et de la langue
+    function getAlertMessage(alert) {
+      if (window.i18n) {
+        switch(alert.metric) {
+          case 'cpu':
+            return window.i18n.t('alerts.cpu_high', { value: alert.value.toFixed(1) });
+          case 'memory':
+            return window.i18n.t('alerts.memory_high', { value: alert.value.toFixed(1) });
+          case 'disk':
+            return window.i18n.t('alerts.disk_critical', { value: alert.value.toFixed(1) });
+          default:
+            return alert.type || 'Alert';
+        }
+      } else {
+        // Fallback sans i18n
+        switch(alert.metric) {
+          case 'cpu':
+            return `⚠️ High CPU usage: ${alert.value.toFixed(1)}%`;
+          case 'memory':
+            return `⚠️ High memory usage: ${alert.value.toFixed(1)}%`;
+          case 'disk':
+            return `🚨 Critical disk space: ${alert.value.toFixed(1)}% used`;
+          default:
+            return alert.type || 'Alert';
+        }
+      }
+    }
+
     // Fonction pour mettre à jour les alertes
     function updateAlerts(alertsData) {
       const alertsList = document.getElementById('alerts-list');
@@ -1665,7 +1693,7 @@
       if (alertsData.success && alertsData.data && alertsData.data.length > 0) {
         alertsList.innerHTML = alertsData.data.map(alert => 
           `<div class="alert ${alert.type || 'warning'}">
-            <span>${alert.message || alert.type}</span>
+            <span>${getAlertMessage(alert)}</span>
           </div>`
         ).join('');
       } else {
