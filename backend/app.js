@@ -377,7 +377,7 @@ app.get('/api/history/:metric', async (req, res) => {
   try {
     const { metric } = req.params;
     const options = {
-      limit: parseInt(req.query.limit) || 50,
+      limit: parseInt(req.query.limit) || 500,
       period: req.query.period || 'day'
     };
     const result = await historyService.getChartData(metric, options);

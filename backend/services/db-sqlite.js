@@ -189,7 +189,7 @@ function getMetricsHistory({ limit = 100, from = null, to = null } = {}) {
  * @returns {Array} - Liste des valeurs avec timestamps ou agrégées
  */
 function getMetricChartData(metric, options = {}) {
-  const { limit = 50, period = 'day' } = options;
+  const { limit = 500, period = 'day' } = options;
   const columnMap = {
     cpu: 'cpu_usage',
     memory: 'memory_usage_percent',
@@ -203,30 +203,36 @@ function getMetricChartData(metric, options = {}) {
   const now = new Date();
   let startDate;
 
-  // Calcule la date de début en fonction de la période
+  // Calcule la date de début en UTC pour éviter les décalages horaires
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = now.getUTCMonth();
+  const utcDate = now.getUTCDate();
+
   switch (period) {
     case 'day':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate, 0, 0, 0));
       break;
     case 'week':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 7, 0, 0, 0));
       break;
     case 'month':
-      startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth - 1, utcDate, 0, 0, 0));
       break;
     case 'quarter':
-      startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth - 3, utcDate, 0, 0, 0));
       break;
     default:
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 1, 0, 0, 0));
   }
 
-  // Formater la date au format SQLite DATETIME (YYYY-MM-DD HH:MM:SS)
+  // Formater la date au format SQLite DATETIME (YYYY-MM-DD HH:MM:SS) en UTC
   const formatDateForSQLite = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day} 00:00:00`;
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:00`;
   };
 
   const startDateStr = formatDateForSQLite(startDate);
@@ -424,29 +430,36 @@ function getNetworkHistory(options = {}) {
   const now = new Date();
   let startDate;
 
+  // Calcule la date de début en UTC pour éviter les décalages horaires
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = now.getUTCMonth();
+  const utcDate = now.getUTCDate();
+
   switch (period) {
     case 'day':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate, 0, 0, 0));
       break;
     case 'week':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 7, 0, 0, 0));
       break;
     case 'month':
-      startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth - 1, utcDate, 0, 0, 0));
       break;
     case 'quarter':
-      startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth - 3, utcDate, 0, 0, 0));
       break;
     default:
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 1, 0, 0, 0));
   }
 
-  // Formater la date au format SQLite DATETIME (YYYY-MM-DD HH:MM:SS)
+  // Formater la date au format SQLite DATETIME (YYYY-MM-DD HH:MM:SS) en UTC
   const formatDateForSQLite = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day} 00:00:00`;
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:00`;
   };
 
   const startDateStr = formatDateForSQLite(startDate);
@@ -641,33 +654,41 @@ function getDockerHistory({ limit = 100, containerId = null, from = null, to = n
  * @returns {Array} - Liste des valeurs avec timestamps
  */
 function getDockerContainerChartData(containerId, options = {}) {
-  const { limit = 50, period = 'day' } = options;
+  const { limit = 500, period = 'day' } = options;
   
   const now = new Date();
   let startDate;
 
+  // Calcule la date de début en UTC pour éviter les décalages horaires
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = now.getUTCMonth();
+  const utcDate = now.getUTCDate();
+
   switch (period) {
     case 'day':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate, 0, 0, 0));
       break;
     case 'week':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 7, 0, 0, 0));
       break;
     case 'month':
-      startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth - 1, utcDate, 0, 0, 0));
       break;
     case 'quarter':
-      startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      startDate = new Date(Date.UTC(utcYear, utcMonth - 3, utcDate, 0, 0, 0));
       break;
     default:
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      startDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 1, 0, 0, 0));
   }
 
+  // Formater la date au format SQLite DATETIME (YYYY-MM-DD HH:MM:SS) en UTC
   const formatDateForSQLite = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day} 00:00:00`;
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:00`;
   };
 
   const startDateStr = formatDateForSQLite(startDate);
