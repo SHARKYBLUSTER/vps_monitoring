@@ -36,4 +36,15 @@ module.exports = {
 
   // Logs
   logLevel: process.env.LOG_LEVEL || 'info',
+
+  // Configuration Telegram Bot pour les notifications d'alerte
+  telegram: {
+    enabled: process.env.TELEGRAM_ENABLED === 'true' || false, // Désactivé par défaut
+    botToken: process.env.TELEGRAM_BOT_TOKEN || '',          // Token du bot obtenu via @BotFather
+    chatId: process.env.TELEGRAM_CHAT_ID || '',               // ID du chat ou groupe
+    // Délai entre 2 notifications pour la même alerte (en minutes)
+    cooldownMinutes: parseInt(process.env.TELEGRAM_COOLDOWN_MINUTES) || 15,
+    // Envoyer aussi une notification quand l'alerte est résolue
+    notifyResolution: process.env.TELEGRAM_NOTIFY_RESOLUTION !== 'false' || true,
+  },
 };

@@ -17,6 +17,7 @@ const historyService = require('./services/history');
 const dockerSimple = require('./services/docker-simple');
 const db = require('./services/db-sqlite');
 const { requireApiAuth, requireAuth, initializeAdminUser } = require('./middleware/auth');
+const telegramService = require('./services/telegram');
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -30,6 +31,27 @@ initializeAdminUser();
 // Démarrer la collecte automatique de l'historique
 historyService.startAutoCollect();
 
+// Démarrer la vérification périodique des alertes (toutes les minutes)
+const ALERT_CHECK_INTERVAL = 60000; // 1 minute
+setInterval(async () => {
+  try {
+    const alerts = await metricsService.checkAlertsAndNotify();
+    if (alerts.length > 0) {
+      console.log(`⚠️  ${alerts.length} alerte(s) active(s) détectée(s)`);
+    }
+  } catch (error) {
+    console.error('❌ Erreur vérification alertes:', error);
+  }
+}, ALERT_CHECK_INTERVAL);
+
+// Initialiser le service Telegram
+telegramService.testTelegramConfig().then(result => {
+  if (result.success) {
+    console.log(`✅ Bot Telegram "${result.botInfo?.username || 'configuré'}" prêt`);
+  }
+}).catch(error => {
+  console.log('ℹ️  Bot Telegram non configuré ou désactivé');
+});
 
 
 // Middleware pour parser le JSON et le logging
@@ -339,6 +361,54 @@ app.get('/api/alerts', async (req, res) => {
   }
 });
 
+// ====================
+// Routes API - Telegram (Notifications)
+// ====================
+
+// Tester la configuration Telegram
+app.get('/api/telegram/test', async (req, res) => {
+  try {
+    const result = await telegramService.testTelegramConfig();
+    
+    if (result.success) {
+      // Envoyer aussi une notification de test
+      await telegramService.sendTelegramTest();
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Erreur test Telegram:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Vérifier le statut de la configuration Telegram
+app.get('/api/telegram/status', (req, res) => {
+  try {
+    const config = require('./config/config');
+    res.json({
+      success: true,
+      enabled: config.telegram.enabled,
+      botConfigured: !!(config.telegram.botToken && config.telegram.chatId),
+      cooldownMinutes: config.telegram.cooldownMinutes,
+      notifyResolution: config.telegram.notifyResolution,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Envoyer une notification de test manuelle
+app.post('/api/telegram/send-test', async (req, res) => {
+  try {
+    const result = await telegramService.sendTelegramTest();
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Erreur envoi test Telegram:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Endpoint pour les processus (Top consommateurs)
 app.get('/api/processes', async (req, res) => {
   try {
@@ -375,7 +445,7 @@ app.get('/api/health', (req, res) => {
     success: true,
     status: 'OK',
     timestamp: new Date().toISOString(),
-    version: '0.2.0',
+    version: '0.4.0',
   });
 });
 
@@ -587,6 +657,9 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/docker-simple       (Infos Docker de base)`);
   console.log(`   - GET /api/config        (Configuration actuelle)`);
   console.log(`   - POST /api/config       (Mettre à jour la configuration)`);
+  console.log(`   - GET /api/telegram/test  (Tester notification Telegram)`);
+  console.log(`   - GET /api/telegram/status (Statut config Telegram)`);
+  console.log(`   - POST /api/telegram/send-test (Envoyer test Telegram)`);
 });
 
 module.exports = app;

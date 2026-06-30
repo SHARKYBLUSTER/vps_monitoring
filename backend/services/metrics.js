@@ -5,6 +5,10 @@
 
 const si = require('systeminformation');
 const config = require('../config/config');
+const { sendTelegramAlert } = require('./telegram');
+
+// Stocke les alertes précédentes pour détecter les résolutions
+let previousAlerts = [];
 
 /**
  * Récupère toutes les métriques système
@@ -163,12 +167,64 @@ function checkAlerts(metrics) {
 }
 
 /**
+ * Vérifie les alertes et envoie des notifications Telegram
+ * @param {Object} metrics - Métriques à vérifier
+ * @returns {Promise<Array>} - Liste des alertes
+ */
+async function checkAlertsAndNotify(metrics) {
+  const currentAlerts = checkAlerts(metrics);
+  
+  // Détecter les NOUVELLES alertes (pas dans previousAlerts)
+  const newAlerts = currentAlerts.filter(
+    alert => !previousAlerts.some(prev => prev.metric === alert.metric)
+  );
+  
+  // Détecter les alertes RÉSOLUES (dans previousAlerts mais plus dans current)
+  const resolvedAlerts = previousAlerts.filter(
+    prev => !currentAlerts.some(curr => curr.metric === prev.metric)
+  );
+  
+  // Envoyer notification pour les nouvelles alertes
+  for (const alert of newAlerts) {
+    try {
+      await sendTelegramAlert(alert, false);
+    } catch (error) {
+      console.error(`❌ Erreur notification Telegram pour ${alert.metric}:`, error.message);
+    }
+  }
+  
+  // Envoyer notification de résolution si activé
+  if (config.telegram.notifyResolution) {
+    for (const alert of resolvedAlerts) {
+      // Créer un objet alerte pour la résolution
+      const resolutionAlert = {
+        ...alert,
+        type: 'success',
+        message: `Alerte résolue pour ${alert.metric}`,
+        value: 0, // Valeur actuelle (normale)
+      };
+      
+      try {
+        await sendTelegramAlert(resolutionAlert, true);
+      } catch (error) {
+        console.error(`❌ Erreur notification résolution pour ${alert.metric}:`, error.message);
+      }
+    }
+  }
+  
+  // Mettre à jour les alertes précédentes
+  previousAlerts = JSON.parse(JSON.stringify(currentAlerts));
+  
+  return currentAlerts;
+}
+
+/**
  * Récupère les alertes actuelles
  * @returns {Promise<Array>} - Liste des alertes
  */
 async function getAlerts() {
   const metrics = await getAllMetrics();
-  return checkAlerts(metrics);
+  return await checkAlertsAndNotify(metrics);
 }
 
 /**
@@ -445,7 +501,10 @@ module.exports = {
   getAllMetrics,
   getNetworkMetrics,
   checkAlerts,
+  checkAlertsAndNotify,
   getAlerts,
   getTopProcesses,
   getOpenPorts,
+  // Fonction pour réinitialiser les alertes précédentes (utile pour les tests)
+  resetPreviousAlerts: () => { previousAlerts = []; },
 };
