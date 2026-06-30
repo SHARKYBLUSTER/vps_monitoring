@@ -346,4 +346,4 @@ Si vous avez besoin d'aide pour implémenter une correction spécifique, mention
 
 **Dernière mise à jour:** 30/06/2026  
 **Prochaine révision:** Après mise en place des corrections moyennes  
-**Commits liés:** f405a19, 89c1a8d, bddaeaf, 567520b
+**Commits liés:** f405a19, 89c1a8d, bddaeaf, 567520b, e497ab0

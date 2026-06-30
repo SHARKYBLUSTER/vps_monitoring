@@ -142,16 +142,18 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | **Notifications Telegram** | Fonctionnelle | ✅ **100%** (via modale avec bouton de test) |
 | **Couverture des tests** | > 80% | ❌ 0% |
 | **Temps de réponse API** | < 200ms | ❌ Non mesuré |
+| **Nettoyage des intervalles** | Gestion propre à l'arrêt | ✅ **100%** (cleanupIntervals, SIGINT/SIGTERM) |
 
 ---
 
 ## 📝 Changelog des Versions
 
 ### Version 0.5.0 - 30 juin 2026
-**Audit de sécurité, mise à jour des versions**
+**Audit de sécurité, nettoyage des intervalles, mise à jour des versions**
 - ✅ **Audit de sécurité complet** : Identification et documentation des vulnérabilités (authentification, CORS, injection de commande, XSS, fuites mémoire)
 - ✅ **Fichier SECURITY_TODO.md** : Liste complète des corrections à apporter
 - ✅ **Mise à jour des versions** dans tous les fichiers (package.json, README, ROADMAP)
+- ✅ **Nettoyage des intervalles à l'arrêt** : Variables globales pour alertInterval et cleanupInterval, fonction cleanupIntervals(), handlers SIGINT/SIGTERM améliorés
 - ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
 - ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
 - ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
@@ -212,4 +214,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, correction des vulnérabilités critiques, mise à jour des versions).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, nettoyage des intervalles, correction des vulnérabilités critiques, mise à jour des versions).*

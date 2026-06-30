@@ -459,6 +459,7 @@ vps_monitoring/
 | Version | Date | Modifications |
 |---------|------|---------------|
 | **0.5.0** | **30 juin 2026** | **Audit de sécurité** : Audit complet du code, identification et documentation des vulnérabilités de sécurité (authentification, CORS, injection de commande, XSS, etc.). |
+| **0.5.0** | **30 juin 2026** | **Nettoyage des intervalles** : Gestion propre de l'arrêt du serveur avec cleanup des intervalles et de la base de données pour éviter les fuites mémoire. |
 | **0.5.0** | **30 juin 2026** | **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections (Open Ports, Alerts, Metrics, Configuration, etc.). |
 | **0.5.0** | **30 juin 2026** | **UI nettoyée** : Suppression des emojis (🔧,🕐,🌙,⏰,💾,✕) de la modale de configuration et des labels "Heure"/"Jour" sous les graphiques. |
 | **0.5.0** | **30 juin 2026** | **Décalage horaire** : Ajout du paramètre UTC Heure locale dans le menu configuration pour ajuster l'affichage des abscisses des graphiques historiques (CPU, RAM, Disque, Réseau). |
@@ -622,4 +623,4 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 
 ---
 
-> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, correction des vulnérabilités, mise à jour des versions).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, nettoyage des intervalles, correction des vulnérabilités, mise à jour des versions).*
