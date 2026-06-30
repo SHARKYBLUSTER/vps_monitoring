@@ -1560,7 +1560,7 @@
         ]);
 
         if (!metricsResponse.ok || !networkResponse.ok || !alertsResponse.ok) {
-          throw new Error('Impossible de charger les données');
+          throw new Error(window.i18n ? window.i18n.t('error') : 'Error loading data');
         }
         
         const metricsData = await metricsResponse.json();
@@ -1593,7 +1593,7 @@
           // Mettre à jour le Réseau
           if (networkData.success && networkData.data) {
             const network = networkData.data;
-            document.getElementById('network-status').textContent = network.total.download !== undefined ? 'En ligne' : 'Hors ligne';
+            document.getElementById('network-status').textContent = network.total.download !== undefined ? (window.i18n ? window.i18n.t('metrics.online') : 'Online') : (window.i18n ? window.i18n.t('metrics.offline') : 'Offline');
             document.getElementById('network-download').textContent = `${formatBytes(network.total.download * 1024)}`;
             document.getElementById('network-upload').textContent = `${formatBytes(network.total.upload * 1024)}`;
           }
@@ -1606,9 +1606,10 @@
           document.getElementById('last-update').textContent = now.toLocaleString('fr-FR');
         }
       } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Error:', error);
+        const msg = window.i18n ? window.i18n.t('error') + ': ' + window.i18n.t('common.loading') : '❌ Error loading metrics. Check if the server is running.';
         document.getElementById('alerts-list').innerHTML = 
-          '<div class="alert danger"><span>❌ Impossible de charger les métriques. Vérifiez que le serveur est en cours d\'exécution.</span></div>';
+          `<div class="alert danger"><span>${msg}</span></div>`;
       }
     }
 
@@ -1623,7 +1624,8 @@
           </div>`
         ).join('');
       } else {
-        alertsList.innerHTML = '<p class="no-alerts">✅ Aucune alerte active.</p>';
+        const noAlertsText = window.i18n ? window.i18n.t('sections.no_alerts') : '✅ No active alerts.';
+        alertsList.innerHTML = `<p class="no-alerts">${noAlertsText}</p>`;
       }
     }
 
@@ -1648,7 +1650,7 @@
     async function updateProcesses() {
       try {
         const response = await fetch('/api/processes', { credentials: 'include' });
-        if (!response.ok) throw new Error('Impossible de charger les processus');
+        if (!response.ok) throw new Error(window.i18n ? window.i18n.t('error') : 'Error loading processes');
         
         const data = await response.json();
         if (data.success && data.data && data.data.length > 0) {
@@ -1657,18 +1659,21 @@
           renderProcesses(currentSort);
         } else {
           // Afficher un message utile si aucun processus n'est retourné
-          const message = data.message || 'Aucun processus trouvé (nécessite des permissions élevées)';
+          const message = data.message || (window.i18n ? window.i18n.t('processes.permissions_required') : 'No processes found (requires elevated permissions)');
+          const hint = window.i18n ? window.i18n.t('processes.permissions_hint') : 'Run with sudo or configure permissions:';
+          const command = window.i18n ? window.i18n.t('processes.permissions_command') : 'sudo setcap cap_sys_ptrace,cap_dac_read_search+ep /usr/bin/node';
           document.getElementById('processes-list').innerHTML = 
             `<tr><td colspan="5" class="no-data">${message}<br>
             <small style="font-size: 0.8em; color: #666;">
-              Exécutez avec sudo ou configurez les permissions :<br>
-              <code>sudo setcap cap_sys_ptrace,cap_dac_read_search+ep /usr/bin/node</code>
+              ${hint}<br>
+              <code>${command}</code>
             </small></td></tr>`;
         }
       } catch (error) {
-        console.error('Erreur processus:', error);
+        console.error('Error loading processes:', error);
+        const msg = window.i18n ? window.i18n.t('processes.error_loading_processes') : 'Unable to load processes. Check if the server has the necessary permissions.';
         document.getElementById('processes-list').innerHTML = 
-          '<tr><td colspan="5" class="no-data">Impossible de charger les processus. Vérifiez que le serveur a les permissions nécessaires.</td></tr>';
+          `<tr><td colspan="5" class="no-data">${msg}</td></tr>`;
       }
     }
 
@@ -1889,7 +1894,7 @@
     async function updatePorts() {
       try {
         const response = await fetch('/api/ports', { credentials: 'include' });
-        if (!response.ok) throw new Error('Impossible de charger les ports');
+        if (!response.ok) throw new Error(window.i18n ? window.i18n.t('error') : 'Error loading ports');
         
         const data = await response.json();
         const portsList = document.getElementById('ports-list');
@@ -1914,12 +1919,14 @@
             `;
           }).join('');
         } else {
-          portsList.innerHTML = '<tr><td colspan="6" class="no-data">Aucun port ouvert trouvé</td></tr>';
+          const msg = window.i18n ? window.i18n.t('ports.no_ports') : 'No open ports found';
+          portsList.innerHTML = `<tr><td colspan="6" class="no-data">${msg}</td></tr>`;
         }
       } catch (error) {
-        console.error('Erreur ports:', error);
+        console.error('Error loading ports:', error);
+        const msg = window.i18n ? window.i18n.t('ports.error_loading_ports') : 'Unable to load open ports';
         document.getElementById('ports-list').innerHTML = 
-          '<tr><td colspan="6" class="no-data">Impossible de charger les ports ouverts</td></tr>';
+          `<tr><td colspan="6" class="no-data">${msg}</td></tr>`;
       }
     }
 
@@ -1957,8 +1964,8 @@
         const data = await response.json();
         return data;
       } catch (error) {
-        console.error('❌ Erreur lors du chargement de l\'historique réseau :', error);
-        return { success: false, error: 'Impossible de charger les données' };
+        console.error('❌ Error loading network history:', error);
+        return { success: false, error: window.i18n ? window.i18n.t('error') : 'Error loading data' };
       }
     }
 
@@ -1976,10 +1983,11 @@
       console.log('📊 Données réseau reçues:', data);
 
       if (!data.success || !data.data || !data.data.labels || data.data.labels.length === 0) {
-        console.warn('⚠️ Aucune donnée disponible pour la période:', period, '| Data:', data);
+        console.warn('⚠️ No data available for period:', period, '| Data:', data);
         // Afficher un message dans le conteneur du graphique
         if (chartWrapper) {
-          chartWrapper.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Aucune donnée disponible. Attendez 5-10 min pour la collecte.</p>';
+          const msg = window.i18n ? window.i18n.t('charts.no_data_chart') : 'No data available. Wait 5-10 minutes for collection.';
+          chartWrapper.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${msg}</p>`;
         }
         return;
       }
@@ -2044,7 +2052,7 @@
           labels: formattedLabels,
           datasets: [
             {
-              label: 'Téléchargement (KB)',
+              label: window.i18n ? window.i18n.t('charts.download_label') : 'Download (KB)',
               data: data.data.download,
               borderColor: colors.networkDownload,
               backgroundColor: colors.networkDownload.replace('rgb', 'rgba').replace(')', ', 0.2)'),
@@ -2052,7 +2060,7 @@
               yAxisID: 'y',
             },
             {
-              label: 'Envoi (KB)',
+              label: window.i18n ? window.i18n.t('charts.upload_label') : 'Upload (KB)',
               data: data.data.upload,
               borderColor: colors.networkUpload,
               backgroundColor: colors.networkUpload.replace('rgb', 'rgba').replace(')', ', 0.2)'),
