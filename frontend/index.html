@@ -1154,6 +1154,8 @@
     </style>
   <!-- Font Awesome CDN pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+  <!-- i18n Manager -->
+  <script src="/js/i18n.js" defer></script>
   <!-- Alternative Font Awesome si le CDN principal échoue -->
   <script>
     // Fallback pour Font Awesome si le CDN échoue
@@ -1214,17 +1216,22 @@
     <header>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <div>
-          <h1>🖥️ VPS Monitoring Dashboard</h1>
-          <p>Surveillance en temps réel de votre serveur</p>
+          <h1 data-i18n="header.title">🖥️ VPS Monitoring Dashboard</h1>
+          <p data-i18n="common.subtitle">Surveillance en temps réel de votre serveur</p>
         </div>
         <div class="auth-info">
           <span id="user-info" style="color: white; margin-right: 15px; font-size: 0.95rem;">
-            Connecté en tant que : <strong id="username-display">admin</strong>
+            <span data-i18n="common.connected_as">Connecté en tant que</span>: <strong id="username-display">admin</strong>
           </span>
+          <!-- Sélecteur de langue -->
+          <select id="language-select" class="config-btn" style="padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.2); color: white; cursor: pointer;">
+            <option value="fr" data-i18n="language.fr">🇫🇷 Français</option>
+            <option value="en" data-i18n="language.en">🇬🇧 English</option>
+          </select>
           <button id="config-btn" class="config-btn" title="Configuration">
             <i class="fas fa-cog"></i>
           </button>
-          <a href="/logout" class="logout-btn">Déconnexion</a>
+          <a href="/logout" class="logout-btn" data-i18n="common.logout">Déconnexion</a>
         </div>
       </div>
     </header>
@@ -1233,25 +1240,25 @@
       <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-microchip" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="cpu-usage" style="font-size: 2rem; font-weight: bold;">--%</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">CPU</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.cpu">CPU</div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
-          Cœurs: <span id="cpu-cores">--</span>
+          <span data-i18n="metrics.cores">Cœurs</span>: <span id="cpu-cores">--</span>
         </div>
       </div>
 
       <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-memory" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="mem-usage" style="font-size: 2rem; font-weight: bold;">--%</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">RAM</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.memory">RAM</div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
-          <span id="mem-used">-- GB</span> / <span id="mem-total">-- GB</span>
+          <span data-i18n="metrics.used">Utilisé</span>: <span id="mem-used">-- GB</span> / <span id="mem-total">-- GB</span>
         </div>
       </div>
 
       <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-hdd" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="disk-usage" style="font-size: 2rem; font-weight: bold;">--%</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">Disque</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.disk">Disque</div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
           <span id="disk-used">-- GB</span> / <span id="disk-total">-- GB</span>
         </div>
@@ -1260,30 +1267,30 @@
       <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-network-wired" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="network-status" style="font-size: 2rem; font-weight: bold;">--</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">Réseau</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.network">Réseau</div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
-          RX: <span id="network-download">-- KB/s</span> | TX: <span id="network-upload">-- KB/s</span>
+          <span data-i18n="metrics.download">RX</span>: <span id="network-download">-- KB/s</span> | <span data-i18n="metrics.upload">TX</span>: <span id="network-upload">-- KB/s</span>
         </div>
       </div>
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-exclamation-triangle"></i> Alertes</h2>
+      <h2><i class="fas fa-exclamation-triangle"></i> <span data-i18n="sections.alerts">Alertes</span></h2>
       <div id="alerts-list">
-        <p class="no-alerts">✅ Aucune alerte active.</p>
+        <p class="no-alerts" data-i18n="sections.no_alerts">✅ Aucune alerte active.</p>
       </div>
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-chart-line"></i> Historique des Métriques</h2>
+      <h2><i class="fas fa-chart-line"></i> <span data-i18n="sections.metrics_history">Historique des Métriques</span></h2>
 
       <div class="charts-container">
         <div class="chart-card">
-          <h3>🧠 Utilisation CPU</h3>
+          <h3 data-i18n="charts.cpu_usage">🧠 Utilisation CPU</h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="cpu" data-period="day">Jour</button>
-            <button class="filter-btn" data-metric="cpu" data-period="week">Semaine</button>
-            <button class="filter-btn" data-metric="cpu" data-period="month">Mois</button>
+            <button class="filter-btn active" data-metric="cpu" data-period="day" data-i18n="filters.day">Jour</button>
+            <button class="filter-btn" data-metric="cpu" data-period="week" data-i18n="filters.week">Semaine</button>
+            <button class="filter-btn" data-metric="cpu" data-period="month" data-i18n="filters.month">Mois</button>
           </div>
           <div class="chart-wrapper">
             <canvas id="cpuChart"></canvas>
@@ -1291,11 +1298,11 @@
         </div>
 
         <div class="chart-card">
-          <h3>💾 Utilisation RAM</h3>
+          <h3 data-i18n="charts.memory_usage">💾 Utilisation RAM</h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="memory" data-period="day">Jour</button>
-            <button class="filter-btn" data-metric="memory" data-period="week">Semaine</button>
-            <button class="filter-btn" data-metric="memory" data-period="month">Mois</button>
+            <button class="filter-btn active" data-metric="memory" data-period="day" data-i18n="filters.day">Jour</button>
+            <button class="filter-btn" data-metric="memory" data-period="week" data-i18n="filters.week">Semaine</button>
+            <button class="filter-btn" data-metric="memory" data-period="month" data-i18n="filters.month">Mois</button>
           </div>
           <div class="chart-wrapper">
             <canvas id="memoryChart"></canvas>
@@ -1303,11 +1310,11 @@
         </div>
 
         <div class="chart-card">
-          <h3>💽 Utilisation Disque</h3>
+          <h3 data-i18n="charts.disk_usage">💽 Utilisation Disque</h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="disk" data-period="day">Jour</button>
-            <button class="filter-btn" data-metric="disk" data-period="week">Semaine</button>
-            <button class="filter-btn" data-metric="disk" data-period="month">Mois</button>
+            <button class="filter-btn active" data-metric="disk" data-period="day" data-i18n="filters.day">Jour</button>
+            <button class="filter-btn" data-metric="disk" data-period="week" data-i18n="filters.week">Semaine</button>
+            <button class="filter-btn" data-metric="disk" data-period="month" data-i18n="filters.month">Mois</button>
           </div>
           <div class="chart-wrapper">
             <canvas id="diskChart"></canvas>
@@ -1317,15 +1324,15 @@
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-wifi"></i> Historique des connexions réseau</h2>
+      <h2><i class="fas fa-wifi"></i> <span data-i18n="sections.connection_history">Historique des connexions réseau</span></h2>
       <div class="charts-container">
         <div class="chart-card">
-          <h3>📡 Trafic Réseau</h3>
+          <h3 data-i18n="charts.network_traffic">📡 Trafic Réseau</h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="network" data-period="day">Jour</button>
-            <button class="filter-btn" data-metric="network" data-period="week">Semaine</button>
-            <button class="filter-btn" data-metric="network" data-period="month">Mois</button>
-            <button class="filter-btn" data-metric="network" data-period="quarter">Trimestre</button>
+            <button class="filter-btn active" data-metric="network" data-period="day" data-i18n="filters.day">Jour</button>
+            <button class="filter-btn" data-metric="network" data-period="week" data-i18n="filters.week">Semaine</button>
+            <button class="filter-btn" data-metric="network" data-period="month" data-i18n="filters.month">Mois</button>
+            <button class="filter-btn" data-metric="network" data-period="quarter" data-i18n="filters.quarter">Trimestre</button>
           </div>
           <div class="chart-wrapper">
             <canvas id="networkChart"></canvas>
@@ -1335,75 +1342,74 @@
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-list"></i> Top 5 Processus</h2>
+      <h2><i class="fas fa-list"></i> <span data-i18n="sections.top_processes">Top 5 Processus</span></h2>
       <div class="processes-controls">
-        <button onclick="sortProcesses('cpu')" class="sort-btn active" id="sort-cpu">Tri par CPU ▼</button>
-        <button onclick="sortProcesses('mem')" class="sort-btn" id="sort-mem">Tri par RAM ▼</button>
+        <button onclick="sortProcesses('cpu')" class="sort-btn active" id="sort-cpu" data-i18n="processes.sort_by_cpu">Tri par CPU ▼</button>
+        <button onclick="sortProcesses('mem')" class="sort-btn" id="sort-mem" data-i18n="processes.sort_by_mem">Tri par RAM ▼</button>
       </div>
       <div class="processes-table-container">
         <table class="processes-table">
           <thead>
             <tr>
-              <th>PID</th>
-              <th>Nom</th>
-              <th>Utilisateur</th>
-              <th>CPU %</th>
-              <th>RAM %</th>
+              <th data-i18n="processes.pid">PID</th>
+              <th data-i18n="processes.name">Nom</th>
+              <th data-i18n="processes.user">Utilisateur</th>
+              <th data-i18n="processes.cpu_percent">CPU %</th>
+              <th data-i18n="processes.memory_percent">RAM %</th>
             </tr>
           </thead>
           <tbody id="processes-list">
             <tr>
-              <td colspan="5" class="no-data">Chargement des processus...</td>
+              <td colspan="5" class="no-data" data-i18n="processes.loading_processes">Chargement des processus...</td>
             </tr>
           </tbody>
         </table>
         <p class="processes-hint">
           <i class="fas fa-info-circle"></i> 
-          Les pourcentages CPU/RAM sont calculés par rapport à la capacité totale du système.
-          La somme peut dépasser 100% (multi-cœurs).
+          <span data-i18n="processes.hint">Les pourcentages CPU/RAM sont calculés par rapport à la capacité totale du système. La somme peut dépasser 100% (multi-cœurs).</span>
         </p>
       </div>
     </div>
 
     <!-- ==================== SECTION DOCKER ==================== -->
     <div class="section-card" id="docker-section">
-      <h2><i class="fas fa-cube"></i> Docker Engine</h2>
+      <h2><i class="fas fa-cube"></i> <span data-i18n="sections.docker_engine">Docker Engine</span></h2>
       <div class="stats-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
         <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
           <i class="fas fa-play-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-running" style="font-size: 2rem; font-weight: bold;">0</div>
-          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">En cours</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.running">En cours</div>
         </div>
         <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
           <i class="fas fa-stop-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-stopped" style="font-size: 2rem; font-weight: bold;">0</div>
-          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">Arrêtés</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.stopped">Arrêtés</div>
         </div>
         <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
           <i class="fas fa-cubes" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-total" style="font-size: 2rem; font-weight: bold;">0</div>
-          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">Total</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.total">Total</div>
         </div>
       </div>
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-ethernet"></i> Ports ouverts</h2>
+      <h2><i class="fas fa-ethernet"></i> <span data-i18n="sections.open_ports">Ports ouverts</span></h2>
       <div class="ports-table-container">
         <table class="ports-table">
           <thead>
             <tr>
-              <th>Port</th>
-              <th>Adresse</th>
-              <th>Version IP</th>
-              <th>Service</th>
-              <th>Type</th>
-              <th>Sécurité</th>
+              <th data-i18n="ports.port">Port</th>
+              <th data-i18n="ports.address">Adresse</th>
+              <th data-i18n="ports.ip_version">Version IP</th>
+              <th data-i18n="ports.service">Service</th>
+              <th data-i18n="ports.type">Type</th>
+              <th data-i18n="ports.security">Sécurité</th>
             </tr>
           </thead>
           <tbody id="ports-list">
             <tr>
-              <td colspan="6" class="no-data">Chargement des ports...</td>
+              <td colspan="6" class="no-data" data-i18n="ports.loading_ports">Chargement des ports...</td>
             </tr>
           </tbody>
         </table>
@@ -1414,48 +1420,47 @@
     <div id="config-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2><i class="fas fa-cogs"></i> Configuration</h2>
-          <button id="close-config" class="close-btn">&times;</button>
+          <h2><i class="fas fa-cogs"></i> <span data-i18n="modal.title">Configuration</span></h2>
+          <button id="close-config" class="close-btn" data-i18n="modal.close" title="Fermer">&times;</button>
         </div>
         <div class="modal-body">
           <div class="config-section">
-            <h3><i class="fas fa-clock"></i> Fréquence d'enregistrement</h3>
-            <p class="config-description">
-              Configurez l'intervalle de collecte des données (en millisecondes).
-              <br>Plus l'intervalle est court, plus la surveillance est précise, mais plus le serveur est sollicité.
+            <h3><i class="fas fa-clock"></i> <span data-i18n="config.frequency_title">Fréquence d'enregistrement</span></h3>
+            <p class="config-description" data-i18n="config.frequency_desc">
+              Configurez l'intervalle de collecte des données (en millisecondes). Plus l'intervalle est court, plus la surveillance est précise, mais plus le serveur est sollicité.
             </p>
             
             <div class="form-group">
-              <label for="metrics-interval">Intervalle de collecte (ms):</label>
+              <label for="metrics-interval" data-i18n="config.interval_label">Intervalle de collecte (ms):</label>
               <div class="input-with-hint">
                 <input type="number" id="metrics-interval" min="1000" step="1000" value="5000">
-                <span class="hint">Recommandé: 5000-30000ms</span>
+                <span class="hint" data-i18n="config.interval_hint">Recommandé: 5000-30000ms</span>
               </div>
             </div>
             
             <div class="interval-presets">
-              <button class="preset-btn" data-value="5000">5 secondes</button>
-              <button class="preset-btn" data-value="10000">10 secondes</button>
-              <button class="preset-btn" data-value="30000">30 secondes</button>
-              <button class="preset-btn" data-value="60000">1 minute</button>
-              <button class="preset-btn" data-value="300000">5 minutes</button>
+              <button class="preset-btn" data-value="5000" data-i18n="config.preset_5s">5 secondes</button>
+              <button class="preset-btn" data-value="10000" data-i18n="config.preset_10s">10 secondes</button>
+              <button class="preset-btn" data-value="30000" data-i18n="config.preset_30s">30 secondes</button>
+              <button class="preset-btn" data-value="60000" data-i18n="config.preset_1m">1 minute</button>
+              <button class="preset-btn" data-value="300000" data-i18n="config.preset_5m">5 minutes</button>
             </div>
           </div>
 
           <div class="config-section">
-            <h3><i class="fas fa-moon"></i> Apparence</h3>
-            <p class="config-description">
+            <h3><i class="fas fa-moon"></i> <span data-i18n="config.appearance_title">Apparence</span></h3>
+            <p class="config-description" data-i18n="config.appearance_desc">
               Personnalisez l'apparence de l'interface utilisateur.
             </p>
             
             <div class="form-group">
-              <label>Mode sombre</label>
+              <label data-i18n="config.dark_mode_label">Mode sombre</label>
               <div class="theme-toggle-container">
                 <button id="config-dark-toggle" class="theme-switch-btn">
-                  <span class="theme-option active" data-theme="light">
+                  <span class="theme-option active" data-theme="light" data-i18n="config.theme_light">
                     <i class="fas fa-sun"></i> Clair
                   </span>
-                  <span class="theme-option" data-theme="dark">
+                  <span class="theme-option" data-theme="dark" data-i18n="config.theme_dark">
                     <i class="fas fa-moon"></i> Sombre
                   </span>
                 </button>
@@ -1463,7 +1468,7 @@
             </div>
 
             <div class="form-group">
-              <label>Afficher la section Docker Engine</label>
+              <label data-i18n="config.show_docker_label">Afficher la section Docker Engine</label>
               <div class="toggle-container">
                 <label class="switch">
                   <input type="checkbox" id="show-docker-toggle">
@@ -1474,50 +1479,49 @@
           </div>
 
           <div class="config-section">
-            <h3><i class="fas fa-clock"></i> Heure locale</h3>
-            <p class="config-description">
-              Configurez le décalage horaire par rapport à UTC pour afficher l'heure locale dans les graphiques.
-              <br>Exemple: +2 pour UTC+2, -5 pour UTC-5, 0 pour UTC.
+            <h3><i class="fas fa-clock"></i> <span data-i18n="config.timezone_title">Heure locale</span></h3>
+            <p class="config-description" data-i18n="config.timezone_desc">
+              Configurez le décalage horaire par rapport à UTC pour afficher l'heure locale dans les graphiques. Exemple: +2 pour UTC+2, -5 pour UTC-5, 0 pour UTC.
             </p>
             
             <div class="form-group">
-              <label for="timezone-offset">Décalage horaire (heures):</label>
+              <label for="timezone-offset" data-i18n="config.timezone_label">Décalage horaire (heures):</label>
               <div class="input-with-hint">
                 <input type="number" id="timezone-offset" min="-12" max="14" step="1" value="0">
-                <span class="hint">-12 à +14 heures</span>
+                <span class="hint" data-i18n="config.timezone_hint">-12 à +14 heures</span>
               </div>
             </div>
           </div>
 
           <div class="config-section">
-            <h3><i class="fas fa-database"></i> Stockage des données</h3>
-            <p class="config-description">
+            <h3><i class="fas fa-database"></i> <span data-i18n="config.storage_title">Stockage des données</span></h3>
+            <p class="config-description" data-i18n="config.storage_desc">
               Configurez la durée de conservation des données historiques dans la base de données.
             </p>
             
             <div class="form-group">
-              <label for="data-retention">Durée de rétention (mois):</label>
+              <label for="data-retention" data-i18n="config.retention_label">Durée de rétention (mois):</label>
               <div class="input-with-hint">
                 <input type="number" id="data-retention" min="1" max="24" step="1" value="3">
-                <span class="hint">1-24 mois</span>
+                <span class="hint" data-i18n="config.retention_hint">1-24 mois</span>
               </div>
             </div>
             
             <div class="form-group">
               <label>&nbsp;</label>
               <button id="clear-all-data" class="clear-btn">
-                <i class="fas fa-trash-alt"></i> Effacer TOUTES les données
+                <i class="fas fa-trash-alt"></i> <span data-i18n="config.clear_data">Effacer TOUTES les données</span>
               </button>
-              <span class="clear-warning">⚠️ Irréversible !</span>
+              <span class="clear-warning" data-i18n="config.clear_warning">⚠️ Irréversible !</span>
             </div>
           </div>
           
           <div class="config-actions">
             <button id="save-config" class="save-btn">
-              <i class="fas fa-save"></i> Sauvegarder
+              <i class="fas fa-save"></i> <span data-i18n="modal.save">Sauvegarder</span>
             </button>
             <button id="cancel-config" class="cancel-btn">
-              <i class="fas fa-times"></i> Annuler
+              <i class="fas fa-times"></i> <span data-i18n="modal.cancel">Annuler</span>
             </button>
           </div>
           
@@ -1527,7 +1531,8 @@
     </div>
 
     <footer>
-      <p>VPS Monitoring Dashboard v0.4.0 | Dernière mise à jour: <span id="last-update">--</span></p>
+      <p><span data-i18n="common.footer">© 2026 - VPS Monitoring v0.4.0</span></p>
+      <p><span data-i18n="common.last_update">Dernière mise à jour:</span> <span id="last-update">--</span></p>
     </footer>
   </div>
 
@@ -2976,6 +2981,56 @@
         }
       }
     });
+  </script>
+
+  <!-- Gestion du sélecteur de langue -->
+  <script>
+    // Attendre que i18n et DOM soient prêts
+    async function initializeLanguageSelector() {
+      // Attendre que i18n soit chargé
+      await new Promise(resolve => {
+        const checkI18n = setInterval(() => {
+          if (window.i18n && window.i18n.loaded) {
+            clearInterval(checkI18n);
+            resolve();
+          }
+        }, 100);
+      });
+
+      // Récupérer le sélecteur de langue
+      const langSelect = document.getElementById('language-select');
+      if (!langSelect) return;
+
+      // Définir la valeur actuelle
+      langSelect.value = window.i18n.getCurrentLang();
+
+      // Écouter les changements
+      langSelect.addEventListener('change', async (e) => {
+        const newLang = e.target.value;
+        await window.i18n.changeLanguage(newLang);
+        
+        // Mettre à jour le sélecteur avec les nouvelles traductions
+        const options = langSelect.querySelectorAll('option');
+        options.forEach(opt => {
+          const key = `language.${opt.value}`;
+          opt.textContent = window.i18n.t(key);
+        });
+        
+        // Recharger la page pour appliquer la langue partout
+        // (nécessaire pour les textes qui ne sont pas gérés par data-i18n)
+        window.location.reload();
+      });
+
+      // Mettre à jour les options du sélecteur avec les traductions actuelles
+      const options = langSelect.querySelectorAll('option');
+      options.forEach(opt => {
+        const key = `language.${opt.value}`;
+        opt.textContent = window.i18n.t(key);
+      });
+    }
+
+    // Initialiser le sélecteur de langue quand la page est chargée
+    document.addEventListener('DOMContentLoaded', initializeLanguageSelector);
   </script>
 </body>
 </html>

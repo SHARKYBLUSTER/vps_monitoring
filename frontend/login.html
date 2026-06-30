@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion - VPS Monitoring</title>
+  <title data-i18n="common.login_title">Connexion - VPS Monitoring</title>
   <style>
     * {
       margin: 0;
@@ -186,58 +186,76 @@
   </style>
   <!-- Font Awesome CDN pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+  <!-- i18n Manager -->
+  <script src="/js/i18n.js" defer></script>
 </head>
 <body>
   <div class="login-container">
     <div class="login-header" style="margin-bottom: 20px;">
-      <h1>🔒 Connexion</h1>
-      <p>VPS Monitoring Dashboard</p>
+      <h1>🔒 <span data-i18n="login.title">Connexion</span></h1>
+      <p data-i18n="common.subtitle">VPS Monitoring Dashboard</p>
     </div>
 
     <form class="login-form" action="/login" method="POST">
       <div class="form-group">
-        <label for="username">Utilisateur</label>
-        <input type="text" id="username" name="username" placeholder="admin" required autofocus>
+        <label for="username" data-i18n="login.username">Utilisateur</label>
+        <input type="text" id="username" name="username" data-i18n-placeholder="login.user_placeholder" placeholder="admin" required autofocus>
       </div>
       
       <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" placeholder="••••••••" required>
+        <label for="password" data-i18n="login.password">Mot de passe</label>
+        <input type="password" id="password" name="password" data-i18n-placeholder="login.password_placeholder" placeholder="••••••••" required>
       </div>
       
-      <button type="submit" class="login-btn">Se connecter</button>
+      <button type="submit" class="login-btn" data-i18n="login.submit">Se connecter</button>
     </form>
 
     <div class="credentials-info">
       <p>
-        <strong>Identifiants par défaut :</strong><br>
-        Utilisateur : <code>admin</code><br>
-        Mot de passe : <code>changer_mot_de_passe</code> (à modifier dans <code>.env</code>)
+        <strong data-i18n="login.credentials">Identifiants par défaut :</strong><br>
+        <span data-i18n="login.username">Utilisateur</span> : <code>admin</code><br>
+        <span data-i18n="login.password">Mot de passe</span> : <code>changer_mot_de_passe</code> (<span data-i18n="login.modify_in_env">à modifier dans</span> <code>.env</code>)
       </p>
     </div>
 
     <div class="login-footer">
-      <p>© 2026 - VPS Monitoring v0.4.0</p>
+      <p data-i18n="common.footer">© 2026 - VPS Monitoring v0.4.0</p>
     </div>
   </div>
 
   <!-- Affichage des erreurs via JavaScript (si redirection avec param error) -->
   <script>
+    // Attendre que i18n soit chargé
+    async function waitForI18n() {
+      return new Promise(resolve => {
+        const checkI18n = setInterval(() => {
+          if (window.i18n && window.i18n.loaded) {
+            clearInterval(checkI18n);
+            resolve();
+          }
+        }, 100);
+      });
+    }
+    
     // Vérifier si l'URL contient ?error=1
     if (window.location.search.includes('error=1')) {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error-message';
-      errorDiv.textContent = '❌ Identifiants invalides. Veuillez réessayer.';
-      
-      const form = document.querySelector('.login-form');
-      form.parentNode.insertBefore(errorDiv, form);
-      
-      // Effacer le paramètre de l'URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      waitForI18n().then(() => {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = window.i18n.t('login.error');
+        
+        const form = document.querySelector('.login-form');
+        form.parentNode.insertBefore(errorDiv, form);
+        
+        // Effacer le paramètre de l'URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      });
     }
     
     // Charger le nom d'utilisateur depuis le localStorage
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      await waitForI18n();
+      
       const savedUsername = localStorage.getItem('vps_monitoring_username');
       const usernameInput = document.getElementById('username');
       
