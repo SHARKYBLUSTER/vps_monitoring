@@ -17,9 +17,9 @@ module.exports = {
 
   // Seuils pour les alertes (en %)
   alerts: {
-    cpuThreshold: 80,    // Alerte si CPU > 80%
-    memoryThreshold: 85, // Alerte si RAM > 85%
-    diskThreshold: 90,   // Alerte si disque > 90%
+    cpuThreshold: parseInt(process.env.CPU_THRESHOLD) || 80,    // Alerte si CPU > 80% (configurable via .env)
+    memoryThreshold: parseInt(process.env.MEMORY_THRESHOLD) || 85, // Alerte si RAM > 85% (configurable via .env)
+    diskThreshold: parseInt(process.env.DISK_THRESHOLD) || 90,   // Alerte si disque > 90% (configurable via .env)
   },
 
   // Intervalle de collecte des métriques (en ms)
