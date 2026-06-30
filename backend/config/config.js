@@ -28,6 +28,9 @@ module.exports = {
   // Rétention des données (en mois)
   dataRetentionMonths: 3, // 3 mois par défaut
 
+  // Décalage horaire local (en heures par rapport à UTC, peut être négatif)
+  timezoneOffset: 0, // 0 = UTC, +2 = UTC+2, -5 = UTC-5, etc.
+
   // Logs
   logLevel: process.env.LOG_LEVEL || 'info',
 };

@@ -118,6 +118,7 @@ app.get('/api/config', (req, res) => {
       data: {
         metricsInterval: config.metricsInterval,
         dataRetentionMonths: config.dataRetentionMonths,
+        timezoneOffset: config.timezoneOffset,
         alerts: config.alerts
       },
       timestamp: new Date().toISOString(),
@@ -216,7 +217,7 @@ app.get('/logout', (req, res) => {
 // Endpoint pour mettre à jour la configuration
 app.post('/api/config', (req, res) => {
   try {
-    const { metricsInterval, dataRetentionMonths } = req.body;
+    const { metricsInterval, dataRetentionMonths, timezoneOffset } = req.body;
     
     // Validation des paramètres
     if (metricsInterval !== undefined) {
@@ -255,6 +256,21 @@ app.post('/api/config', (req, res) => {
       // Note: Le nettoyage automatique utilisera la nouvelle valeur au prochain cycle
     }
     
+    // Gestion du décalage horaire
+    if (timezoneOffset !== undefined) {
+      const newOffset = parseInt(timezoneOffset);
+      if (isNaN(newOffset) || newOffset < -12 || newOffset > 14) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'timezoneOffset doit être un nombre entier entre -12 et +14 heures' 
+        });
+      }
+      
+      // Mettre à jour le décalage horaire dans la configuration
+      const config = require('./config/config');
+      config.timezoneOffset = newOffset;
+    }
+    
     // Retourner la configuration complète
     const config = require('./config/config');
     res.json({
@@ -262,7 +278,8 @@ app.post('/api/config', (req, res) => {
       message: 'Configuration mise à jour avec succès',
       data: {
         metricsInterval: config.metricsInterval,
-        dataRetentionMonths: config.dataRetentionMonths
+        dataRetentionMonths: config.dataRetentionMonths,
+        timezoneOffset: config.timezoneOffset
       },
       timestamp: new Date().toISOString(),
     });

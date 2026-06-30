@@ -1406,6 +1406,22 @@
           </div>
 
           <div class="config-section">
+            <h3><i class="fas fa-clock"></i> Heure locale</h3>
+            <p class="config-description">
+              Configurez le décalage horaire par rapport à UTC pour afficher l'heure locale dans les graphiques.
+              <br>Exemple: +2 pour UTC+2, -5 pour UTC-5, 0 pour UTC.
+            </p>
+            
+            <div class="form-group">
+              <label for="timezone-offset">Décalage horaire (heures):</label>
+              <div class="input-with-hint">
+                <input type="number" id="timezone-offset" min="-12" max="14" step="1" value="0">
+                <span class="hint">-12 à +14 heures</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-section">
             <h3><i class="fas fa-database"></i> Stockage des données</h3>
             <p class="config-description">
               Configurez la durée de conservation des données historiques dans la base de données.
@@ -1943,10 +1959,10 @@
       const isDark = document.body.classList.contains('dark-mode');
       const colors = getChartColors(isDark);
       
-      // Formater les labels pour n'afficher que HH:MM au lieu de YYYY-MM-DD HH:MM:SS
+      // Formater les labels pour n'afficher que HH:MM au lieu de YYYY-MM-DD HH:MM:SS avec décalage horaire
       const formattedLabels = data.data.labels.map(label => {
-        const date = new Date(label);
-        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        const adjustedDate = applyTimezoneOffset(label, currentConfig.timezoneOffset);
+        return adjustedDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
       });
 
       window.networkChart = new ChartLib(ctx, {
@@ -2155,6 +2171,28 @@
       }
     }
 
+    // Fonction utilitaire pour appliquer le décalage horaire à une date
+    function applyTimezoneOffset(dateString, offsetHours) {
+      if (!dateString) {
+        return new Date();
+      }
+      
+      try {
+        const date = new Date(dateString);
+        // Si offsetHours est 0, retourner la date sans modification
+        if (offsetHours === 0) {
+          return date;
+        }
+        // Appliquer le décalage en minutes (offsetHours * 60)
+        const offsetMinutes = offsetHours * 60;
+        const localDate = new Date(date.getTime() + offsetMinutes * 60000);
+        return localDate;
+      } catch (error) {
+        console.warn('⚠️ Impossible d\'appliquer le décalage horaire:', error);
+        return new Date(dateString);
+      }
+    }
+
     // Fonction pour formater les labels selon la période
     // Pour 'day': les données ont un champ 'timestamp' (ISO string)
     // Pour 'week'/'month': les données ont un champ 'label' (format YYYY-MM-DD)
@@ -2164,12 +2202,12 @@
       if (period === 'day') {
         // Pour le jour, on utilise timestamp et on extrait l'heure
         labelText = item.timestamp;
-        const date = new Date(labelText);
+        const date = applyTimezoneOffset(labelText, currentConfig.timezoneOffset);
         return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
       } else {
         // Pour semaine/mois, on utilise label (format YYYY-MM-DD)
         labelText = item.label;
-        const date = new Date(labelText + 'T00:00:00');
+        const date = applyTimezoneOffset(labelText + 'T00:00:00', currentConfig.timezoneOffset);
         if (period === 'week') {
           return date.toLocaleDateString('fr-FR', { weekday: 'short' });
         } else if (period === 'month') {
@@ -2433,7 +2471,8 @@
     // Variables globales pour la configuration
     let currentConfig = { 
       metricsInterval: 5000,
-      dataRetentionMonths: 3
+      dataRetentionMonths: 3,
+      timezoneOffset: 0
     };
 
     // Fonction pour ouvrir la modal de configuration
@@ -2474,6 +2513,12 @@
           const retentionInput = document.getElementById('data-retention');
           if (retentionInput) {
             retentionInput.value = currentConfig.dataRetentionMonths || 3;
+          }
+          
+          // Mettre à jour le décalage horaire
+          const timezoneInput = document.getElementById('timezone-offset');
+          if (timezoneInput) {
+            timezoneInput.value = currentConfig.timezoneOffset || 0;
           }
           
           // Mettre à jour les boutons de présélection
@@ -2601,6 +2646,14 @@
         return;
       }
 
+      const timezoneInput = document.getElementById('timezone-offset');
+      const newTimezoneOffset = parseInt(timezoneInput.value);
+      
+      if (isNaN(newTimezoneOffset) || newTimezoneOffset < -12 || newTimezoneOffset > 14) {
+        showConfigStatus('❌ Le décalage horaire doit être entre -12 et +14 heures', 'error');
+        return;
+      }
+
       try {
         showConfigStatus('🔄 Sauvegarde en cours...', 'info');
         
@@ -2611,7 +2664,8 @@
           },
           body: JSON.stringify({
             metricsInterval: newInterval,
-            dataRetentionMonths: newRetention
+            dataRetentionMonths: newRetention,
+            timezoneOffset: newTimezoneOffset
           }),
           credentials: 'include'
         });
@@ -2621,10 +2675,19 @@
         if (data.success) {
           currentConfig.metricsInterval = newInterval;
           currentConfig.dataRetentionMonths = newRetention;
+          currentConfig.timezoneOffset = newTimezoneOffset;
           showConfigStatus('✅ Configuration sauvegardée avec succès!', 'success');
           
           // Mettre à jour l'intervalle de rafraîchissement du frontend immédiatement
           updateFrontendIntervals(newInterval);
+          
+          // Rafraîchir les graphiques pour appliquer le nouveau décalage horaire
+          if (typeof refreshAllCharts === 'function') {
+            refreshAllCharts();
+          }
+          if (typeof updateNetworkChart === 'function') {
+            updateNetworkChart('day');
+          }
           
           // Fermer la modal après un délai
           setTimeout(() => {
@@ -2790,6 +2853,15 @@
             await updateFrontendIntervals(currentConfig.metricsInterval);
           } else {
             console.error('❌ [DEBUG] metricsInterval is undefined!');
+          }
+          
+          // Rafraîchir les graphiques avec le décalage horaire chargé
+          console.log('🔍 [DEBUG] Timezone offset loaded:', currentConfig.timezoneOffset);
+          if (typeof refreshAllCharts === 'function') {
+            refreshAllCharts();
+          }
+          if (typeof updateNetworkChart === 'function') {
+            updateNetworkChart('day');
           }
         } else {
           console.error('❌ [DEBUG] User is NOT authenticated! Redirecting...');
