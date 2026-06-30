@@ -6,85 +6,119 @@
 
 ## 📌 À propos
 
-**VPS Monitoring Dashboard** est une solution complète pour superviser les métriques clés de votre serveur (CPU, RAM, Disque, Réseau, Processus) directement depuis un navigateur web. Le projet utilise une **architecture API REST + SSR** avec rafraîchissement automatique des données et prend en charge le **multi-langues (Français/Anglais)**.
+**VPS Monitoring Dashboard** est une solution complète et sécurisée pour superviser les métriques clés de votre serveur (CPU, RAM, Disque, Réseau, Processus, Docker) directement depuis un navigateur web. Le projet utilise une **architecture API REST + SSR** avec rafraîchissement automatique des données, prend en charge le **multi-langues (Français/Anglais)** et intègre des fonctionnalités avancées de sécurité et de configuration.
 
 ---
 
 ## ✅ Fonctionnalités
 
 ### 📊 **Surveillance en temps réel**
-- **CPU** : Utilisation, nombre de cœurs, modèle
-- **RAM** : Utilisation en %, mémoire utilisée/totale
-- **Disque** : Espace utilisé, total, disponible
-- **Réseau** : Téléchargement/Upload par interface
-- **Processus** : Top 5 processus consommateurs de CPU/RAM
+- **CPU** : Utilisation en %, nombre de cœurs, modèle et vitesse
+- **RAM** : Utilisation en %, mémoire utilisée/totale, mémoire libre
+- **Disque** : Espace utilisé, total, disponible, pourcentage d'utilisation
+- **Réseau** : Téléchargement/Upload en KB/s par interface réseau active
+- **Processus** : Top 5 processus consommateurs de CPU/RAM avec utilisateur, PID et pourcentages
 
-### 🎨 **Interface moderne**
-- Barres de progression animées
-- Design responsive (mobile-friendly)
+### 🎨 **Interface moderne et responsive**
+- Barres de progression animées pour toutes les métriques
+- Design responsive (mobile-friendly) avec grilles CSS adaptatives
 - Tableaux triables (par CPU ou RAM pour les processus)
-- Rafraîchissement dynamique sans rechargement de page
+- Rafraîchissement dynamique sans rechargement de page (via setInterval configurable)
 - **Mode sombre** : Thème alternatif avec persistance via localStorage, appliqué de manière cohérente sur toutes les pages (dashboard, configuration, login)
 - **Boutons unifiés** : Style CSS cohérent pour tous les boutons (logout, configuration, etc.)
-- **Icônes** : Ajout d'icônes pour les boutons du menu configuration
+- **Icônes** : Intégration de Font Awesome 6.4.0 via CDN pour les icônes du menu
+- Favicon personnalisé (loupe avec centre bleu et manche noir)
 
 ### ⚠️ **Alertes intelligentes**
-- Seuils configurables pour CPU, RAM et Disque
-- Notifications en temps réel
-- Historique des alertes
+- Seuils configurables pour CPU, RAM et Disque (via interface ou .env)
+- **Niveaux d'alerte** : Warning (CPU/RAM) et Danger (Disque)
+- Notifications en temps réel avec détection des nouvelles alertes et des résolutions
+- Historique des alertes stocké en base de données SQLite
+- **Notifications Telegram** : Configuration complète (token, chat ID, cooldown 1-1440 min) avec bouton de test intégré
+- **Cooldown configurable** : Délai entre notifications pour éviter le spam (1-1440 minutes)
+- **Notification de résolution** : Option pour notifier quand une alerte est résolue
 
 ### 📈 **Historique et analyse**
-- Stockage des métriques historiques (SQLite)
-- **Paramètre de rétention configurable** : Durée de stockage des données en mois (1-24 mois)
-- Collecte automatique avec intervalle configurable
-- Endpoints API pour récupérer les données historiques
+- **Stockage SQLite** (better-sqlite3) avec tables dédiées : metrics, alerts, docker_containers, docker_alerts
+- **Paramètre de rétention configurable** : Durée de stockage des données (1-24 mois)
+- Collecte automatique avec intervalle configurable (défaut : 5 secondes)
+- **Endpoints API** pour récupérer les données historiques avec filtrage temporel
+- **Agrégation intelligente** : Données groupées par 30 minutes (jour), par jour (semaine/mois)
+- **Nettoyage automatique** : Suppression des anciennes données selon la période de rétention
 
 ### ⚙️ **Configuration avancée**
-- **Menu de configuration** accessible depuis l'interface
-- **Intervalle de collecte** : Ajustement de la fréquence de collecte des métriques (en ms)
+- **Menu de configuration** accessible depuis l'interface (icône ⚙️)
+- **Intervalle de collecte** : Ajustement de la fréquence de collecte des métriques (en ms, minimum 1000ms)
 - **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
-- **Effacement des données** : Bouton pour supprimer toutes les données historiques
-- **Gestion du thème** : Basculer entre mode clair/sombre depuis le menu configuration, appliqué automatiquement sur toutes les pages y compris la page de login
-- **Décalage horaire** : Paramétrage du décalage UTC (+/- heures) pour l'affichage des graphiques historiques
+- **Effacement des données** : Bouton pour supprimer toutes les données historiques (SQLite + JSON) avec confirmation explicite
+- **Gestion du thème** : Basculer entre mode clair/sombre depuis le menu configuration
+- **Décalage horaire** : Paramétrage du décalage UTC (+/- heures, -12 à +14) pour l'affichage des graphiques historiques
 - **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard
 - **Multi-langues** : Sélecteur de langue (Français/Anglais) avec persistance via localStorage
-- **Seuils d'alerte** : Configuration des seuils CPU/RAM/Disque directement depuis la modale de configuration
-- **Notifications Telegram** : Configuration complète (token, chat ID, cooldown) avec bouton de test intégré dans la modale
+- **Seuils d'alerte** : Configuration des seuils CPU/RAM/Disque (0-100%) directement depuis la modale
+- **Notifications Telegram** : Configuration complète avec test de connexion et envoi de test
+- **Présélections d'intervalle** : Boutons prédéfinis pour faciliter la configuration
 
-### 🔍 **Surveillance avancée**
-- **Top 5 processus** : Identification des processus les plus gourmands
-- Tri dynamique par CPU ou mémoire
-- Visualisation avec barres de progression
-- **Analyse améliorée** : Données cohérentes avec l'utilisation globale CPU/RAM
+### 🔍 **Surveillance avancée des processus**
+- **Top 5 processus** : Identification des processus les plus gourmands en CPU et RAM
+- Tri dynamique par CPU ou mémoire (boutons de tri actifs)
+- Visualisation avec barres de progression inline
+- **Analyse cohérente** : Données alignées avec l'utilisation globale CPU/RAM
+- **Deux méthodes de collecte** : Commande `ps aux` (préférée, donne directement les %) + fallback sur systeminformation.processes()
+- **Affichage détaillé** : PID, nom, utilisateur, %CPU, %RAM
 
 ### 🔌 **Sécurité des ports**
-- **Surveillance des ports ouverts** : Liste des ports TCP en écoute
-- **Indicateur visuel** : 🟢 (local) ou 🟠 (externe)
-- **Identification des services** : Base de données de 25+ ports connus (SSH, HTTP, MySQL, etc.)
-- **Niveau de sécurité** : Notation en étoiles (⭐⭐⭐, ⭐⭐☆, ⭐☆☆)
-- **Classification automatique** : Ports système, enregistrés, dynamiques
+- **Surveillance des ports ouverts** : Liste des ports TCP en écoute (état LISTEN)
+- **Indicateur visuel** : 🟢 (local - 127.0.0.1/::1) ou 🟠 (externe - 0.0.0.0/::)
+- **Identification des services** : Base de données de ports connus (SSH:22, HTTP:80, HTTPS:443, MySQL:3306, etc.)
+- **Niveau de sécurité** : Notation en étoiles (⭐⭐⭐ = port système <1024, ⭐⭐☆ = port enregistré 1024-49151, ⭐☆☆ = port dynamique >49151)
+- **Classification automatique** : Ports système (<1024), enregistrés (1024-49151), dynamiques (>49151)
+- **Détection multi-méthode** : systeminformation.networkConnections() + fallback sur commande `ss -tlnp`
 
-### 🐳 **Surveillance Docker**
-- **Docker Engine** : Statut, version, OS, architecture, CPU, mémoire
-- **Conteneurs** : Liste complète avec nom, ID, image, état (Running/Stopped/Paused), ports publiés/exposés, date de création, commande
+### 🐳 **Surveillance Docker complète**
+- **Docker Engine** : Statut (running/stopped), version, OS, architecture, nombre de CPU, mémoire totale
+- **Conteneurs** : Liste complète avec nom, ID (12 premiers caractères), image, état (Running/Stopped/Paused), ports publiés/exposés, date de création, commande
 - **Stats conteneurs** : Nombre total, en cours, arrêtés, en pause
-- **Images** : Liste complète avec nom:tag, ID, taille, date de création
-- **Stats images** : Nombre total, taille totale, images sans tag (untagged)
-- **Détails étendus** : Bouton pour afficher/masquer les tableaux détaillés des conteneurs et images
-- **Graphiques** : Évolution CPU et RAM par conteneur
-- **Alertes Docker** : Conteneurs arrêtés, CPU > 90%, RAM > 85%
-- **Contrôles** : Démarrer/Arrêter/Redémarrer directement depuis l'interface
-- **Historique** : Stockage SQLite avec nettoyage automatique après 91 jours
+- **Images** : Liste complète avec repoTags (nom:tag), ID (12 premiers caractères), taille, date de création, statut (dangling/untagged)
+- **Stats images** : Nombre total, taille totale, images dangling, images untagged
+- **Détails étendus** : Bouton toggle pour afficher/masquer les tableaux détaillés des conteneurs et images
+- **Graphiques par conteneur** : Évolution CPU et RAM avec agrégation par période
+- **Alertes Docker** : Détection des conteneurs arrêtés, CPU > 90%, RAM > 85%
+- **Contrôles** : Boutons Démarrer/Arrêter/Redémarrer directement depuis l'interface
+- **Historique Docker** : Stockage SQLite avec nettoyage automatique après 91 jours
+- **API Docker simplifiée** : Endpoint `/api/docker-simple` pour les infos de base (running/stopped/total)
+- **API Docker détaillée** : Endpoint `/api/docker-detailed` pour conteneurs + images avec tous les détails
+
+### 🔐 **Sécurité renforcée**
+- **Authentification obligatoire** : Protection de toutes les routes (dashboard + API) via sessions
+- **Gestion des sessions** : express-session avec cookie sécurisé (httpOnly, sameSite: lax, maxAge: 24h)
+- **Hashage des mots de passe** : bcryptjs avec cost factor 10
+- **Rate limiting** : 5 tentatives de login maximum par fenêtre de 15 minutes, basé sur IP
+- **CORS strict** : Liste blanche des origines autorisées (ALLOWED_ORIGINS obligatoire)
+- **Protection CSRF** : Régénération de session ID après login (session fixation prevention)
+- **Validation des entrées** : Vérification stricte des paramètres API (types, plages de valeurs)
+- **Sanitization** : Utilisation de execFile au lieu de exec pour éviter l'injection de commande
+- **Audit de sécurité** : Documentation des vulnérabilités et mesures de protection
+
+### 📊 **Visualisation avec Graphiques**
+- **4 graphiques principaux** : CPU, RAM, Disque (utilisation en %), Réseau (téléchargement/envoi en KB/s)
+- **Sélection de période** : Jour, Semaine, Mois, Trimestre (indépendante pour chaque graphique)
+- **Mise à jour automatique** : Toutes les minutes pour les données graphiques
+- **Technologie** : Chart.js (v4.4.0) via CDN
+- **Agrégation jour** : 48 points de données (1 toutes les 30 minutes) avec valeur MAX
+- **Agrégation semaine/mois** : 1 point par jour avec valeur MAX
+- **Affichage cohérent** : Utilisation de dates UTC pour éviter les décalages horaires
 
 ---
 
 ## 🚀 Installation
 
 ### Prérequis
-- Node.js (v16 ou supérieur)
+- Node.js (v16 ou supérieur, recommandé v18+)
 - npm ou yarn
 - Un serveur VPS ou local pour tester
 - **Docker Engine** (pour la surveillance Docker - optionnel)
+- **Git** (pour le déploiement)
 
 ### Étapes
 
@@ -99,7 +133,30 @@
    npm install
    ```
 
-3. **Installer Docker (optionnel - pour la surveillance Docker)** :
+3. **Configurer l'environnement** (obligatoire) :
+   ```bash
+   cp .env.example .env
+   # Modifier le fichier .env avec vos identifiants
+   nano .env  # ou utiliser votre éditeur préféré
+   ```
+   
+   **Variables obligatoires** :
+   ```ini
+   # Authentification
+   ADMIN_USER=votre_utilisateur
+   ADMIN_PASSWORD=votre_mot_de_passe
+   SESSION_SECRET=votre_cle_secrete_aleatoire
+   
+   # Sécurité CORS (obligatoire)
+   ALLOWED_ORIGINS=http://localhost:3000,https://votre-domaine.com
+   ```
+   
+   **Générer une clé secrète sécurisée** :
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+4. **Installer Docker (optionnel - pour la surveillance Docker)** :
    
    Si vous souhaitez surveiller vos conteneurs Docker, installez Docker Engine :
    
@@ -125,24 +182,26 @@
    
    **⚠️ Important** : Après avoir ajouté votre utilisateur au groupe docker, vous devez redémarrer votre session ou exécuter `newgrp docker` pour que les changements prennent effet.
 
-3. **Configurer l'environnement** (optionnel) :
+5. **Installer procps (optionnel - pour la surveillance des processus)** :
    ```bash
-   cp .env.example .env
-   nano .env  # Modifier selon vos besoins
+   # Pour Debian/Ubuntu
+   sudo apt-get install -y procps
    ```
+   
+   **Note** : La commande `ps aux` est utilisée par défaut pour récupérer les processus avec leurs pourcentages CPU/RAM.
 
-4. **Démarrer le serveur** :
+6. **Démarrer le serveur** :
    ```bash
-   # Mode développement
+   # Mode développement (avec rechargement automatique)
    npm run dev
    
    # Mode production
    npm start
    ```
 
-6. **Utiliser PM2 (Recommandé pour la production)** :
+7. **Utiliser PM2 (Recommandé pour la production)** :
    
-   **PM2** est un gestionnaire de processus Node.js très populaire pour gérer des applications en production.
+   **PM2** est un gestionnaire de processus Node.js pour gérer des applications en production.
    
    **Prérequis** : Avant de lancer PM2, assurez-vous que Node.js a les permissions nécessaires pour surveiller les processus :
    ```bash
@@ -179,23 +238,17 @@
    
    **Exemple complet** :
    ```bash
-   pm2 start backend/app.js --name "vps_monitoring" --watch
+   pm2 start backend/app.js --name "vps_monitoring" --max-memory-restart 300M
    pm2 save
    pm2 startup
    ```
-   
-   **Avantages** :
-   - Gestion avancée des logs.
-   - Redémarrage automatique en cas de crash.
-   - Monitoring intégré (CPU, mémoire).
-   - Persistance au redémarrage du serveur.
 
-7. **Déploiement avec Docker** :
+8. **Déploiement avec Docker** :
 
    VPS Monitoring peut être déployé dans un container Docker pour une isolation et une gestion simplifiée.
    
    **⚠️ Important** : Pour surveiller les métriques **globales du système hôte** (CPU, RAM, disque, processus, réseau), le container doit être lancé en **mode privilégié** avec accès aux namespaces système.
-
+   
    ### Prérequis
    - Docker Engine installé sur votre VPS
    - Accès root ou sudo pour les commandes Docker
@@ -204,6 +257,25 @@
 
    Le projet inclut un fichier `docker-compose.yml` configuré pour le monitoring global :
    
+   ```yaml
+   version: '3.8'
+   services:
+     vps_monitoring:
+       build: .
+       ports:
+         - "3000:3000"
+       network_mode: host
+       pid: host
+       privileged: true
+       volumes:
+         - ./data:/app/data
+         - /var/run/docker.sock:/var/run/docker.sock:ro
+       environment:
+         - NODE_ENV=production
+       restart: unless-stopped
+   ```
+   
+   **Lancer avec docker-compose** :
    ```bash
    # 1. Cloner et entrer dans le projet
    git clone https://github.com/SHARKYBLUSTER/vps_monitoring.git
@@ -217,7 +289,7 @@
    docker-compose up -d --build
    ```
    
-   **Ce que fait docker-compose :**
+   **Ce que fait docker-compose** :
    - `network_mode: host` - Accès aux interfaces réseau de l'hôte
    - `pid: host` - Accès aux processus de l'hôte via /proc
    - `privileged: true` - Permissions étendues pour systeminformation
@@ -239,6 +311,11 @@
      --privileged \
      -v $(pwd)/data:/app/data \
      -v /var/run/docker.sock:/var/run/docker.sock:ro \
+     -e ADMIN_USER=admin \
+     -e ADMIN_PASSWORD=votre_mot_de_passe \
+     -e SESSION_SECRET=votre_cle_secrete \
+     -e ALLOWED_ORIGINS=http://localhost:3000 \
+     -p 3000:3000 \
      vps_monitoring
    ```
 
@@ -251,66 +328,53 @@
    | `docker-compose up -d --build` | Mettre à jour et redémarrer |
    | `docker exec -it vps_monitoring sh` | Accéder au shell du container |
 
-   **Accès au dashboard :** `http://votre-vps-ip:3000`
+   **Accès au dashboard** : `http://votre-vps-ip:3000`
 
-8. **Accéder au dashboard** :
+9. **Accéder au dashboard** :
    Ouvrez votre navigateur et allez sur :
    ```
    http://localhost:3000
    ```
    
-   **⚠️ Depuis la version 0.2.0, l'authentification est obligatoire** :
-   - Vous serez automatiquement redirigé vers `/login`.
+   **⚠️ Authentification obligatoire** :
+   - Vous serez automatiquement redirigé vers `/login` si vous n'êtes pas connecté.
    - Utilisez les identifiants définis dans votre fichier `.env` (par défaut : `admin`/`changer_mot_de_passe`).
    - Après connexion, vous accéderez au tableau de bord complet.
+   - Le nom d'utilisateur est sauvegardé dans localStorage pour votre confort.
 
-9. **Gestion de l'authentification** :
-   
-   Le projet inclut désormais un système d'authentification complet basé sur des sessions :
-   
-   - **Fichier de configuration** : `.env` (copiez `.env.example` et modifiez les valeurs)
-   - **Identifiants par défaut** :
-     ```ini
-     ADMIN_USER=admin
-     ADMIN_PASSWORD=changer_mot_de_passe
-     SESSION_SECRET=votre_cle_secrete_aleatoire_ici
-     ```
-   - **Générer une clé secrète sécurisée** :
-     ```bash
-     node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-     ```
-   - **Routes d'authentification** :
-     - `GET /login` : Page de connexion
-     - `POST /login` : Traitement du formulaire
-     - `GET /logout` : Déconnexion
-     - `GET /api/user` : Récupère l'utilisateur connecté (pour le frontend)
+10. **Gestion de l'authentification** :
+    
+    Le projet inclut un système d'authentification complet basé sur des sessions :
+    
+    - **Fichier de configuration** : `.env` (copiez `.env.example` et modifiez les valeurs)
+    - **Identifiants par défaut** :
+      ```ini
+      ADMIN_USER=admin
+      ADMIN_PASSWORD=changer_mot_de_passe
+      SESSION_SECRET=votre_cle_secrete_aleatoire_ici
+      ```
+    - **Générer une clé secrète sécurisée** :
+      ```bash
+      node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      ```
+    - **Routes d'authentification** :
+      - `GET /login` : Page de connexion
+      - `POST /login` : Traitement du formulaire (avec rate limiting)
+      - `GET /logout` : Déconnexion (détruit la session)
+      - `GET /api/user` : Récupère l'utilisateur connecté (pour le frontend)
+    - **Middleware de protection** : `requireAuth` (redirige vers /login) et `requireApiAuth` (retourne 401 JSON)
 
-9. **Mise à jour du projet** :
-   
-   Pour mettre à jour votre installation existante :
-   ```bash
-   cd vps_monitoring
-   git pull origin main
-   npm install --production
-   pm2 restart vps_monitoring  # ou : npm start
-   ```
-   
-   **⚠️ Important** : Après une mise à jour, vérifiez que votre fichier `.env` est toujours présent et contient vos identifiants personnalisés.
-
-10. **Visualisation avec Graphiques** :
+11. **Mise à jour du projet** :
     
-    Le projet inclut désormais des graphiques interactifs pour visualiser l'historique des métriques :
+    Pour mettre à jour votre installation existante :
+    ```bash
+    cd vps_monitoring
+    git pull origin main
+    npm install --production
+    pm2 restart vps_monitoring  # ou : npm start
+    ```
     
-    - **3 graphiques principaux** : CPU, RAM, Disque (utilisation en %)
-    - **1 graphique réseau** : Téléchargement/Envoi (en KB/s)
-    - **Sélection de période** : Jour, Semaine, Mois (indépendante pour chaque graphique)
-    - **Mise à jour automatique** : Toutes les minutes
-    - **Technologie** : Chart.js (v4.4.0) via CDN
-    
-    **Exemple d'utilisation** :
-    - Cliquez sur "Semaine" dans le graphique CPU pour voir l'historique sur 7 jours
-    - Cliquez sur "Mois" dans le graphique RAM pour voir l'historique sur 30 jours
-    - Chaque graphique a ses propres contrôles !
+    **⚠️ Important** : Après une mise à jour, vérifiez que votre fichier `.env` est toujours présent et contient vos identifiants personnalisés.
 
 ---
 
@@ -340,7 +404,7 @@ sudo pm2 start backend/app.js --name vps_monitoring
 sudo pm2 save
 sudo pm2 startup
 ```
-> **Note** : Pour plus de détails sur PM2, consultez la section **[Utiliser PM2 (Recommandé pour la production)](#6-utiliser-pm2-recommandé-pour-la-production)**.
+> **Note** : Pour plus de détails sur PM2, consultez la section **[Utiliser PM2 (Recommandé pour la production)](#7-utiliser-pm2-recommandé-pour-la-production)**.
 
 ### ⚠️ **Permissions Docker supplémentaires**
 
@@ -361,56 +425,75 @@ Si vous utilisez la **surveillance Docker**, assurez-vous que :
    - Testez avec : `docker ps` (sans sudo)
    - Si vous obtenez une erreur de permission, redémarrez votre session
 
-4. **Pour la surveillance complète** (y compris les stats avancées) :
-   ```bash
-   # Donner les permissions étendues à Node.js pour Docker
-   sudo setcap cap_sys_admin+ep /usr/bin/node
-   ```
-   
-   **⚠️ Attention** : Les capabilities étendues peuvent poser des problèmes de sécurité. Utilisez cette option uniquement si nécessaire et en comprenant les risques.
+4. **Pour la surveillance complète dans un container Docker** :
+   - Utilisez les flags `--privileged --pid=host --net=host`
+   - Montez `/var/run/docker.sock` pour accéder à Docker Engine
 
 ---
 
 ## 📡 API REST
 
-Le backend expose plusieurs endpoints pour récupérer les données :
+Le backend expose plusieurs endpoints pour récupérer les données. **Toutes les routes API nécessitent une authentification** (via session) sauf `/api/config` (GET) et `/api/user` (GET).
 
 ### 📊 **Endpoints Système**
 
-| Méthode | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/api/metrics` | Toutes les métriques (CPU, RAM, Disque, Réseau) |
-| GET | `/api/network` | Métriques réseau détaillées |
-| GET | `/api/alerts` | Alertes actives |
-| GET | `/api/processes` | Top 5 processus consommateurs |
-| GET | `/api/ports` | Liste des ports ouverts en écoute |
-| GET | `/api/health` | État de santé du serveur |
-| GET | `/api/history` | Historique des métriques |
-| GET | `/api/history/:metric` | Données pour graphique (cpu, memory, disk) |
-| GET | `/api/history/alerts` | Historique des alertes |
-| POST | `/api/history/cleanup` | Nettoyer l'historique |
-| POST | `/api/history/clear-all` | **EFFACER TOUTES les données** |
-| GET | `/api/config` | Configuration actuelle |
-| POST | `/api/config` | Mettre à jour la configuration |
+| Méthode | Endpoint | Description | Authentification |
+|---------|----------|-------------|-----------------|
+| GET | `/api/metrics` | Toutes les métriques (CPU, RAM, Disque, Réseau) | ✅ Requise |
+| GET | `/api/network` | Métriques réseau détaillées (par interface) | ✅ Requise |
+| GET | `/api/alerts` | Alertes actives (calculées en temps réel) | ✅ Requise |
+| GET | `/api/processes` | Top 5 processus consommateurs | ✅ Requise |
+| GET | `/api/ports` | Liste des ports ouverts en écoute | ✅ Requise |
+| GET | `/api/health` | État de santé du serveur + version | ✅ Requise |
+| GET | `/api/config` | Configuration actuelle (sans secrets) | ❌ Non requise |
+| POST | `/api/config` | Mettre à jour la configuration | ✅ Requise |
+
+### 📈 **Endpoints Historique**
+
+| Méthode | Endpoint | Description | Paramètres |
+|---------|----------|-------------|------------|
+| GET | `/api/history` | Historique des métriques | `limit`, `from`, `to` |
+| GET | `/api/history/:metric` | Données pour graphique (cpu, memory, disk) | `limit`, `period` (day/week/month/quarter) |
+| GET | `/api/history/alerts` | Historique des alertes | `limit`, `unresolvedOnly` |
+| GET | `/api/network-history` | Historique réseau avec agrégation | `period` (day/week/month/quarter) |
+| POST | `/api/history/cleanup` | Nettoyer l'historique (par jours) | `days` |
+| POST | `/api/history/clear-all` | **EFFACER TOUTES les données** (nécessite `confirm=DELETE_ALL_DATA`) | `confirm` |
 
 ### 🐳 **Endpoints Docker**
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
 | GET | `/api/docker-simple` | Statut basique Docker Engine (running/stopped/total) |
-| GET | `/api/docker-detailed` | **Nouveau** : Statut détaillé avec conteneurs et images (nom, ID, état, ports, taille, date) |
-| GET | `/api/docker` | Statut de Docker Engine |
+| GET | `/api/docker-detailed` | **Statut détaillé** : conteneurs + images + infos Docker Engine |
+| GET | `/api/docker` | Statut de Docker Engine (version, OS, architecture, CPU, mémoire) |
 | GET | `/api/docker/containers` | Liste de tous les conteneurs |
 | GET | `/api/docker/containers/:id/stats` | Stats d'un conteneur spécifique |
 | GET | `/api/docker/stats` | Stats de tous les conteneurs actifs |
 | GET | `/api/docker/history` | Historique des stats Docker |
-| GET | `/api/docker/containers/:id/chart` | Données graphique (CPU/RAM) |
+| GET | `/api/docker/containers/:id/chart` | Données graphique (CPU/RAM) pour un conteneur |
 | GET | `/api/docker/alerts` | Liste des alertes Docker |
-| GET | `/api/docker/alerts/check` | Vérifier et sauvegarder les alertes |
+| GET | `/api/docker/alerts/check` | Vérifier et sauvegarder les alertes Docker |
 | POST | `/api/docker/containers/:id/start` | Démarrer un conteneur |
 | POST | `/api/docker/containers/:id/stop` | Arrêter un conteneur |
 | POST | `/api/docker/containers/:id/restart` | Redémarrer un conteneur |
 | POST | `/api/docker/cleanup` | Nettoyer l'historique Docker |
+
+### 📧 **Endpoints Telegram**
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/api/telegram/test` | Tester la configuration Telegram + envoi d'un message de test |
+| GET | `/api/telegram/status` | Statut de la configuration Telegram |
+| POST | `/api/telegram/send-test` | Envoyer une notification de test manuelle |
+
+### 🔐 **Endpoints d'Authentification**
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/login` | Page de connexion (formulaire HTML) |
+| POST | `/login` | Traitement de la connexion (avec rate limiting) |
+| GET | `/logout` | Déconnexion (détruit la session) |
+| GET | `/api/user` | Vérifie si l'utilisateur est connecté |
 
 ---
 
@@ -419,19 +502,32 @@ Le backend expose plusieurs endpoints pour récupérer les données :
 ```
 vps_monitoring/
 ├── backend/
-│   ├── app.js              # Point d'entrée du backend (Express)
+│   ├── app.js                      # Point d'entrée du backend (Express)
 │   ├── config/
-│   │   └── config.js       # Configuration (seuils d'alerte, etc.)
+│   │   └── config.js               # Configuration centrale (seuils, intervalles, Docker, Telegram)
+│   ├── middleware/
+│   │   └── auth.js                 # Middleware d'authentification (sessions, bcrypt)
 │   └── services/
-│       ├── metrics.js      # Collecte des métriques système
-│       ├── history.js      # Gestion de l'historique
-│       ├── docker.js       # Surveillance Docker (dockerode)
-│       ├── docker-simple.js # **Nouveau** : Endpoint Docker simplifié (conteneurs + images)
-│       └── db-sqlite.js    # Stockage des données (SQLite)
+│       ├── metrics.js              # Collecte des métriques système (CPU, RAM, Disque, Réseau)
+│       ├── history.js              # Gestion de l'historique (SQLite + fallback JSON)
+│       ├── docker-simple.js         # Endpoints Docker simplifiés (conteneurs + images)
+│       ├── docker.js               # Surveillance Docker complète (dockerode)
+│       ├── telegram.js             # Notifications Telegram pour les alertes
+│       ├── db-sqlite.js            # Stockage SQLite (tables: metrics, alerts, users, docker_*)
+│       └── db.js                   # Fallback de stockage JSON (déprécié)
 ├── frontend/
-│   └── index.html          # Interface utilisateur complète
-├── data/                  # Données historiques (créé automatiquement)
-│   └── vps_monitoring.db  # Base de données SQLite
+│   ├── index.html                  # Dashboard principal (métriques, graphiques, alertes)
+│   ├── login.html                  # Page de connexion
+│   ├── favicon.svg                 # Favicon personnalisé (loupe)
+│   └── js/
+│       ├── i18n.js                 # Gestion de l'internationalisation
+│       └── translations/
+│           ├── fr.json             # Traductions Français
+│           └── en.json             # Traductions Anglais
+├── data/                          # Données historiques (créé automatiquement)
+│   └── vps_monitoring.db          # Base de données SQLite
+├── docker-compose.yml             # Configuration Docker Compose pour déploiement
+├── Dockerfile                     # Image Docker pour le déploiement conteneurisé
 ├── package.json
 ├── README.md
 ├── ROADMAP.md
@@ -442,58 +538,55 @@ vps_monitoring/
 
 ## 🛠 Stack Technique
 
-| Composant       | Technologie          | Version |
-|-----------------|----------------------|---------|
-| **Backend**     | Node.js + Express    | v18+    |
-| **Frontend**    | Vanilla JS + HTML5 + CSS3 | - |
-| **Métriques**   | `systeminformation`  | v5.21+  |
-| **Logging**     | `morgan`             | v1.10+  |
-| **Authentification** | `express-session` + `bcryptjs` | - |
-| **Environnement** | `dotenv`            | v16.3+  |
-| **Base de données** | SQLite (`better-sqlite3`) | v11+ |
-| **Graphiques**  | Chart.js             | v4.4.0  |
-| **Docker**     | `dockerode`          | v4.0+   |
-
-## 📊 Historique des Versions
-
-| Version | Date | Modifications |
-|---------|------|---------------|
-| **0.5.0** | **30 juin 2026** | **Audit de sécurité** : Audit complet du code, identification et documentation des vulnérabilités de sécurité (authentification, CORS, injection de commande, XSS, etc.). |
-| **0.5.0** | **30 juin 2026** | **Nettoyage des intervalles** : Gestion propre de l'arrêt du serveur avec cleanup des intervalles et de la base de données pour éviter les fuites mémoire. |
-| **0.5.0** | **30 juin 2026** | **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections (Open Ports, Alerts, Metrics, Configuration, etc.). |
-| **0.5.0** | **30 juin 2026** | **UI nettoyée** : Suppression des emojis (🔧,🕐,🌙,⏰,💾,✕) de la modale de configuration et des labels "Heure"/"Jour" sous les graphiques. |
-| **0.5.0** | **30 juin 2026** | **Décalage horaire** : Ajout du paramètre UTC Heure locale dans le menu configuration pour ajuster l'affichage des abscisses des graphiques historiques (CPU, RAM, Disque, Réseau). |
-| **0.5.0** | **30 juin 2026** | **Visibilité Docker Engine** : Ajout d'un bouton dans le menu configuration pour afficher ou masquer la carte Docker Engine sur la page index.html, avec rechargement automatique. |
-| **0.5.0** | **29 juin 2026** | **Menu de configuration complet** : Interface pour modifier l'intervalle de collecte, la rétention des données (1-24 mois), bouton d'effacement total, intégration du mode sombre, style unifié des boutons, icônes ajoutées. |
-| **0.5.0** | **29 juin 2026** | **Effacement des données** : Bouton pour supprimer toutes les données historiques (SQLite + JSON), avec VACUUM pour réduire la taille du fichier, rechargement automatique de la page. |
-| **0.5.0** | **30 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |
-| **0.5.0** | **30 juin 2026** | **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau. |
-| **0.5.0** | **30 juin 2026** | **Thème cohérent** : Suppression du bouton de basculement mode sombre de la page login, application automatique du thème depuis la configuration globale (persistance localStorage). |
-| **0.5.0** | **30 juin 2026** | **Support Docker complet** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé avec accès aux métriques système globales (mode host + privileged). |
-| **0.5.0** | **30 juin 2026** | **Correction Docker Engine sous Docker** : Remplacement de child_process par dockerode pour la détection Docker dans les containers. |
-| **0.5.0** | **30 juin 2026** | **Correction Top 5 Processes** : Utilisation de `ps aux` au lieu de systeminformation.processes() pour obtenir directement les pourcentages CPU/MEM, ajout de procps au Dockerfile. |
-| **0.5.0** | **30 juin 2026** | **Détails Docker avancés** : **Nouveau** : Affichage des conteneurs avec nom, ID, image, état, ports publiés/exposés, date de création, commande. Stats conteneurs (running/stopped/paused/total) et images (total/taille/untagged). Bouton toggle pour afficher/masquer les détails. |
-| **0.5.0** | **30 juin 2026** | **Favicon personnalisé** : Ajout d'une loupe avec centre bleu et manche noir comme favicon pour toutes les pages (dashboard, login). |
-| 0.3.0 | 27 juin 2026 | **Mode sombre** : Ajout d'un thème sombre avec toggle, persistance localStorage, adaptation de toutes les couleurs (cartes, graphiques, tableaux, alertes). |
-| 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
-| 0.2.6 | 24 juin 2026 | **Surveillance Docker complète** : Intégration de dockerode pour surveiller les conteneurs Docker (stats CPU/RAM/Réseau/Disque, alertes, contrôles start/stop/restart, historique SQLite, graphiques par conteneur). |
-| 0.2.5 | 24 juin 2026 | **Migration vers SQLite** : Remplacement du stockage JSON par une base SQLite avec tables metrics, alerts, users, index pour les performances. |
-| 0.2.0 | 24 juin 2026 | **Authentification complète** : Protection des routes API et du dashboard, page de login, gestion des sessions, middleware `requireAuth`/`requireApiAuth`. |
-| 0.1.3 | 19 juin 2026 | Phase 2 terminée : API REST, alertes, historique, surveillance réseau/ports/processus. |
-| 0.1.2 | 19 juin 2025 | Initialisation du projet Node.js, structure de base. |
-| 0.1.1 | 19 juin 2025 | Architecture définie (Backend + Frontend). |
-| 0.1.0 | 19 juin 2025 | Création du dépôt et roadmap initiale. |
+| Composant | Technologie | Version | Description |
+|-----------|-------------|---------|-------------|
+| **Backend** | Node.js + Express | v18+ | Framework web pour l'API et le routing |
+| **Frontend** | Vanilla JS + HTML5 + CSS3 | - | Interface statique avec i18n |
+| **Métriques** | `systeminformation` | v5.22.0 | Collecte des métriques système |
+| **Processus** | `ps aux` (commande) | - | Récupération fiable des % CPU/RAM |
+| **Logging** | `morgan` | v1.10+ | Middleware de logging HTTP |
+| **Authentification** | `express-session` + `bcryptjs` | - | Gestion des sessions et hashage |
+| **Rate Limiting** | `express-rate-limit` | v7.1.5 | Protection contre les attaques par force brute |
+| **Environnement** | `dotenv` | v16.3+ | Chargement des variables d'environnement |
+| **Base de données** | SQLite (`better-sqlite3`) | v11+ | Stockage persistant des métriques |
+| **Graphiques** | Chart.js | v4.4.0 | Visualisation interactive |
+| **Docker** | `dockerode` | v4.0+ | Client Docker pour la surveillance |
+| **Notifications** | `axios` | v1.6.2 | Requêtes HTTP pour Telegram API |
+| **Build** | `nodemon` | v3.0.2 | Rechargement automatique en développement |
 
 ---
 
 ## 📊 Configuration des seuils d'alerte
 
-Les seuils d'alerte (CPU, RAM, Disque) sont désormais **configurables directement depuis l'interface** :
+Les seuils d'alerte (CPU, RAM, Disque) sont **configurables de deux manières** :
+
+### Via le fichier .env
+```ini
+# Seuils en pourcentage (0-100)
+CPU_THRESHOLD=80
+MEMORY_THRESHOLD=85
+DISK_THRESHOLD=90
+```
+
+### Via l'interface (recommandé)
 1. Cliquez sur l'icône ⚙️ **Configuration** dans le menu
 2. Accédez à la section **"Seuils d'alerte"**
 3. Modifiez les valeurs (0-100%) et sauvegardez
 
 Les modifications sont appliquées **immédiatement** sans redémarrage du serveur.
+
+### Niveaux d'alerte
+- **Warning (⚠️)** : CPU et RAM dépassent le seuil
+- **Danger (🚨)** : Disque dépasse le seuil
+
+### Notifications Telegram
+Pour recevoir des notifications Telegram :
+1. Activez Telegram dans la configuration
+2. Configurez votre **Bot Token** (obtenu via @BotFather)
+3. Configurez votre **Chat ID** (utilisez @getidsbot pour le trouver)
+4. Réglez le **cooldown** (1-1440 minutes) pour éviter le spam
+5. Activez/désactivez la notification de résolution
+6. Testez la configuration avec le bouton "Tester Telegram"
 
 ---
 
@@ -528,7 +621,7 @@ Les modifications sont appliquées **immédiatement** sans redémarrage du serve
       "status": "OK",
       "interface": "eth0"
     },
-    "timestamp": "2025-06-19T12:00:00.000Z"
+    "timestamp": "2026-06-30T12:00:00.000Z"
   }
 }
 ```
@@ -553,7 +646,7 @@ Les modifications sont appliquées **immédiatement** sans redémarrage du serve
       "user": "root"
     }
   ],
-  "timestamp": "2025-06-19T12:00:00.000Z"
+  "timestamp": "2026-06-30T12:00:00.000Z"
 }
 ```
 
@@ -587,7 +680,66 @@ Les modifications sont appliquées **immédiatement** sans redémarrage du serve
       "state": "LISTEN"
     }
   ],
-  "timestamp": "2025-06-19T12:00:00.000Z"
+  "timestamp": "2026-06-30T12:00:00.000Z"
+}
+```
+
+### `/api/docker-simple`
+```json
+{
+  "success": true,
+  "data": {
+    "available": true,
+    "running": 3,
+    "stopped": 1,
+    "total": 4,
+    "error": null
+  },
+  "timestamp": "2026-06-30T12:00:00.000Z"
+}
+```
+
+### `/api/docker-detailed`
+```json
+{
+  "success": true,
+  "data": {
+    "available": true,
+    "containers": {
+      "running": 3,
+      "stopped": 1,
+      "paused": 0,
+      "total": 4,
+      "details": [
+        {
+          "id": "abc123def456",
+          "name": "web-app",
+          "image": "nginx:latest",
+          "state": "running",
+          "status": "Up 2 hours",
+          "ports": "0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp",
+          "created": "2026-06-30T10:00:00.000Z",
+          "command": "nginx -g daemon off;"
+        }
+      ]
+    },
+    "images": {
+      "total": 5,
+      "totalSize": 1234567890,
+      "dangling": 0,
+      "untagged": 1,
+      "details": [...]
+    },
+    "dockerInfo": {
+      "serverVersion": "24.0.7",
+      "os": "Linux",
+      "architecture": "x86_64",
+      "cpus": 4,
+      "memory": 8589934592
+    },
+    "error": null
+  },
+  "timestamp": "2026-06-30T12:00:00.000Z"
 }
 ```
 
@@ -603,9 +755,10 @@ Consultez la [ROADMAP.md](ROADMAP.md) pour voir les prochaines étapes et l'éta
 
 Les contributions sont les bienvenues ! Voici comment aider :
 
-1. **Signaler un bug** : Ouvrez une [issue](https://github.com/SHARKYBLUSTER/vps_monitoring/issues).
+1. **Signaler un bug** : Ouvrez une [issue](https://github.com/SHARKYBLUSTER/vps_monitoring/issues) avec une description détaillée.
 2. **Proposer une fonctionnalité** : Ouvrez une [issue](https://github.com/SHARKYBLUSTER/vps_monitoring/issues) avec le label `enhancement`.
 3. **Contribuer au code** : Fork le dépôt, créez une branche, et soumettez une Pull Request.
+4. **Traductions** : Aidez à traduire l'interface dans d'autres langues en ajoutant des fichiers dans `frontend/js/translations/`.
 
 ---
 
@@ -619,8 +772,12 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 
 - [systeminformation](https://github.com/sebhildebrandt/systeminformation) pour la collecte des métriques système
 - [Express.js](https://expressjs.com/) pour le framework backend
+- [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) pour le stockage SQLite performant
+- [Chart.js](https://www.chartjs.org/) pour les graphiques interactifs
+- [dockerode](https://github.com/apoclyps/dockerode) pour la surveillance Docker
+- [Font Awesome](https://fontawesome.com/) pour les icônes
 - À tous les contributeurs et utilisateurs !
 
 ---
 
-> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, nettoyage des intervalles, correction des vulnérabilités, mise à jour des versions).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, nettoyage des intervalles, support multi-langues, configuration avancée, surveillance Docker complète).*
