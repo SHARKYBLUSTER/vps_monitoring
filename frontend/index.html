@@ -1216,22 +1216,22 @@
     <header>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <div>
-          <h1 data-i18n="header.title">🖥️ VPS Monitoring Dashboard</h1>
-          <p data-i18n="common.subtitle">Surveillance en temps réel de votre serveur</p>
+          <h1 data-i18n="header.title"></h1>
+          <p data-i18n="common.subtitle"></p>
         </div>
         <div class="auth-info">
           <span id="user-info" style="color: white; margin-right: 15px; font-size: 0.95rem;">
-            <span data-i18n="common.connected_as">Connecté en tant que</span>: <strong id="username-display">admin</strong>
+            <span data-i18n="common.connected_as"></span>: <strong id="username-display">admin</strong>
           </span>
           <!-- Sélecteur de langue -->
           <select id="language-select" class="config-btn" style="padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.2); color: white; cursor: pointer;">
-            <option value="fr" data-i18n="language.fr">🇫🇷 Français</option>
-            <option value="en" data-i18n="language.en">🇬🇧 English</option>
+            <option value="fr" data-i18n="language.fr"></option>
+            <option value="en" data-i18n="language.en"></option>
           </select>
           <button id="config-btn" class="config-btn" title="Configuration">
             <i class="fas fa-cog"></i>
           </button>
-          <a href="/logout" class="logout-btn" data-i18n="common.logout">Déconnexion</a>
+          <a href="/logout" class="logout-btn" data-i18n="common.logout"></a>
         </div>
       </div>
     </header>
@@ -1240,25 +1240,25 @@
       <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-microchip" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="cpu-usage" style="font-size: 2rem; font-weight: bold;">--%</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.cpu">CPU</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.cpu"></div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
-          <span data-i18n="metrics.cores">Cœurs</span>: <span id="cpu-cores">--</span>
+          <span data-i18n="metrics.cores"></span>: <span id="cpu-cores">--</span>
         </div>
       </div>
 
       <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-memory" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="mem-usage" style="font-size: 2rem; font-weight: bold;">--%</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.memory">RAM</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.memory"></div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
-          <span data-i18n="metrics.used">Utilisé</span>: <span id="mem-used">-- GB</span> / <span id="mem-total">-- GB</span>
+          <span data-i18n="metrics.used"></span>: <span id="mem-used">-- GB</span> / <span id="mem-total">-- GB</span>
         </div>
       </div>
 
       <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-hdd" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="disk-usage" style="font-size: 2rem; font-weight: bold;">--%</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.disk">Disque</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.disk"></div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
           <span id="disk-used">-- GB</span> / <span id="disk-total">-- GB</span>
         </div>
@@ -1267,30 +1267,30 @@
       <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
         <i class="fas fa-network-wired" style="font-size: 2rem; margin-bottom: 10px;"></i>
         <div class="stat-value" id="network-status" style="font-size: 2rem; font-weight: bold;">--</div>
-        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.network">Réseau</div>
+        <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="metrics.network"></div>
         <div class="stat-details" style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
-          <span data-i18n="metrics.download">RX</span>: <span id="network-download">-- KB/s</span> | <span data-i18n="metrics.upload">TX</span>: <span id="network-upload">-- KB/s</span>
+          <span data-i18n="metrics.download"></span>: <span id="network-download">-- KB/s</span> | <span data-i18n="metrics.upload"></span>: <span id="network-upload">-- KB/s</span>
         </div>
       </div>
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-exclamation-triangle"></i> <span data-i18n="sections.alerts">Alertes</span></h2>
+      <h2><i class="fas fa-exclamation-triangle"></i> <span data-i18n="sections.alerts"></span></h2>
       <div id="alerts-list">
-        <p class="no-alerts" data-i18n="sections.no_alerts">✅ Aucune alerte active.</p>
+        <p class="no-alerts" data-i18n="sections.no_alerts"></p>
       </div>
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-chart-line"></i> <span data-i18n="sections.metrics_history">Historique des Métriques</span></h2>
+      <h2><i class="fas fa-chart-line"></i> <span data-i18n="sections.metrics_history"></span></h2>
 
       <div class="charts-container">
         <div class="chart-card">
-          <h3 data-i18n="charts.cpu_usage">🧠 Utilisation CPU</h3>
+          <h3 data-i18n="charts.cpu_usage"></h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="cpu" data-period="day" data-i18n="filters.day">Jour</button>
-            <button class="filter-btn" data-metric="cpu" data-period="week" data-i18n="filters.week">Semaine</button>
-            <button class="filter-btn" data-metric="cpu" data-period="month" data-i18n="filters.month">Mois</button>
+            <button class="filter-btn active" data-metric="cpu" data-period="day" data-i18n="filters.day"></button>
+            <button class="filter-btn" data-metric="cpu" data-period="week" data-i18n="filters.week"></button>
+            <button class="filter-btn" data-metric="cpu" data-period="month" data-i18n="filters.month"></button>
           </div>
           <div class="chart-wrapper">
             <canvas id="cpuChart"></canvas>
@@ -1298,11 +1298,11 @@
         </div>
 
         <div class="chart-card">
-          <h3 data-i18n="charts.memory_usage">💾 Utilisation RAM</h3>
+          <h3 data-i18n="charts.memory_usage"></h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="memory" data-period="day" data-i18n="filters.day">Jour</button>
-            <button class="filter-btn" data-metric="memory" data-period="week" data-i18n="filters.week">Semaine</button>
-            <button class="filter-btn" data-metric="memory" data-period="month" data-i18n="filters.month">Mois</button>
+            <button class="filter-btn active" data-metric="memory" data-period="day" data-i18n="filters.day"></button>
+            <button class="filter-btn" data-metric="memory" data-period="week" data-i18n="filters.week"></button>
+            <button class="filter-btn" data-metric="memory" data-period="month" data-i18n="filters.month"></button>
           </div>
           <div class="chart-wrapper">
             <canvas id="memoryChart"></canvas>
@@ -1310,11 +1310,11 @@
         </div>
 
         <div class="chart-card">
-          <h3 data-i18n="charts.disk_usage">💽 Utilisation Disque</h3>
+          <h3 data-i18n="charts.disk_usage"></h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="disk" data-period="day" data-i18n="filters.day">Jour</button>
-            <button class="filter-btn" data-metric="disk" data-period="week" data-i18n="filters.week">Semaine</button>
-            <button class="filter-btn" data-metric="disk" data-period="month" data-i18n="filters.month">Mois</button>
+            <button class="filter-btn active" data-metric="disk" data-period="day" data-i18n="filters.day"></button>
+            <button class="filter-btn" data-metric="disk" data-period="week" data-i18n="filters.week"></button>
+            <button class="filter-btn" data-metric="disk" data-period="month" data-i18n="filters.month"></button>
           </div>
           <div class="chart-wrapper">
             <canvas id="diskChart"></canvas>
@@ -1324,15 +1324,15 @@
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-wifi"></i> <span data-i18n="sections.connection_history">Historique des connexions réseau</span></h2>
+      <h2><i class="fas fa-wifi"></i> <span data-i18n="sections.connection_history"></span></h2>
       <div class="charts-container">
         <div class="chart-card">
-          <h3 data-i18n="charts.network_traffic">📡 Trafic Réseau</h3>
+          <h3 data-i18n="charts.network_traffic"></h3>
           <div class="card-filters">
-            <button class="filter-btn active" data-metric="network" data-period="day" data-i18n="filters.day">Jour</button>
-            <button class="filter-btn" data-metric="network" data-period="week" data-i18n="filters.week">Semaine</button>
-            <button class="filter-btn" data-metric="network" data-period="month" data-i18n="filters.month">Mois</button>
-            <button class="filter-btn" data-metric="network" data-period="quarter" data-i18n="filters.quarter">Trimestre</button>
+            <button class="filter-btn active" data-metric="network" data-period="day" data-i18n="filters.day"></button>
+            <button class="filter-btn" data-metric="network" data-period="week" data-i18n="filters.week"></button>
+            <button class="filter-btn" data-metric="network" data-period="month" data-i18n="filters.month"></button>
+            <button class="filter-btn" data-metric="network" data-period="quarter" data-i18n="filters.quarter"></button>
           </div>
           <div class="chart-wrapper">
             <canvas id="networkChart"></canvas>
@@ -1342,74 +1342,74 @@
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-list"></i> <span data-i18n="sections.top_processes">Top 5 Processus</span></h2>
+      <h2><i class="fas fa-list"></i> <span data-i18n="sections.top_processes"></span></h2>
       <div class="processes-controls">
-        <button onclick="sortProcesses('cpu')" class="sort-btn active" id="sort-cpu" data-i18n="processes.sort_by_cpu">Tri par CPU ▼</button>
-        <button onclick="sortProcesses('mem')" class="sort-btn" id="sort-mem" data-i18n="processes.sort_by_mem">Tri par RAM ▼</button>
+        <button onclick="sortProcesses('cpu')" class="sort-btn active" id="sort-cpu" data-i18n="processes.sort_by_cpu"></button>
+        <button onclick="sortProcesses('mem')" class="sort-btn" id="sort-mem" data-i18n="processes.sort_by_mem"></button>
       </div>
       <div class="processes-table-container">
         <table class="processes-table">
           <thead>
             <tr>
-              <th data-i18n="processes.pid">PID</th>
-              <th data-i18n="processes.name">Nom</th>
-              <th data-i18n="processes.user">Utilisateur</th>
-              <th data-i18n="processes.cpu_percent">CPU %</th>
-              <th data-i18n="processes.memory_percent">RAM %</th>
+              <th data-i18n="processes.pid"></th>
+              <th data-i18n="processes.name"></th>
+              <th data-i18n="processes.user"></th>
+              <th data-i18n="processes.cpu_percent"></th>
+              <th data-i18n="processes.memory_percent"></th>
             </tr>
           </thead>
           <tbody id="processes-list">
             <tr>
-              <td colspan="5" class="no-data" data-i18n="processes.loading_processes">Chargement des processus...</td>
+              <td colspan="5" class="no-data" data-i18n="processes.loading_processes"></td>
             </tr>
           </tbody>
         </table>
         <p class="processes-hint">
           <i class="fas fa-info-circle"></i> 
-          <span data-i18n="processes.hint">Les pourcentages CPU/RAM sont calculés par rapport à la capacité totale du système. La somme peut dépasser 100% (multi-cœurs).</span>
+          <span data-i18n="processes.hint"></span>
         </p>
       </div>
     </div>
 
     <!-- ==================== SECTION DOCKER ==================== -->
     <div class="section-card" id="docker-section">
-      <h2><i class="fas fa-cube"></i> <span data-i18n="sections.docker_engine">Docker Engine</span></h2>
+      <h2><i class="fas fa-cube"></i> <span data-i18n="sections.docker_engine"></span></h2>
       <div class="stats-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
         <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
           <i class="fas fa-play-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-running" style="font-size: 2rem; font-weight: bold;">0</div>
-          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.running">En cours</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.running"></div>
         </div>
         <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
           <i class="fas fa-stop-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-stopped" style="font-size: 2rem; font-weight: bold;">0</div>
-          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.stopped">Arrêtés</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.stopped"></div>
         </div>
         <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
           <i class="fas fa-cubes" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-total" style="font-size: 2rem; font-weight: bold;">0</div>
-          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.total">Total</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.total"></div>
         </div>
       </div>
     </div>
 
     <div class="section-card">
-      <h2><i class="fas fa-ethernet"></i> <span data-i18n="sections.open_ports">Ports ouverts</span></h2>
+      <h2><i class="fas fa-ethernet"></i> <span data-i18n="sections.open_ports"></span></h2>
       <div class="ports-table-container">
         <table class="ports-table">
           <thead>
             <tr>
-              <th data-i18n="ports.port">Port</th>
-              <th data-i18n="ports.address">Adresse</th>
-              <th data-i18n="ports.ip_version">Version IP</th>
-              <th data-i18n="ports.service">Service</th>
-              <th data-i18n="ports.type">Type</th>
-              <th data-i18n="ports.security">Sécurité</th>
+              <th data-i18n="ports.port"></th>
+              <th data-i18n="ports.address"></th>
+              <th data-i18n="ports.ip_version"></th>
+              <th data-i18n="ports.service"></th>
+              <th data-i18n="ports.type"></th>
+              <th data-i18n="ports.security"></th>
             </tr>
           </thead>
           <tbody id="ports-list">
             <tr>
-              <td colspan="6" class="no-data" data-i18n="ports.loading_ports">Chargement des ports...</td>
+              <td colspan="6" class="no-data" data-i18n="ports.loading_ports"></td>
             </tr>
           </tbody>
         </table>
@@ -1420,55 +1420,51 @@
     <div id="config-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2><i class="fas fa-cogs"></i> <span data-i18n="modal.title">Configuration</span></h2>
+          <h2><i class="fas fa-cogs"></i> <span data-i18n="modal.title"></span></h2>
           <button id="close-config" class="close-btn" data-i18n="modal.close" title="Fermer">&times;</button>
         </div>
         <div class="modal-body">
           <div class="config-section">
-            <h3><i class="fas fa-clock"></i> <span data-i18n="config.frequency_title">Fréquence d'enregistrement</span></h3>
-            <p class="config-description" data-i18n="config.frequency_desc">
-              Configurez l'intervalle de collecte des données (en millisecondes). Plus l'intervalle est court, plus la surveillance est précise, mais plus le serveur est sollicité.
-            </p>
+            <h3><i class="fas fa-clock"></i> <span data-i18n="config.frequency_title"></span></h3>
+            <p class="config-description" data-i18n="config.frequency_desc"></p>
             
             <div class="form-group">
-              <label for="metrics-interval" data-i18n="config.interval_label">Intervalle de collecte (ms):</label>
+              <label for="metrics-interval" data-i18n="config.interval_label"></label>
               <div class="input-with-hint">
                 <input type="number" id="metrics-interval" min="1000" step="1000" value="5000">
-                <span class="hint" data-i18n="config.interval_hint">Recommandé: 5000-30000ms</span>
+                <span class="hint" data-i18n="config.interval_hint"></span>
               </div>
             </div>
             
             <div class="interval-presets">
-              <button class="preset-btn" data-value="5000" data-i18n="config.preset_5s">5 secondes</button>
-              <button class="preset-btn" data-value="10000" data-i18n="config.preset_10s">10 secondes</button>
-              <button class="preset-btn" data-value="30000" data-i18n="config.preset_30s">30 secondes</button>
-              <button class="preset-btn" data-value="60000" data-i18n="config.preset_1m">1 minute</button>
-              <button class="preset-btn" data-value="300000" data-i18n="config.preset_5m">5 minutes</button>
+              <button class="preset-btn" data-value="5000" data-i18n="config.preset_5s"></button>
+              <button class="preset-btn" data-value="10000" data-i18n="config.preset_10s"></button>
+              <button class="preset-btn" data-value="30000" data-i18n="config.preset_30s"></button>
+              <button class="preset-btn" data-value="60000" data-i18n="config.preset_1m"></button>
+              <button class="preset-btn" data-value="300000" data-i18n="config.preset_5m"></button>
             </div>
           </div>
 
           <div class="config-section">
-            <h3><i class="fas fa-moon"></i> <span data-i18n="config.appearance_title">Apparence</span></h3>
-            <p class="config-description" data-i18n="config.appearance_desc">
-              Personnalisez l'apparence de l'interface utilisateur.
-            </p>
+            <h3><i class="fas fa-moon"></i> <span data-i18n="config.appearance_title"></span></h3>
+            <p class="config-description" data-i18n="config.appearance_desc"></p>
             
             <div class="form-group">
-              <label data-i18n="config.dark_mode_label">Mode sombre</label>
+              <label data-i18n="config.dark_mode_label"></label>
               <div class="theme-toggle-container">
                 <button id="config-dark-toggle" class="theme-switch-btn">
                   <span class="theme-option active" data-theme="light" data-i18n="config.theme_light">
-                    <i class="fas fa-sun"></i> Clair
+                    <i class="fas fa-sun"></i>
                   </span>
                   <span class="theme-option" data-theme="dark" data-i18n="config.theme_dark">
-                    <i class="fas fa-moon"></i> Sombre
+                    <i class="fas fa-moon"></i>
                   </span>
                 </button>
               </div>
             </div>
 
             <div class="form-group">
-              <label data-i18n="config.show_docker_label">Afficher la section Docker Engine</label>
+              <label data-i18n="config.show_docker_label"></label>
               <div class="toggle-container">
                 <label class="switch">
                   <input type="checkbox" id="show-docker-toggle">
@@ -1479,49 +1475,45 @@
           </div>
 
           <div class="config-section">
-            <h3><i class="fas fa-clock"></i> <span data-i18n="config.timezone_title">Heure locale</span></h3>
-            <p class="config-description" data-i18n="config.timezone_desc">
-              Configurez le décalage horaire par rapport à UTC pour afficher l'heure locale dans les graphiques. Exemple: +2 pour UTC+2, -5 pour UTC-5, 0 pour UTC.
-            </p>
+            <h3><i class="fas fa-clock"></i> <span data-i18n="config.timezone_title"></span></h3>
+            <p class="config-description" data-i18n="config.timezone_desc"></p>
             
             <div class="form-group">
-              <label for="timezone-offset" data-i18n="config.timezone_label">Décalage horaire (heures):</label>
+              <label for="timezone-offset" data-i18n="config.timezone_label"></label>
               <div class="input-with-hint">
                 <input type="number" id="timezone-offset" min="-12" max="14" step="1" value="0">
-                <span class="hint" data-i18n="config.timezone_hint">-12 à +14 heures</span>
+                <span class="hint" data-i18n="config.timezone_hint"></span>
               </div>
             </div>
           </div>
 
           <div class="config-section">
-            <h3><i class="fas fa-database"></i> <span data-i18n="config.storage_title">Stockage des données</span></h3>
-            <p class="config-description" data-i18n="config.storage_desc">
-              Configurez la durée de conservation des données historiques dans la base de données.
-            </p>
+            <h3><i class="fas fa-database"></i> <span data-i18n="config.storage_title"></span></h3>
+            <p class="config-description" data-i18n="config.storage_desc"></p>
             
             <div class="form-group">
-              <label for="data-retention" data-i18n="config.retention_label">Durée de rétention (mois):</label>
+              <label for="data-retention" data-i18n="config.retention_label"></label>
               <div class="input-with-hint">
                 <input type="number" id="data-retention" min="1" max="24" step="1" value="3">
-                <span class="hint" data-i18n="config.retention_hint">1-24 mois</span>
+                <span class="hint" data-i18n="config.retention_hint"></span>
               </div>
             </div>
             
             <div class="form-group">
               <label>&nbsp;</label>
               <button id="clear-all-data" class="clear-btn">
-                <i class="fas fa-trash-alt"></i> <span data-i18n="config.clear_data">Effacer TOUTES les données</span>
+                <i class="fas fa-trash-alt"></i> <span data-i18n="config.clear_data"></span>
               </button>
-              <span class="clear-warning" data-i18n="config.clear_warning">⚠️ Irréversible !</span>
+              <span class="clear-warning" data-i18n="config.clear_warning"></span>
             </div>
           </div>
           
           <div class="config-actions">
             <button id="save-config" class="save-btn">
-              <i class="fas fa-save"></i> <span data-i18n="modal.save">Sauvegarder</span>
+              <i class="fas fa-save"></i> <span data-i18n="modal.save"></span>
             </button>
             <button id="cancel-config" class="cancel-btn">
-              <i class="fas fa-times"></i> <span data-i18n="modal.cancel">Annuler</span>
+              <i class="fas fa-times"></i> <span data-i18n="modal.cancel"></span>
             </button>
           </div>
           
@@ -1531,8 +1523,8 @@
     </div>
 
     <footer>
-      <p><span data-i18n="common.footer">© 2026 - VPS Monitoring v0.4.0</span></p>
-      <p><span data-i18n="common.last_update">Dernière mise à jour:</span> <span id="last-update">--</span></p>
+      <p><span data-i18n="common.footer"></span></p>
+      <p><span data-i18n="common.last_update"></span> <span id="last-update">--</span></p>
     </footer>
   </div>
 
@@ -1717,53 +1709,58 @@
 
     // Base de données des ports connus
     const knownPorts = {
-      20: { name: 'FTP', type: 'Transfert de fichiers', security: 2 },
-      21: { name: 'FTP', type: 'Transfert de fichiers', security: 2 },
-      22: { name: 'SSH', type: 'Connexion sécurisée', security: 3 },
-      23: { name: 'Telnet', type: 'Connexion non sécurisée', security: 1 },
-      25: { name: 'SMTP', type: 'Email (envoi)', security: 2 },
-      53: { name: 'DNS', type: 'Résolution de noms', security: 3 },
-      80: { name: 'HTTP', type: 'Web', security: 2 },
-      110: { name: 'POP3', type: 'Email (réception)', security: 2 },
-      123: { name: 'NTP', type: 'Synchronisation horaire', security: 3 },
-      143: { name: 'IMAP', type: 'Email', security: 2 },
-      443: { name: 'HTTPS', type: 'Web sécurisé', security: 3 },
-      465: { name: 'SMTPS', type: 'Email sécurisé (envoi)', security: 3 },
-      587: { name: 'SMTP', type: 'Email (soumission)', security: 2 },
-      993: { name: 'IMAPS', type: 'Email sécurisé', security: 3 },
-      995: { name: 'POP3S', type: 'Email sécurisé (réception)', security: 3 },
-      1433: { name: 'MySQL', type: 'Base de données', security: 3 },
-      1434: { name: 'MySQL', type: 'Base de données', security: 3 },
-      1521: { name: 'Oracle DB', type: 'Base de données', security: 3 },
-      2701: { name: 'MongoDB', type: 'Base de données NoSQL', security: 2 },
-      3306: { name: 'MySQL', type: 'Base de données', security: 3 },
-      3389: { name: 'RDP', type: 'Bureau à distance', security: 1 },
-      5432: { name: 'PostgreSQL', type: 'Base de données', security: 3 },
-      5900: { name: 'VNC', type: 'Bureau à distance', security: 1 },
-      6379: { name: 'Redis', type: 'Cache', security: 3 },
-      8080: { name: 'HTTP Alt', type: 'Web alternatif', security: 2 },
-      8443: { name: 'HTTPS Alt', type: 'Web sécurisé alternatif', security: 3 },
-      9200: { name: 'Elasticsearch', type: 'Moteur de recherche', security: 2 },
-      27017: { name: 'MongoDB', type: 'Base de données NoSQL', security: 2 }
+      20: { name: 'FTP', typeKey: 'services.file_transfer', security: 2 },
+      21: { name: 'FTP', typeKey: 'services.file_transfer', security: 2 },
+      22: { name: 'SSH', typeKey: 'services.secure_connection', security: 3 },
+      23: { name: 'Telnet', typeKey: 'services.unsecure_connection', security: 1 },
+      25: { name: 'SMTP', typeKey: 'services.email_send', security: 2 },
+      53: { name: 'DNS', typeKey: 'services.name_resolution', security: 3 },
+      80: { name: 'HTTP', typeKey: 'services.web', security: 2 },
+      110: { name: 'POP3', typeKey: 'services.email_receive', security: 2 },
+      123: { name: 'NTP', typeKey: 'services.time_sync', security: 3 },
+      143: { name: 'IMAP', typeKey: 'services.email', security: 2 },
+      443: { name: 'HTTPS', typeKey: 'services.secure_web', security: 3 },
+      465: { name: 'SMTPS', typeKey: 'services.secure_email_send', security: 3 },
+      587: { name: 'SMTP', typeKey: 'services.email_submission', security: 2 },
+      993: { name: 'IMAPS', typeKey: 'services.secure_email', security: 3 },
+      995: { name: 'POP3S', typeKey: 'services.secure_email_receive', security: 3 },
+      1433: { name: 'MySQL', typeKey: 'services.database', security: 3 },
+      1434: { name: 'MySQL', typeKey: 'services.database', security: 3 },
+      1521: { name: 'Oracle DB', typeKey: 'services.database', security: 3 },
+      2701: { name: 'MongoDB', typeKey: 'services.nosql_database', security: 2 },
+      3306: { name: 'MySQL', typeKey: 'services.database', security: 3 },
+      3389: { name: 'RDP', typeKey: 'services.remote_desktop', security: 1 },
+      5432: { name: 'PostgreSQL', typeKey: 'services.database', security: 3 },
+      5900: { name: 'VNC', typeKey: 'services.remote_desktop', security: 1 },
+      6379: { name: 'Redis', typeKey: 'services.cache', security: 3 },
+      8080: { name: 'HTTP Alt', typeKey: 'services.alternative_web', security: 2 },
+      8443: { name: 'HTTPS Alt', typeKey: 'services.alternative_secure_web', security: 3 },
+      9200: { name: 'Elasticsearch', typeKey: 'services.search_engine', security: 2 },
+      27017: { name: 'MongoDB', typeKey: 'services.nosql_database', security: 2 }
     };
 
     // Fonction pour obtenir les infos d'un port
     function getPortInfo(port) {
-      if (!port) return { name: 'Unknown', type: 'Inconnu', security: 0 };
+      if (!port) return { name: window.i18n ? window.i18n.t('services.unknown') : 'Unknown', type: window.i18n ? window.i18n.t('services.unknown') : 'Unknown', security: 0 };
       
       const portNum = parseInt(port);
       if (knownPorts[portNum]) {
-        return knownPorts[portNum];
+        const portData = knownPorts[portNum];
+        return {
+          name: portData.name,
+          type: window.i18n ? window.i18n.t(portData.typeKey) : portData.typeKey,
+          security: portData.security
+        };
       }
       
       // Ports courants non listés
       if (portNum >= 1024 && portNum <= 49151) {
-        return { name: 'Custom', type: 'Application personnalisée', security: 2 };
+        return { name: window.i18n ? window.i18n.t('services.custom') : 'Custom Application', type: window.i18n ? window.i18n.t('services.custom') : 'Custom Application', security: 2 };
       } else if (portNum >= 49152 && portNum <= 65535) {
-        return { name: 'Dynamic', type: 'Port dynamique/éphémère', security: 1 };
+        return { name: window.i18n ? window.i18n.t('services.dynamic') : 'Dynamic/Ephemeral Port', type: window.i18n ? window.i18n.t('services.dynamic') : 'Dynamic/Ephemeral Port', security: 1 };
       }
       
-      return { name: 'Unknown', type: 'Inconnu', security: 0 };
+      return { name: window.i18n ? window.i18n.t('services.unknown') : 'Unknown', type: window.i18n ? window.i18n.t('services.unknown') : 'Unknown', security: 0 };
     }
 
     // Fonction pour obtenir le niveau de sécurité en étoiles
@@ -1780,34 +1777,38 @@
       // Normaliser l'adresse (supprimer les zéros inutiles pour la comparaison)
       const normalized = address.toLowerCase().trim();
       
+      const i18n = window.i18n;
+      
       // Loopback IPv6
       if (normalized === '::1' || normalized === '0:0:0:0:0:0:0:1') {
-        return { type: 'loopback', icon: '🟢', title: 'Local (loopback IPv6)', cssClass: 'local' };
+        return { type: 'loopback', icon: '🟢', title: i18n ? i18n.t('ports.loopback') + ' (IPv6)' : 'Local (loopback IPv6)', cssClass: 'local' };
       }
       
       // Toutes interfaces IPv6
       if (normalized === '::' || normalized === '0:0:0:0:0:0:0:0') {
-        return { type: 'all', icon: '🟠', title: 'Toutes interfaces IPv6 - Accessible depuis l\'extérieur', cssClass: 'external' };
+        return { type: 'all', icon: '🟠', title: i18n ? i18n.t('ports.all_interfaces') + ' (IPv6) - ' + i18n.t('ports.external') : 'All interfaces IPv6 - Accessible from outside', cssClass: 'external' };
       }
       
       // Link-local IPv6 (fe80::/10)
       if (normalized.startsWith('fe80:') || normalized.startsWith('fe80::')) {
-        return { type: 'link-local', icon: '🟢', title: 'IPv6 Link-local (réseau local seulement)', cssClass: 'local' };
+        return { type: 'link-local', icon: '🟢', title: i18n ? 'IPv6 ' + i18n.t('ports.link_local') : 'IPv6 Link-local (local network only)', cssClass: 'local' };
       }
       
       // Unique local address (fc00::/7)
       if (normalized.startsWith('fc00:') || normalized.startsWith('fd00:')) {
-        return { type: 'unique-local', icon: '🟡', title: 'IPv6 Unique Local (réseau privé)', cssClass: 'external' };
+        return { type: 'unique-local', icon: '🟡', title: i18n ? 'IPv6 ' + i18n.t('ports.unique_local') + ' (private network)' : 'IPv6 Unique Local (private network)', cssClass: 'external' };
       }
       
       // Adresses IPv6 globales (2000::/3 et autres)
       // Si ce n'est pas loopback, link-local ou unique-local, c'est probablement global
-      return { type: 'global', icon: '🟠', title: 'IPv6 Global - Accessible depuis Internet', cssClass: 'external' };
+      return { type: 'global', icon: '🟠', title: i18n ? 'IPv6 ' + i18n.t('ports.global') + ' - Accessible from Internet' : 'IPv6 Global - Accessible from Internet', cssClass: 'external' };
     }
 
     // Fonction pour déterminer si un port est local ou externe
     function getPortStatusIcon(address) {
-      if (!address) return '<span class="port-status unknown" title="Inconnu">❓</span>';
+      if (!address) return '<span class="port-status unknown" title="' + (window.i18n ? window.i18n.t('services.unknown') : 'Unknown') + '">❓</span>';
+      
+      const i18n = window.i18n;
       
       // Adresses locales IPv4 : 127.0.0.* (toutes les IPs loopback), localhost
       const isLocalhostIPv4 = address === 'localhost' || 
@@ -1815,7 +1816,7 @@
                              address === '127.0.1.1';
       
       if (isLocalhostIPv4) {
-        return '<span class="port-status local" title="Local (loopback)">🟢</span>';
+        return '<span class="port-status local" title="' + (i18n ? i18n.t('ports.loopback') : 'Local (loopback)') + '">🟢</span>';
       }
       
       // Vérifier si c'est une adresse IPv6
@@ -1826,11 +1827,11 @@
       
       // IPv4 : toutes interfaces
       if (address === '0.0.0.0' || address === '*') {
-        return '<span class="port-status external" title="Toutes interfaces IPv4 - Accessible depuis l\'extérieur">🟠</span>';
+        return '<span class="port-status external" title="' + (i18n ? i18n.t('ports.all_interfaces') + ' (IPv4) - ' + i18n.t('ports.external') : 'All IPv4 interfaces - Accessible from outside') + '">🟠</span>';
       }
       
       // Autres adresses IPv4 - considérer comme externe par défaut
-      return '<span class="port-status external" title="Externe (IPv4)">🟠</span>';
+      return '<span class="port-status external" title="' + (i18n ? i18n.t('ports.external') + ' (IPv4)' : 'External (IPv4)') + '">🟠</span>';
     }
 
     // Fonction pour obtenir le type d'IP (IPv4 ou IPv6)
@@ -1852,39 +1853,46 @@
         cleanAddress = cleanAddress.slice(1, -1);
       }
       
+      const i18n = window.i18n;
+      const loopbackText = i18n ? i18n.t('ports.loopback') : '(loopback)';
+      const allInterfacesText = i18n ? i18n.t('ports.all_interfaces') : '(all interfaces)';
+      const linkLocalText = i18n ? i18n.t('ports.link_local') : '(link-local)';
+      const uniqueLocalText = i18n ? i18n.t('ports.unique_local') : '(unique-local)';
+      const globalText = i18n ? i18n.t('ports.global') : '(global)';
+      
       // Pour les adresses IPv6
       if (cleanAddress.includes(':')) {
         const normalized = cleanAddress.toLowerCase();
         
         // Loopback IPv6
         if (normalized === '::1' || normalized === '0:0:0:0:0:0:0:1') {
-          return `${address} (loopback)`;
+          return `${address} ${loopbackText}`;
         }
         
         // Toutes interfaces IPv6
         if (normalized === '::' || normalized === '0:0:0:0:0:0:0:0') {
-          return `${address} (toutes interfaces)`;
+          return `${address} ${allInterfacesText}`;
         }
         
         // Link-local IPv6 (fe80::/10)
         if (normalized.startsWith('fe80:')) {
-          return `${address} (link-local)`;
+          return `${address} ${linkLocalText}`;
         }
         
         // Unique local address (fc00::/7)
         if (normalized.startsWith('fc00:') || normalized.startsWith('fd00:')) {
-          return `${address} (unique-local)`;
+          return `${address} ${uniqueLocalText}`;
         }
         
         // Adresses IPv6 globales - ajouter annotation générique
-        return `${address} (global)`;
+        return `${address} ${globalText}`;
       }
       
       // Pour les adresses IPv4
       if (address.startsWith('127.0.0.')) {
-        return `${address} (loopback)`;
+        return `${address} ${loopbackText}`;
       } else if (address === '0.0.0.0') {
-        return `${address} (toutes interfaces)`;
+        return `${address} ${allInterfacesText}`;
       } else {
         return address;
       }
@@ -1914,7 +1922,7 @@
                 <td>${ipVersion}</td>
                 <td>${portInfo.name}</td>
                 <td>${portInfo.type}</td>
-                <td title="Niveau de sécurité : ${portInfo.security}/3">${securityStars}</td>
+                <td title="${window.i18n ? window.i18n.t('ports.security_level', {level: portInfo.security}) : 'Security Level: ' + portInfo.security + '/3'}">${securityStars}</td>
               </tr>
             `;
           }).join('');

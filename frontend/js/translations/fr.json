@@ -67,6 +67,7 @@
     "service": "Service",
     "type": "Type",
     "security": "Sécurité",
+    "security_level": "Niveau de sécurité : {level}/3",
     "no_ports": "Aucun port ouvert trouvé",
     "loading_ports": "Chargement des ports...",
     "error_loading_ports": "Impossible de charger les ports ouverts",
@@ -186,7 +187,9 @@
     "secure_web": "Web sécurisé",
     "alternative_web": "Web alternatif",
     "alternative_secure_web": "Web sécurisé alternatif",
-    "time_sync": "Synchronisation horaire"
+    "time_sync": "Synchronisation horaire",
+    "name_resolution": "Résolution de noms",
+    "unknown": "Inconnu"
   },
   "login": {
     "title": "Connexion",

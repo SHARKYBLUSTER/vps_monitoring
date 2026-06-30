@@ -67,6 +67,7 @@
     "service": "Service",
     "type": "Type",
     "security": "Security",
+    "security_level": "Security Level: {level}/3",
     "no_ports": "No open ports found",
     "loading_ports": "Loading ports...",
     "error_loading_ports": "Unable to load open ports",
@@ -186,7 +187,9 @@
     "secure_web": "Secure Web",
     "alternative_web": "Alternative Web",
     "alternative_secure_web": "Alternative Secure Web",
-    "time_sync": "Time Synchronization"
+    "time_sync": "Time Synchronization",
+    "name_resolution": "Name Resolution",
+    "unknown": "Unknown"
   },
   "login": {
     "title": "Login",
