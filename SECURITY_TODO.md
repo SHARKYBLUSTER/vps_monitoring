@@ -100,14 +100,6 @@
   - **Priorité:** HAUT ⭐⭐⭐⭐
   - **Effort:** 15 min
 
-- [ ] **Ajouter protection CSRF**
-  - [ ] Installer `csurf`: `npm install csurf`
-  - [ ] Appliquer aux formulaires POST
-  - [ ] Ajouter token CSRF dans `login.html`
-  - **Fichiers:** `backend/app.js`, `frontend/login.html`
-  - **Priorité:** MOYEN ⭐⭐⭐
-  - **Effort:** 20 min
-
 ### 🔹 Exposition d'informations
 
 - [ ] **Masquer les tokens Telegram dans `/api/config`**
@@ -297,10 +289,10 @@
 | Catégorie | Total | Complétés | En Cours | Restants |
 |----------|-------|-----------|----------|----------|
 | 🔴 Critique | 6 | 6 | 0 | 0 |
-| 🟡 Moyen | 9 | 4 | 0 | 5 |
+| 🟡 Moyen | 8 | 4 | 0 | 4 |
 | 🟠 Performance | 7 | 0 | 0 | 7 |
 | 🟢 Bonnes Pratiques | 7 | 1 | 0 | 6 |
-| **Total** | **29** | **11** | **0** | **18** |
+| **Total** | **28** | **11** | **0** | **17** |
 
 ---
 
@@ -313,10 +305,10 @@
 - **Priorité:** ✅ **FAIT**
 - **Commits:** f405a19, 89c1a8d, bddaeaf, 567520b
 
-### 🟡 Phase 2: Sécurité Moyenne (4/9 tâches) **EN COURS**
+### 🟡 Phase 2: Sécurité Moyenne (4/8 tâches) **EN COURS**
 - **Objectif:** Renforcer la sécurité globale
 - **Durée estimée:** 2-3 heures
-- **Tâches restantes:** 5
+- **Tâches restantes:** 4
 - **Priorité:** À faire cette semaine
 
 ### ⏳ Phase 3: Performance et Bonnes Pratiques (1/14 tâches)
