@@ -469,6 +469,9 @@ vps_monitoring/
 | **0.4.0** | **30 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |
 | **0.4.0** | **30 juin 2026** | **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau. |
 | **0.4.0** | **30 juin 2026** | **Thème cohérent** : Suppression du bouton de basculement mode sombre de la page login, application automatique du thème depuis la configuration globale (persistance localStorage). |
+| **0.4.0** | **30 juin 2026** | **Support Docker complet** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé avec accès aux métriques système globales (mode host + privileged). |
+| **0.4.0** | **30 juin 2026** | **Correction Docker Engine sous Docker** : Remplacement de child_process par dockerode pour la détection Docker dans les containers. |
+| **0.4.0** | **30 juin 2026** | **Correction Top 5 Processes** : Utilisation de `ps aux` au lieu de systeminformation.processes() pour obtenir directement les pourcentages CPU/MEM, ajout de procps au Dockerfile. |
 | 0.3.0 | 27 juin 2026 | **Mode sombre** : Ajout d'un thème sombre avec toggle, persistance localStorage, adaptation de toutes les couleurs (cartes, graphiques, tableaux, alertes). |
 | 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
 | 0.2.6 | 24 juin 2026 | **Surveillance Docker complète** : Intégration de dockerode pour surveiller les conteneurs Docker (stats CPU/RAM/Réseau/Disque, alertes, contrôles start/stop/restart, historique SQLite, graphiques par conteneur). |
@@ -607,4 +610,4 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 
 ---
 
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**).*
