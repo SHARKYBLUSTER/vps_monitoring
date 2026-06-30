@@ -1131,6 +1131,26 @@
       transform: translateY(-1px);
     }
 
+    .test-btn {
+      background: #0088cc;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .test-btn:hover {
+      background: #006699;
+      transform: translateY(-1px);
+    }
+
     .clear-warning {
       display: inline-block;
       margin-left: 10px;
@@ -1146,6 +1166,15 @@
 
     .dark-mode .clear-btn:hover {
       background: #5f2630;
+    }
+
+    .dark-mode .test-btn {
+      background: #006688;
+      color: #cce0ff;
+    }
+
+    .dark-mode .test-btn:hover {
+      background: #004d66;
     }
 
     .dark-mode .clear-warning {
@@ -1558,6 +1587,62 @@
                 <i class="fas fa-trash-alt"></i> <span data-i18n="config.clear_data"></span>
               </button>
               <span class="clear-warning" data-i18n="config.clear_warning"></span>
+            </div>
+          </div>
+          
+          <div class="config-section">
+            <h3><i class="fas fa-paper-plane"></i> <span data-i18n="config.telegram_title"></span></h3>
+            <p class="config-description" data-i18n="config.telegram_desc"></p>
+            
+            <div class="form-group">
+              <label data-i18n="config.telegram_enabled_label"></label>
+              <div class="toggle-container">
+                <label class="switch">
+                  <input type="checkbox" id="telegram-enabled-toggle">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="telegram-bot-token" data-i18n="config.telegram_bot_token_label"></label>
+              <div class="input-with-hint">
+                <input type="text" id="telegram-bot-token" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+                <span class="hint" data-i18n="config.telegram_bot_token_hint"></span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="telegram-chat-id" data-i18n="config.telegram_chat_id_label"></label>
+              <div class="input-with-hint">
+                <input type="text" id="telegram-chat-id" placeholder="123456789">
+                <span class="hint" data-i18n="config.telegram_chat_id_hint"></span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="telegram-cooldown" data-i18n="config.telegram_cooldown_label"></label>
+              <div class="input-with-hint">
+                <input type="number" id="telegram-cooldown" min="1" max="1440" step="1" value="15">
+                <span class="hint" data-i18n="config.telegram_cooldown_hint"></span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label data-i18n="config.telegram_notify_resolution_label"></label>
+              <div class="toggle-container">
+                <label class="switch">
+                  <input type="checkbox" id="telegram-notify-resolution-toggle" checked>
+                  <span class="slider round"></span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button id="telegram-test-btn" class="test-btn">
+                <i class="fas fa-paper-plane"></i> <span data-i18n="config.telegram_test_button"></span>
+              </button>
             </div>
           </div>
           
@@ -2642,7 +2727,14 @@
       metricsInterval: 5000,
       dataRetentionMonths: 3,
       timezoneOffset: 0,
-      showDockerSection: true
+      showDockerSection: true,
+      telegram: {
+        enabled: false,
+        botToken: '',
+        chatId: '',
+        cooldownMinutes: 15,
+        notifyResolution: true
+      }
     };
 
     // Fonction pour ouvrir la modal de configuration
@@ -2717,6 +2809,31 @@
             if (cpuThresholdInput) cpuThresholdInput.value = 80;
             if (memoryThresholdInput) memoryThresholdInput.value = 85;
             if (diskThresholdInput) diskThresholdInput.value = 90;
+          }
+          
+          // Mettre à jour la configuration Telegram
+          const telegramEnabledToggle = document.getElementById('telegram-enabled-toggle');
+          const telegramBotTokenInput = document.getElementById('telegram-bot-token');
+          const telegramChatIdInput = document.getElementById('telegram-chat-id');
+          const telegramCooldownInput = document.getElementById('telegram-cooldown');
+          const telegramNotifyResolutionToggle = document.getElementById('telegram-notify-resolution-toggle');
+          
+          if (currentConfig.telegram) {
+            if (telegramEnabledToggle) {
+              telegramEnabledToggle.checked = currentConfig.telegram.enabled || false;
+            }
+            if (telegramBotTokenInput) {
+              telegramBotTokenInput.value = currentConfig.telegram.botToken || '';
+            }
+            if (telegramChatIdInput) {
+              telegramChatIdInput.value = currentConfig.telegram.chatId || '';
+            }
+            if (telegramCooldownInput) {
+              telegramCooldownInput.value = currentConfig.telegram.cooldownMinutes || 15;
+            }
+            if (telegramNotifyResolutionToggle) {
+              telegramNotifyResolutionToggle.checked = currentConfig.telegram.notifyResolution !== false;
+            }
           }
           
           // Appliquer l'affichage de la section Docker immédiatement
@@ -2882,6 +2999,24 @@
         showConfigStatus('❌ Le seuil Disque doit être entre 0 et 100%', 'error');
         return;
       }
+      
+      // Récupérer la configuration Telegram
+      const telegramEnabledToggle = document.getElementById('telegram-enabled-toggle');
+      const telegramBotTokenInput = document.getElementById('telegram-bot-token');
+      const telegramChatIdInput = document.getElementById('telegram-chat-id');
+      const telegramCooldownInput = document.getElementById('telegram-cooldown');
+      const telegramNotifyResolutionToggle = document.getElementById('telegram-notify-resolution-toggle');
+      
+      const newTelegramEnabled = telegramEnabledToggle ? telegramEnabledToggle.checked : false;
+      const newTelegramBotToken = telegramBotTokenInput ? telegramBotTokenInput.value : '';
+      const newTelegramChatId = telegramChatIdInput ? telegramChatIdInput.value : '';
+      const newTelegramCooldown = parseInt(telegramCooldownInput ? telegramCooldownInput.value : '15');
+      const newTelegramNotifyResolution = telegramNotifyResolutionToggle ? telegramNotifyResolutionToggle.checked : true;
+      
+      if (isNaN(newTelegramCooldown) || newTelegramCooldown < 1 || newTelegramCooldown > 1440) {
+        showConfigStatus('❌ Le délai Telegram doit être entre 1 et 1440 minutes', 'error');
+        return;
+      }
 
       try {
         showConfigStatus('🔄 Sauvegarde en cours...', 'info');
@@ -2898,7 +3033,12 @@
             showDockerSection: newShowDockerSection,
             cpuThreshold: newCpuThreshold,
             memoryThreshold: newMemoryThreshold,
-            diskThreshold: newDiskThreshold
+            diskThreshold: newDiskThreshold,
+            telegramEnabled: newTelegramEnabled,
+            telegramBotToken: newTelegramBotToken,
+            telegramChatId: newTelegramChatId,
+            telegramCooldownMinutes: newTelegramCooldown,
+            telegramNotifyResolution: newTelegramNotifyResolution
           }),
           credentials: 'include'
         });
@@ -2915,6 +3055,13 @@
             memoryThreshold: newMemoryThreshold,
             diskThreshold: newDiskThreshold
           };
+          currentConfig.telegram = {
+            enabled: newTelegramEnabled,
+            botToken: newTelegramBotToken,
+            chatId: newTelegramChatId,
+            cooldownMinutes: newTelegramCooldown,
+            notifyResolution: newTelegramNotifyResolution
+          };
           showConfigStatus('✅ Configuration sauvegardée avec succès!', 'success');
           
           // Fermer la modal immédiatement
@@ -2930,6 +3077,32 @@
       } catch (error) {
         console.error('❌ Erreur sauvegarde configuration:', error);
         showConfigStatus('❌ Impossible de sauvegarder la configuration', 'error');
+      }
+    }
+
+    // Fonction pour envoyer un message test Telegram
+    async function sendTelegramTest() {
+      try {
+        showConfigStatus(window.i18n ? window.i18n.t('config.status_saving') : 'Envoi en cours...', 'info');
+        
+        const response = await fetch('/api/telegram/send-test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showConfigStatus(window.i18n ? window.i18n.t('config.telegram_test_success') : '✅ Message test envoyé avec succès!', 'success');
+        } else {
+          showConfigStatus(`${window.i18n ? window.i18n.t('config.telegram_test_error') : '❌ Échec'} : ${data.message || 'Unknown error'}`, 'error');
+        }
+      } catch (error) {
+        console.error('❌ Erreur envoi test Telegram:', error);
+        showConfigStatus(window.i18n ? window.i18n.t('config.telegram_test_error') : '❌ Échec de l\'envoi du message test', 'error');
       }
     }
 
@@ -3032,6 +3205,12 @@
       const clearAllBtn = document.getElementById('clear-all-data');
       if (clearAllBtn) {
         clearAllBtn.addEventListener('click', clearAllData);
+      }
+      
+      // Bouton pour envoyer un message test Telegram
+      const telegramTestBtn = document.getElementById('telegram-test-btn');
+      if (telegramTestBtn) {
+        telegramTestBtn.addEventListener('click', sendTelegramTest);
       }
 
       // Toggle pour afficher/masquer Docker Engine

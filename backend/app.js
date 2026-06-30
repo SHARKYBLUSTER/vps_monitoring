@@ -142,7 +142,14 @@ app.get('/api/config', (req, res) => {
         dataRetentionMonths: config.dataRetentionMonths,
         timezoneOffset: config.timezoneOffset,
         showDockerSection: config.showDockerSection,
-        alerts: config.alerts
+        alerts: config.alerts,
+        telegram: {
+          enabled: config.telegram.enabled,
+          botToken: config.telegram.botToken || '',
+          chatId: config.telegram.chatId || '',
+          cooldownMinutes: config.telegram.cooldownMinutes,
+          notifyResolution: config.telegram.notifyResolution
+        }
       },
       timestamp: new Date().toISOString(),
     });
@@ -240,7 +247,7 @@ app.get('/logout', (req, res) => {
 // Endpoint pour mettre à jour la configuration
 app.post('/api/config', (req, res) => {
   try {
-    const { metricsInterval, dataRetentionMonths, timezoneOffset, showDockerSection, cpuThreshold, memoryThreshold, diskThreshold } = req.body;
+    const { metricsInterval, dataRetentionMonths, timezoneOffset, showDockerSection, cpuThreshold, memoryThreshold, diskThreshold, telegramEnabled, telegramBotToken, telegramChatId, telegramCooldownMinutes, telegramNotifyResolution } = req.body;
     
     // Validation des paramètres
     if (metricsInterval !== undefined) {
@@ -346,6 +353,46 @@ app.post('/api/config', (req, res) => {
       console.log(`✅ Seuils d'alerte mis à jour: CPU=${config.alerts.cpuThreshold}%, RAM=${config.alerts.memoryThreshold}%, Disque=${config.alerts.diskThreshold}%`);
     }
     
+    // Gestion de la configuration Telegram
+    if (telegramEnabled !== undefined || telegramBotToken !== undefined || telegramChatId !== undefined || telegramCooldownMinutes !== undefined || telegramNotifyResolution !== undefined) {
+      const config = require('./config/config');
+      
+      if (telegramEnabled !== undefined) {
+        config.telegram.enabled = telegramEnabled === true || telegramEnabled === 'true';
+      }
+      
+      if (telegramBotToken !== undefined) {
+        config.telegram.botToken = telegramBotToken;
+      }
+      
+      if (telegramChatId !== undefined) {
+        config.telegram.chatId = telegramChatId;
+      }
+      
+      if (telegramCooldownMinutes !== undefined) {
+        const newCooldown = parseInt(telegramCooldownMinutes);
+        if (isNaN(newCooldown) || newCooldown < 1 || newCooldown > 1440) {
+          return res.status(400).json({ 
+            success: false, 
+            error: 'telegramCooldownMinutes doit être entre 1 et 1440 minutes' 
+          });
+        }
+        config.telegram.cooldownMinutes = newCooldown;
+      }
+      
+      if (telegramNotifyResolution !== undefined) {
+        config.telegram.notifyResolution = telegramNotifyResolution === true || telegramNotifyResolution === 'true';
+      }
+      
+      // Réinitialiser le cooldown si la configuration a changé
+      const telegramService = require('./services/telegram');
+      if (typeof telegramService.resetAllCooldowns === 'function') {
+        telegramService.resetAllCooldowns();
+      }
+      
+      console.log(`✅ Configuration Telegram mise à jour: activé=${config.telegram.enabled}, cooldown=${config.telegram.cooldownMinutes}min`);
+    }
+    
     // Retourner la configuration complète
     const config = require('./config/config');
     res.json({
@@ -360,6 +407,13 @@ app.post('/api/config', (req, res) => {
           cpuThreshold: config.alerts.cpuThreshold,
           memoryThreshold: config.alerts.memoryThreshold,
           diskThreshold: config.alerts.diskThreshold
+        },
+        telegram: {
+          enabled: config.telegram.enabled,
+          botToken: config.telegram.botToken ? '***' : '',
+          chatId: config.telegram.chatId ? '***' : '',
+          cooldownMinutes: config.telegram.cooldownMinutes,
+          notifyResolution: config.telegram.notifyResolution
         }
       },
       timestamp: new Date().toISOString(),

@@ -148,8 +148,20 @@
     "retention_hint": "1-24 mois",
     "clear_data": "Effacer TOUTES les données",
     "clear_warning": "⚠️ Irréversible !",
-    "clear_confirm": "Êtes-vous sûr de vouloir effacer toutes les données historiques ?"
-  },
+    "clear_confirm": "Êtes-vous sûr de vouloir effacer toutes les données historiques ?",
+    "telegram_title": "Notifications Telegram",
+    "telegram_desc": "Configurez le bot Telegram pour recevoir des notifications d'alerte.",
+    "telegram_enabled_label": "Activer les notifications Telegram",
+    "telegram_bot_token_label": "Token du bot Telegram:",
+    "telegram_bot_token_hint": "Obtenez un token via @BotFather",
+    "telegram_chat_id_label": "ID du chat Telegram:",
+    "telegram_chat_id_hint": "ID de votre chat ou groupe",
+    "telegram_cooldown_label": "Délai entre notifications (minutes):",
+    "telegram_cooldown_hint": "Temps minimum entre deux notifications pour la même alerte",
+    "telegram_notify_resolution_label": "Notifier quand l'alerte est résolue",
+    "telegram_test_button": "Envoyer un message test",
+    "telegram_test_success": "✅ Message test envoyé avec succès!",
+    "telegram_test_error": "❌ Échec de l'envoi du message test"
   "security": {
     "level_0": "Inconnu",
     "level_1": "Faible",
