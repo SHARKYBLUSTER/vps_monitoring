@@ -81,7 +81,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ### 🔹 **4. Déploiement & Automatisation (Priorité Moyenne)**
 | ID | Tâche | Description | Impact | Estimation |
 |----|-------|-------------|--------|------------|
-| **P4-001** | **Dockerisation** | Créer un **Dockerfile** et un **docker-compose.yml** pour un déploiement facile. | 🟢 Élevé | 2 jours |
+| **P4-001** | **Dockerisation** | Créer un **Dockerfile** et un **docker-compose.yml** pour un déploiement facile. | 🟢 Élevé | 2 jours | ✅ **Terminé v0.4.0** |
 | **P2-002** | **Surveillance Docker** | Lister les conteneurs Docker en cours d'exécution, leurs stats (CPU, RAM, statut) et leur état (running/stopped). | 🟢 Élevé | 4 jours |
 | **P4-002** | **Pipeline CI/CD** | Configurer **GitHub Actions** pour les tests et le déploiement. | 🟢 Élevé | 2 jours |
 | **P4-003** | **Script d'installation automatique** | Script Bash pour installer et configurer le projet en une commande. | 🟡 Moyen | 1 jour |
@@ -161,6 +161,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - ✅ **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections
 - ✅ **Suppression des emojis** : Retrait des emojis (🔧,🕐,🌙,⏰,💾,✕) de la modale de configuration pour une interface plus épurée
 - ✅ **Labels graphiques nettoyés** : Suppression des mots "Heure" et "Jour" sous les abscisses des graphiques historiques
+- ✅ **Support Docker** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé avec accès aux métriques système globales (mode host + privileged)
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -196,4 +197,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker**).*

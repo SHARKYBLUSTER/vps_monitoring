@@ -195,7 +195,70 @@
    - Monitoring intégré (CPU, mémoire).
    - Persistance au redémarrage du serveur.
 
-7. **Accéder au dashboard** :
+7. **Déploiement avec Docker** :
+
+   VPS Monitoring peut être déployé dans un container Docker pour une isolation et une gestion simplifiée.
+   
+   **⚠️ Important** : Pour surveiller les métriques **globales du système hôte** (CPU, RAM, disque, processus, réseau), le container doit être lancé en **mode privilégié** avec accès aux namespaces système.
+
+   ### Prérequis
+   - Docker Engine installé sur votre VPS
+   - Accès root ou sudo pour les commandes Docker
+
+   ### Option A : Avec docker-compose (Recommandé)
+
+   Le projet inclut un fichier `docker-compose.yml` configuré pour le monitoring global :
+   
+   ```bash
+   # 1. Cloner et entrer dans le projet
+   git clone https://github.com/SHARKYBLUSTER/vps_monitoring.git
+   cd vps_monitoring
+   
+   # 2. Créer votre fichier .env (optionnel - utilise les valeurs par défaut sinon)
+   cp .env.example .env
+   nano .env  # Modifier les identifiants
+   
+   # 3. Lancer avec docker-compose
+   docker-compose up -d --build
+   ```
+   
+   **Ce que fait docker-compose :**
+   - `network_mode: host` - Accès aux interfaces réseau de l'hôte
+   - `pid: host` - Accès aux processus de l'hôte via /proc
+   - `privileged: true` - Permissions étendues pour systeminformation
+   - Monte `/var/run/docker.sock` - Pour surveiller Docker Engine
+   - Monte `./data` - Persistance de la base SQLite
+
+   ### Option B : Avec docker run
+
+   ```bash
+   # Build l'image
+   docker build -t vps_monitoring .
+   
+   # Lancer le container
+   docker run -d \
+     --name vps_monitoring \
+     --restart unless-stopped \
+     --net=host \
+     --pid=host \
+     --privileged \
+     -v $(pwd)/data:/app/data \
+     -v /var/run/docker.sock:/var/run/docker.sock:ro \
+     vps_monitoring
+   ```
+
+   ### Commandes utiles Docker
+
+   | Commande | Description |
+   |----------|-------------|
+   | `docker-compose logs -f` | Voir les logs en temps réel |
+   | `docker-compose down` | Arrêter le container |
+   | `docker-compose up -d --build` | Mettre à jour et redémarrer |
+   | `docker exec -it vps_monitoring sh` | Accéder au shell du container |
+
+   **Accès au dashboard :** `http://votre-vps-ip:3000`
+
+8. **Accéder au dashboard** :
    Ouvrez votre navigateur et allez sur :
    ```
    http://localhost:3000
@@ -206,7 +269,7 @@
    - Utilisez les identifiants définis dans votre fichier `.env` (par défaut : `admin`/`changer_mot_de_passe`).
    - Après connexion, vous accéderez au tableau de bord complet.
 
-8. **Gestion de l'authentification** :
+9. **Gestion de l'authentification** :
    
    Le projet inclut désormais un système d'authentification complet basé sur des sessions :
    
@@ -544,4 +607,4 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 
 ---
 
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker**).*

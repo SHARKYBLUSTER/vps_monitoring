@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  vps_monitoring:
+    build: .
+    container_name: vps_monitoring
+    restart: unless-stopped
+    
+    # Mode host pour accéder aux métriques système globales
+    network_mode: host
+    pid: host
+    privileged: true
+    
+    # Volumes pour la persistance et l'accès à Docker
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    
+    # Environnement (optionnel - peut utiliser .env)
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    
+    # Pour utiliser un fichier .env existant
+    env_file:
+      - .env
+
+# Instructions pour le déploiement
+# ================================
+# 
+# 1. Construire et démarrer :
+#    docker-compose up -d --build
+#
+# 2. Arrêter :
+#    docker-compose down
+#
+# 3. Mettre à jour :
+#    docker-compose pull && docker-compose up -d --build
+#
+# 4. Voir les logs :
+#    docker-compose logs -f
+#
+# IMPORTANT : Le mode privileged est nécessaire pour accéder à :
+# - /proc/ pour les métriques CPU, RAM, processus
+# - /sys/ pour les informations système
+# - Les interfaces réseau de l'hôte
+# - Les informations Docker

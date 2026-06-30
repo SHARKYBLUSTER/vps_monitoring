@@ -1,0 +1,43 @@
+# Ignorer les dépendances Node.js
+node_modules/
+
+# Ignorer les fichiers git
+.git/
+.gitignore
+
+# Ignorer les fichiers de données (seront montés en volume)
+data/
+*.db
+*.db-journal
+
+# Ignorer les fichiers de configuration locale
+.env
+.env.local
+.env.*.local
+
+# Ignorer les logs
+logs/
+*.log
+
+# Ignorer les fichiers de build et cache
+.DS_Store
+*.swp
+*.swo
+
+# Ignorer la documentation (optionnel)
+README.md
+ROADMAP.md
+LICENSE
+
+# Ignorer les fichiers de test
+coverage/
+
+# Ignorer les IDE configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+
+# Ignorer les fichiers temporaires
+*.tmp
+*.temp
