@@ -65,8 +65,10 @@ async function getDockerDetailedInfo() {
     
     // Statistiques images
     const totalImagesSize = images.reduce((sum, img) => {
-      // VirtualSize est en octets, peut être undefined
-      return sum + (img.VirtualSize ? parseInt(img.VirtualSize) : 0);
+      // Utiliser Size (taille réelle) au lieu de VirtualSize (déprécié)
+      // Les valeurs sont déjà des nombres en octets
+      const size = img.Size || img.VirtualSize || 0;
+      return sum + (typeof size === 'number' ? size : parseInt(size) || 0);
     }, 0);
     
     const danglingImages = images.filter(img => img.Dangling === true);
@@ -134,7 +136,10 @@ async function getDockerDetailedInfo() {
     // Détails des images
     const imageDetails = images.slice(0, 50).map(img => {
       const repoTags = img.RepoTags || ['<none>:<none>'];
-      const size = img.VirtualSize ? parseInt(img.VirtualSize) : 0;
+      // Utiliser Size (taille réelle) au lieu de VirtualSize (déprécié)
+      // Les valeurs sont déjà des nombres en octets
+      const rawSize = img.Size || img.VirtualSize || 0;
+      const size = typeof rawSize === 'number' ? rawSize : parseInt(rawSize) || 0;
       const createdDate = img.Created ? new Date(img.Created).toISOString() : '';
       
       return {
