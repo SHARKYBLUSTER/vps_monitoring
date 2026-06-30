@@ -75,65 +75,83 @@ async function getDockerDetailedInfo() {
     
     // Détails des conteneurs
     // Utiliser directement les données de listContainers() qui contiennent déjà
-    // Created (timestamp) et Ports, évite les appels d'inspection inutiles
-    const containerDetails = containers.slice(0, 50).map((container) => {
-      // Extraire les noms (format: "/nom-conteneur")
-      const names = container.Names || [];
-      const name = names.length > 0 ? names[0].replace('/', '') : container.Id.substring(0, 12);
-      
-      // Extraire les ports exposés (disponible directement dans container.Ports)
-      // Dans Docker API v1.24+, Ports est un tableau d'objets
-      // Exemple: [{ PrivatePort: 80, PublicPort: 8080, Type: 'tcp', IP: '0.0.0.0' }]
-      // Dans les anciennes versions, Ports peut être null ou un objet
-      const ports = container.Ports || [];
-      const portBindings = [];
-      
-      if (Array.isArray(ports)) {
-        // Format tableau (API v1.24+)
-        ports.forEach(port => {
-          if (port.IP && port.PublicPort) {
-            portBindings.push(`${port.IP}:${port.PublicPort}->${port.PrivatePort}/${port.Type}`);
-          } else if (port.PublicPort) {
-            portBindings.push(`${port.PublicPort}->${port.PrivatePort}/${port.Type}`);
-          } else if (port.PrivatePort) {
-            portBindings.push(`${port.PrivatePort}/${port.Type}`);
-          }
-        });
-      } else if (typeof ports === 'object' && ports !== null) {
-        // Format objet (anciennes versions API)
-        // { "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "80" }] }
-        for (const [containerPort, bindings] of Object.entries(ports)) {
-          if (bindings && bindings.length > 0) {
-            bindings.forEach(binding => {
-              if (binding.HostIp && binding.HostPort) {
-                portBindings.push(`${binding.HostIp}:${binding.HostPort}->${containerPort}`);
-              } else if (binding.HostPort) {
-                portBindings.push(`${binding.HostPort}->${containerPort}`);
-              } else {
-                portBindings.push(containerPort);
-              }
-            });
+    // Created (timestamp) et Ports, et compléter avec ExposedPorts si nécessaire
+    const containerDetails = await Promise.all(
+      containers.slice(0, 50).map(async (container) => {
+        // Extraire les noms (format: "/nom-conteneur")
+        const names = container.Names || [];
+        const name = names.length > 0 ? names[0].replace('/', '') : container.Id.substring(0, 12);
+        
+        // Extraire les ports publiés (disponible directement dans container.Ports)
+        // Dans Docker API v1.24+, Ports est un tableau d'objets
+        // Exemple: [{ PrivatePort: 80, PublicPort: 8080, Type: 'tcp', IP: '0.0.0.0' }]
+        // Dans les anciennes versions, Ports peut être null ou un objet
+        const ports = container.Ports || [];
+        const portBindings = [];
+        
+        if (Array.isArray(ports)) {
+          // Format tableau (API v1.24+)
+          ports.forEach(port => {
+            if (port.IP && port.PublicPort) {
+              portBindings.push(`${port.IP}:${port.PublicPort}->${port.PrivatePort}/${port.Type}`);
+            } else if (port.PublicPort) {
+              portBindings.push(`${port.PublicPort}->${port.PrivatePort}/${port.Type}`);
+            } else if (port.PrivatePort) {
+              portBindings.push(`${port.PrivatePort}/${port.Type}`);
+            }
+          });
+        } else if (typeof ports === 'object' && ports !== null) {
+          // Format objet (anciennes versions API)
+          // { "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "80" }] }
+          for (const [containerPort, bindings] of Object.entries(ports)) {
+            if (bindings && bindings.length > 0) {
+              bindings.forEach(binding => {
+                if (binding.HostIp && binding.HostPort) {
+                  portBindings.push(`${binding.HostIp}:${binding.HostPort}->${containerPort}`);
+                } else if (binding.HostPort) {
+                  portBindings.push(`${binding.HostPort}->${containerPort}`);
+                } else {
+                  portBindings.push(containerPort);
+                }
+              });
+            }
           }
         }
-      }
-      
-      // Formater la date de création (Docker retourne des timestamps en SECONDES)
-      const createdDate = container.Created ? new Date(container.Created * 1000).toISOString() : '';
-      
-      // Extraire la commande depuis container.Command si disponible
-      const command = container.Command ? container.Command.substring(0, 100) : 'N/A';
-      
-      return {
-        id: container.Id.substring(0, 12),
-        name: name,
-        image: container.Image || 'N/A',
-        state: container.State,
-        status: container.Status,
-        ports: portBindings.length > 0 ? portBindings.join(', ') : '-',
-        created: createdDate,
-        command: command
-      };
-    });
+        
+        // Si aucun port publié n'a été trouvé, vérifier les ports exposés (EXPOSE dans Dockerfile)
+        if (portBindings.length === 0) {
+          try {
+            const containerObj = docker.getContainer(container.Id);
+            const details = await containerObj.inspect();
+            const exposedPorts = details.Config?.ExposedPorts || {};
+            
+            // Ajouter les ports exposés (sans binding)
+            for (const [portWithProtocol, emptyObj] of Object.entries(exposedPorts)) {
+              portBindings.push(portWithProtocol);
+            }
+          } catch (err) {
+            // Ignorer l'erreur si on ne peut pas inspecter
+          }
+        }
+        
+        // Formater la date de création (Docker retourne des timestamps en SECONDES)
+        const createdDate = container.Created ? new Date(container.Created * 1000).toISOString() : '';
+        
+        // Extraire la commande depuis container.Command si disponible
+        const command = container.Command ? container.Command.substring(0, 100) : 'N/A';
+        
+        return {
+          id: container.Id.substring(0, 12),
+          name: name,
+          image: container.Image || 'N/A',
+          state: container.State,
+          status: container.Status,
+          ports: portBindings.length > 0 ? portBindings.join(', ') : '-',
+          created: createdDate,
+          command: command
+        };
+      })
+    );
     
     // Détails des images
     const imageDetails = images.slice(0, 50).map(img => {
