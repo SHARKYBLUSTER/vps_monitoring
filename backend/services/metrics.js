@@ -289,9 +289,9 @@ function getProcessNameByPid(pid) {
  */
 async function getPortsFromSS() {
   try {
-    const { exec } = require('child_process');
+    const { execFile } = require('child_process');
     const result = await new Promise((resolve, reject) => {
-      exec('ss -tlnp', (error, stdout, stderr) => {
+      execFile('ss', ['-tlnp'], { timeout: 5000 }, (error, stdout, stderr) => {
         if (error) reject(error);
         else resolve(stdout);
       });
@@ -362,12 +362,25 @@ async function execPromise(command) {
  */
 async function getTopProcessesFromPS(limit = 5) {
   try {
-    // Utiliser ps aux pour obtenir les processus avec %CPU et %MEM
-    // --no-headers pour supprimer l'en-tête, --sort=-%cpu pour trier par CPU décroissant
-    const output = await execPromise(`ps aux --no-headers --sort=-%cpu | head -${limit}`);
+    // Valider strictement le paramètre limit pour éviter l'injection de commande
+    const limitNum = parseInt(limit);
+    if (isNaN(limitNum) || limitNum < 1 || limitNum > 100 || !Number.isInteger(limitNum)) {
+      throw new Error(`Paramètre 'limit' invalide: doit être un entier entre 1 et 100, reçu: ${limit}`);
+    }
+    
+    // Utiliser execFile au lieu de exec pour éviter l'injection de commande
+    const { execFile } = require('child_process');
+    const output = await new Promise((resolve, reject) => {
+      execFile('ps', ['aux', '--no-headers', '--sort=-%cpu'], { timeout: 5000 }, (error, stdout, stderr) => {
+        if (error) reject(error);
+        else resolve(stdout);
+      });
+    });
+    
+    // Appliquer la limite après avoir récupéré les données
+    const lines = output.trim().split('\n').slice(0, limitNum);
     
     const processes = [];
-    const lines = output.trim().split('\n');
     
     for (const line of lines) {
       // Format ps aux: USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
