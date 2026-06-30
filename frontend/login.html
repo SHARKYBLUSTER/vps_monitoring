@@ -245,6 +245,12 @@
         usernameInput.value = savedUsername;
       }
       
+      // Appliquer le mode sombre/clair depuis la configuration
+      const savedDarkMode = localStorage.getItem('vps_monitoring_dark_mode');
+      if (savedDarkMode === 'true') {
+        document.body.classList.add('dark-mode');
+      }
+      
       // Sauvegarder le nom d'utilisateur dans le localStorage à la soumission
       const loginForm = document.querySelector('.login-form');
       if (loginForm) {
