@@ -45,6 +45,8 @@
 - **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
 - **Effacement des données** : Bouton pour supprimer toutes les données historiques
 - **Gestion du thème** : Basculer entre mode clair/sombre depuis le menu configuration, appliqué automatiquement sur toutes les pages y compris la page de login
+- **Décalage horaire** : Paramétrage du décalage UTC (+/- heures) pour l'affichage des graphiques historiques
+- **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard
 
 ### 🔍 **Surveillance avancée**
 - **Top 5 processus** : Identification des processus les plus gourmands
@@ -394,6 +396,8 @@ vps_monitoring/
 
 | Version | Date | Modifications |
 |---------|------|---------------|
+| **0.4.0** | **30 juin 2026** | **Décalage horaire** : Ajout du paramètre UTC Heure locale dans le menu configuration pour ajuster l'affichage des abscisses des graphiques historiques (CPU, RAM, Disque, Réseau). |
+| **0.4.0** | **30 juin 2026** | **Visibilité Docker Engine** : Ajout d'un bouton dans le menu configuration pour afficher ou masquer la carte Docker Engine sur la page index.html, avec rechargement automatique. |
 | **0.4.0** | **29 juin 2026** | **Menu de configuration complet** : Interface pour modifier l'intervalle de collecte, la rétention des données (1-24 mois), bouton d'effacement total, intégration du mode sombre, style unifié des boutons, icônes ajoutées. |
 | **0.4.0** | **29 juin 2026** | **Effacement des données** : Bouton pour supprimer toutes les données historiques (SQLite + JSON), avec VACUUM pour réduire la taille du fichier, rechargement automatique de la page. |
 | **0.4.0** | **30 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |

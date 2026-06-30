@@ -24,6 +24,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
   - **Surveillance Docker** : Statut Docker Engine, liste des conteneurs, stats par conteneur.
   - **Menu de configuration** : Interface complète pour paramétrer l'application.
   - **Gestion des données** : Paramétrage de l'intervalle de collecte, de la rétention (1-24 mois), et bouton d'effacement total.
+  - **Décalage horaire** : Paramétrage du décalage UTC pour ajuster l'affichage des graphiques historiques.
+  - **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard.
 
 - **Stack technique** :
   - Backend : Node.js + Express
@@ -141,7 +143,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📝 Changelog des Versions
 
 ### Version 0.4.0 - 30 juin 2026
-**Menu de configuration, gestion des données et corrections**
+**Menu de configuration, gestion des données, décalage horaire et visibilité Docker**
 - ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
 - ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
 - ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
@@ -152,6 +154,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - ✅ **Corrections de bugs** : Résolution des problèmes d'affichage des processus et ports
 - ✅ **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau
 - ✅ **Thème cohérent** : Suppression du bouton de basculement de la page login, application automatique du thème depuis la configuration globale
+- ✅ **Décalage horaire** : Ajout du paramètre UTC Heure locale pour ajuster les abscisses des graphiques historiques
+- ✅ **Visibilité Docker Engine** : Bouton pour afficher/masquer la carte Docker Engine avec rechargement automatique
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -187,4 +191,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, corrections graphiques et thème).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques et thème).*
