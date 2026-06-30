@@ -1943,10 +1943,16 @@
       const isDark = document.body.classList.contains('dark-mode');
       const colors = getChartColors(isDark);
       
+      // Formater les labels pour n'afficher que HH:MM au lieu de YYYY-MM-DD HH:MM:SS
+      const formattedLabels = data.data.labels.map(label => {
+        const date = new Date(label);
+        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      });
+
       window.networkChart = new ChartLib(ctx, {
         type: 'line',
         data: {
-          labels: data.data.labels,
+          labels: formattedLabels,
           datasets: [
             {
               label: 'Téléchargement (KB)',
