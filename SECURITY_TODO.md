@@ -160,19 +160,23 @@
 
 ### 🔹 Intervalles et Timeouts
 
-- [ ] **Nettoyer les intervalles à l'arrêt du serveur**
-  - [ ] Déclarer `alertInterval` et `cleanupInterval` comme variables globales
-  - [ ] Ajouter `clearInterval` dans les handlers SIGINT/SIGTERM
-  - [ ] Appeler `historyService.stopAutoCollect()`
-  - **Fichier:** `backend/app.js:36, 735-742, 748-759`
+- [x] **Nettoyer les intervalles à l'arrêt du serveur** ✅
+  - [x] Déclarer `alertInterval` et `cleanupInterval` comme variables globales (lignes 30-31)
+  - [x] Capturer `alertInterval` dans `setInterval` (ligne 57)
+  - [x] Capturer `cleanupInterval` dans `scheduleCleanup()` (ligne 763)
+  - [x] Ajouter `clearInterval` dans les handlers SIGINT/SIGTERM
+  - [x] Appeler `historyService.stopAutoCollect()`
+  - **Fichier:** `backend/app.js:30-31, 57, 763, 773-797`
   - **Priorité:** MOYEN ⭐⭐⭐
   - **Effort:** 20 min
+  - **Commit:** À définir
 
-- [ ] **Exporter `stopAutoCollect` depuis `history.js`**
-  - [ ] Modifier pour retourner/exporter la fonction
-  - **Fichier:** `backend/services/history.js`
+- [x] **Exporter `stopAutoCollect` depuis `history.js`** ✅
+  - [x] Fonction déjà exportée dans `module.exports` (ligne 396)
+  - **Fichier:** `backend/services/history.js:107-113, 396`
   - **Priorité:** MOYEN ⭐⭐⭐
   - **Effort:** 5 min
+  - **Statut:** Déjà en place
 
 ### 🔹 Optimisation du Code
 
@@ -273,11 +277,13 @@
 - [x] Corriger `getPortsFromSS` (injection de commande) ✅
 - [x] Corriger `getTopProcessesFromPS` (injection de commande) ✅
 
-### 🟡 **Phase 2: Sécurité Moyenne** (4/9)
+### 🟡 **Phase 2: Sécurité Moyenne** (6/8)
 - [x] Supprimer l'affichage des identifiants par défaut dans `login.html` ✅
 - [x] Protéger `/api/config` avec authentification ✅
 - [x] Corriger `/api/user` pour supprimer le fallback admin ✅
 - [x] Ajouter `ALLOWED_ORIGINS` dans `.env.example` ✅
+- [x] Nettoyer les intervalles à l'arrêt du serveur ✅
+- [x] Exporter `stopAutoCollect` depuis `history.js` ✅
 
 ### 🟢 **Phase 3: Bonnes Pratiques** (1/7)
 - [x] Vérifier que `.env` est dans `.gitignore` ✅
@@ -289,10 +295,10 @@
 | Catégorie | Total | Complétés | En Cours | Restants |
 |----------|-------|-----------|----------|----------|
 | 🔴 Critique | 6 | 6 | 0 | 0 |
-| 🟡 Moyen | 8 | 4 | 0 | 4 |
+| 🟡 Moyen | 8 | 6 | 0 | 2 |
 | 🟠 Performance | 7 | 0 | 0 | 7 |
 | 🟢 Bonnes Pratiques | 7 | 1 | 0 | 6 |
-| **Total** | **28** | **11** | **0** | **17** |
+| **Total** | **28** | **13** | **0** | **15** |
 
 ---
 
@@ -305,10 +311,10 @@
 - **Priorité:** ✅ **FAIT**
 - **Commits:** f405a19, 89c1a8d, bddaeaf, 567520b
 
-### 🟡 Phase 2: Sécurité Moyenne (4/8 tâches) **EN COURS**
+### 🟡 Phase 2: Sécurité Moyenne (6/8 tâches) **EN COURS**
 - **Objectif:** Renforcer la sécurité globale
 - **Durée estimée:** 2-3 heures
-- **Tâches restantes:** 4
+- **Tâches restantes:** 2
 - **Priorité:** À faire cette semaine
 
 ### ⏳ Phase 3: Performance et Bonnes Pratiques (1/14 tâches)

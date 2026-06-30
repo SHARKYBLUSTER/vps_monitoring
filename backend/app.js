@@ -26,6 +26,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Variables globales pour stocker les intervalles (nettoyage propre à l'arrêt)
+let alertInterval = null;
+let cleanupInterval = null;
+
 // Initialiser l'utilisateur admin (doit être fait avant les requêtes)
 initializeAdminUser();
 
@@ -50,7 +54,7 @@ historyService.startAutoCollect();
 
 // Démarrer la vérification périodique des alertes (toutes les minutes)
 const ALERT_CHECK_INTERVAL = 60000; // 1 minute
-setInterval(async () => {
+alertInterval = setInterval(async () => {
   try {
     const alerts = await metricsService.checkAlertsAndNotify();
     if (alerts.length > 0) {
@@ -756,7 +760,7 @@ const scheduleCleanup = () => {
     // Nettoyer metrics ET alerts après la période de rétention
     db.cleanupOldData(retentionDays);
     // Relance le nettoyage tous les jours
-    setInterval(() => {
+    cleanupInterval = setInterval(() => {
       db.cleanupOldData(retentionDays);
     }, 24 * 60 * 60 * 1000);
   }, delay);
@@ -766,15 +770,41 @@ const scheduleCleanup = () => {
 scheduleCleanup();
 
 // Gestion propre de l'arrêt du serveur
+const cleanupIntervals = () => {
+  console.log('\n🧹 Nettoyage des intervalles en cours...');
+  
+  // Arrêter la collecte automatique des métriques
+  if (typeof historyService.stopAutoCollect === 'function') {
+    historyService.stopAutoCollect();
+  }
+  
+  // Nettoyer les intervalles déclarés
+  if (alertInterval) {
+    clearInterval(alertInterval);
+    alertInterval = null;
+    console.log('✅ Intervalle de vérification des alertes arrêté');
+  }
+  
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval);
+    cleanupInterval = null;
+    console.log('✅ Intervalle de nettoyage automatique arrêté');
+  }
+  
+  // Fermer la base de données
+  db.closeDatabase();
+  console.log('✅ Base de données fermée');
+};
+
 process.on('SIGINT', () => {
   console.log('\n🛑 Arrêt du serveur en cours...');
-  db.closeDatabase();
+  cleanupIntervals();
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
   console.log('\n🛑 Arrêt du serveur (SIGTERM)...');
-  db.closeDatabase();
+  cleanupIntervals();
   process.exit(0);
 });
 
