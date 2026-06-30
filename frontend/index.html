@@ -1600,9 +1600,9 @@
           <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="docker.total_size"></div>
         </div>
         <div class="stat-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
-          <i class="fas fa-trash-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+          <i class="fas fa-tag" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-images-dangling" style="font-size: 2rem; font-weight: bold;">0</div>
-          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="docker.dangling_images"></div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="docker.untagged_images"></div>
         </div>
       </div>
       <!-- Bouton pour afficher/masquer les détails -->
@@ -2330,7 +2330,8 @@
           // NOUVEAU : Mettre à jour les stats images
           if (info.images) {
             document.getElementById('docker-images-total').textContent = info.images.total || 0;
-            document.getElementById('docker-images-dangling').textContent = info.images.dangling || 0;
+            // Afficher le nombre d'images untagged (<none>) au lieu des dangling
+            document.getElementById('docker-images-dangling').textContent = info.images.untagged || info.images.dangling || 0;
             
             // Formater la taille totale (convertir en GB/MB/KB)
             const totalSize = info.images.totalSize || 0;

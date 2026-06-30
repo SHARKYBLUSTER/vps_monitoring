@@ -59,6 +59,7 @@
     "total_images": "Total Images",
     "total_size": "Total Size",
     "dangling_images": "Dangling Images",
+    "untagged_images": "Untagged Images",
     "no_containers": "No containers found",
     "no_images": "No images found",
     "show_details": "Show Details",

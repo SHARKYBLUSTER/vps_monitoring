@@ -59,6 +59,7 @@
     "total_images": "Images totales",
     "total_size": "Taille totale",
     "dangling_images": "Images orphelines",
+    "untagged_images": "Images sans tag",
     "no_containers": "Aucun conteneur trouvé",
     "no_images": "Aucune image trouvée",
     "show_details": "Afficher les détails",

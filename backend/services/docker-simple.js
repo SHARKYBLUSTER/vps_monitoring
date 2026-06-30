@@ -71,7 +71,14 @@ async function getDockerDetailedInfo() {
       return sum + (typeof size === 'number' ? size : parseInt(size) || 0);
     }, 0);
     
+    // Images dangling (couches intermédiaires non utilisées)
     const danglingImages = images.filter(img => img.Dangling === true);
+    
+    // Images sans tag (<none> ou RepoTags vide) - souvent appelées "untagged"
+    const untaggedImages = images.filter(img => {
+      const tags = img.RepoTags || [];
+      return tags.length === 0 || tags.every(tag => tag === '<none>:<none>' || tag.includes('<none>'));
+    });
     
     // Détails des conteneurs
     // Utiliser directement les données de listContainers() qui contiennent déjà
@@ -187,6 +194,7 @@ async function getDockerDetailedInfo() {
         total: images.length,
         totalSize: totalImagesSize,
         dangling: danglingImages.length,
+        untagged: untaggedImages.length,
         details: imageDetails
       },
       // Infos Docker Engine
