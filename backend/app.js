@@ -60,8 +60,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Middleware de session (requis pour l'authentification)
+if (!process.env.SESSION_SECRET) {
+  throw new Error('❌ SESSION_SECRET doit être défini dans les variables d\'environnement');
+}
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'votre_cle_secrete_par_defaut_changez_la',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { 
@@ -165,7 +168,7 @@ app.get('/api/user', (req, res) => {
     res.json({
       success: true,
       authenticated: true,
-      username: req.session.username || 'admin'
+      username: req.session.username
     });
   } else {
     res.json({
@@ -614,12 +617,28 @@ app.post('/api/history/cleanup', async (req, res) => {
 });
 
 // Endpoint pour effacer TOUTES les données
-app.post('/api/history/clear-all', async (req, res) => {
+app.post('/api/history/clear-all', requireApiAuth, async (req, res) => {
   try {
+    // Vérification de confirmation explicite
+    if (req.body.confirm !== 'DELETE_ALL_DATA') {
+      return res.status(400).json({
+        success: false,
+        error: 'Confirmation requise: le paramètre "confirm" doit valoir "DELETE_ALL_DATA"',
+      });
+    }
+    
+    // Vérification supplémentaire: l'utilisateur doit être admin
+    if (req.session.username !== process.env.ADMIN_USER) {
+      return res.status(403).json({
+        success: false,
+        error: 'Action réservée à l\'administrateur',
+      });
+    }
+    
     const fs = require('fs');
     const path = require('path');
     
-    console.log('🔄 /api/history/clear-all appelé - début du traitement');
+    console.log('🔄 /api/history/clear-all appelé par admin - début du traitement');
     
     // Utiliser la variable db globale déjà requise au début du fichier
     // Appeler cleanupOldData avec un grand nombre négatif pour tout supprimer

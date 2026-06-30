@@ -14,8 +14,12 @@ let adminUser = null;
  * Initialise l'utilisateur admin depuis les variables d'environnement
  */
 function initializeAdminUser() {
-  const user = process.env.ADMIN_USER || 'admin';
-  const password = process.env.ADMIN_PASSWORD || 'admin';
+  const user = process.env.ADMIN_USER;
+  const password = process.env.ADMIN_PASSWORD;
+  
+  if (!user || !password) {
+    throw new Error('❌ ADMIN_USER et ADMIN_PASSWORD doivent être définis dans les variables d\'environnement');
+  }
   
   // Hacher le mot de passe si ce n'est pas déjà fait
   adminUser = {
