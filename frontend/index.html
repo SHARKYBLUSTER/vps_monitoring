@@ -2678,21 +2678,13 @@
           currentConfig.timezoneOffset = newTimezoneOffset;
           showConfigStatus('✅ Configuration sauvegardée avec succès!', 'success');
           
-          // Mettre à jour l'intervalle de rafraîchissement du frontend immédiatement
-          updateFrontendIntervals(newInterval);
+          // Fermer la modal immédiatement
+          closeConfigModal();
           
-          // Rafraîchir les graphiques pour appliquer le nouveau décalage horaire
-          if (typeof refreshAllCharts === 'function') {
-            refreshAllCharts();
-          }
-          if (typeof updateNetworkChart === 'function') {
-            updateNetworkChart('day');
-          }
-          
-          // Fermer la modal après un délai
+          // Rafraîchir la page pour appliquer les changements
           setTimeout(() => {
-            closeConfigModal();
-          }, 1500);
+            window.location.reload();
+          }, 500);
         } else {
           showConfigStatus(`❌ Erreur: ${data.error || 'Impossible de sauvegarder'}`, 'error');
         }
