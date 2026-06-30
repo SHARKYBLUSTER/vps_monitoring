@@ -18,7 +18,8 @@ COPY package*.json ./
 
 # Installer les dépendances de production
 # Note: better-sqlite3 nécessite des outils de build
-RUN apk add --no-cache python3 make g++ && \
+# procps est nécessaire pour la commande ps (Top 5 Processes)
+RUN apk add --no-cache python3 make g++ procps && \
     npm install --production && \
     apk del python3 make g++
 

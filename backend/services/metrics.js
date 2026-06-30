@@ -288,39 +288,115 @@ async function getPortsFromSS() {
 }
 
 /**
- * Récupère les processus les plus consommateurs
- * @param {number} limit - Nombre de processus à retourner (par défaut 5)
- * @returns {Promise<Array>} - Liste des processus triés par consommation CPU
+ * Exécute une commande shell et retourne la sortie
+ * @param {string} command - Commande à exécuter
+ * @returns {Promise<string>} - Sortie de la commande
  */
-async function getTopProcesses(limit = 5) {
+async function execPromise(command) {
+  const { exec } = require('child_process');
+  return new Promise((resolve, reject) => {
+    exec(command, { timeout: 5000 }, (error, stdout, stderr) => {
+      if (error) reject(error);
+      else resolve(stdout);
+    });
+  });
+}
+
+/**
+ * Récupère les processus les plus consommateurs via la commande ps
+ * @param {number} limit - Nombre de processus à retourner
+ * @returns {Promise<Array>} - Liste des processus
+ */
+async function getTopProcessesFromPS(limit = 5) {
   try {
-    // Récupérer les processus avec l'option percent pour obtenir les valeurs en pourcentage
-    // Note: Dans systeminformation v5+, avec percent:true, cpu et mem sont en % (0-100)
-    const result = await si.processes({ percent: true });
+    // Utiliser ps aux pour obtenir les processus avec %CPU et %MEM
+    // --no-headers pour supprimer l'en-tête, --sort=-%cpu pour trier par CPU décroissant
+    const output = await execPromise(`ps aux --no-headers --sort=-%cpu | head -${limit}`);
+    
+    const processes = [];
+    const lines = output.trim().split('\n');
+    
+    for (const line of lines) {
+      // Format ps aux: USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
+      const parts = line.trim().split(/\s+/);
+      
+      if (parts.length >= 11) {
+        const user = parts[0];
+        const pid = parseInt(parts[1]);
+        const cpu = parseFloat(parts[2]);
+        const mem = parseFloat(parts[3]);
+        // Le nom du processus est le dernier élément (COMMAND)
+        // mais il peut contenir des espaces, donc on prend à partir du 10ème élément
+        const name = parts.slice(10).join(' ') || 'unknown';
+        
+        if (!isNaN(pid) && !isNaN(cpu) && !isNaN(mem)) {
+          processes.push({
+            pid,
+            name: name.length > 30 ? name.substring(0, 30) + '...' : name,
+            cpu: parseFloat(cpu.toFixed(1)),
+            mem: parseFloat(mem.toFixed(1)),
+            user,
+          });
+        }
+      }
+    }
+    
+    return processes;
+  } catch (error) {
+    console.warn('⚠️ Commande ps non disponible :', error.message);
+    return null;
+  }
+}
+
+/**
+ * Récupère les processus les plus consommateurs via systeminformation
+ * @param {number} limit - Nombre de processus à retourner
+ * @returns {Promise<Array>} - Liste des processus
+ */
+async function getTopProcessesFromSI(limit = 5) {
+  try {
+    // Récupérer les processus sans option percent
+    const result = await si.processes();
     
     // Vérifier si on a bien un objet avec la propriété list
     const processes = result.list || result || [];
     
     if (!Array.isArray(processes) || processes.length === 0) {
-      console.warn('⚠️ Aucun processus retourné. Vérifiez les permissions (root ou cap_sys_ptrace).');
-      console.warn('   Result:', result);
+      console.warn('⚠️ Aucun processus retourné par systeminformation.');
       return [];
     }
+    
+    // Récupérer les métriques système pour calculer les pourcentages
+    const [cpuData, memData] = await Promise.all([
+      si.cpu(),
+      si.mem(),
+    ]);
     
     return processes
       .filter(p => p && p.pid && p.name && p.cpu !== undefined) // Filtrer les processus valides
       .sort((a, b) => (b.cpu || 0) - (a.cpu || 0)) // Tri par CPU (décroissant)
       .slice(0, limit)
       .map(p => {
-        // Avec {percent: true}, cpu et mem devraient déjà être en pourcentage (0-100)
-        // Mais on normalise pour être sûr (compatibilité avec d'anciennes versions)
+        // systeminformation peut retourner cpu en ticks ou en % selon la version
+        // On normalise pour obtenir un pourcentage (0-100)
         let cpuValue = p.cpu !== undefined && p.cpu !== null ? p.cpu : 0;
         let memValue = p.mem !== undefined && p.mem !== null ? p.mem : 0;
         
         // Si la valeur est entre 0 et 1 (fraction), la convertir en pourcentage
-        // Note: avec percent:true, cela ne devrait pas arriver, mais on garde pour sécurité
-        if (cpuValue >= 0 && cpuValue <= 1) cpuValue *= 100;
-        if (memValue >= 0 && memValue <= 1) memValue *= 100;
+        if (cpuValue >= 0 && cpuValue <= 1) {
+          cpuValue *= 100;
+        }
+        // Si la valeur semble être en ticks (très élevée), on la limite
+        if (cpuValue > 100) {
+          cpuValue = Math.min(cpuValue, 100);
+        }
+        
+        // Pour la mémoire : si c'est en bytes, convertir en % de la mémoire totale
+        if (memData && memData.total && memValue > 1) {
+          memValue = (memValue / memData.total) * 100;
+        } else if (memValue >= 0 && memValue <= 1) {
+          memValue *= 100;
+        }
         
         // Limiter à 0-100 pour éviter les valeurs aberrantes
         cpuValue = Math.max(0, Math.min(100, cpuValue));
@@ -334,6 +410,28 @@ async function getTopProcesses(limit = 5) {
           user: p.user || 'unknown',
         };
       });
+  } catch (error) {
+    console.error('❌ Erreur avec systeminformation.processes :', error.message);
+    return [];
+  }
+}
+
+/**
+ * Récupère les processus les plus consommateurs
+ * @param {number} limit - Nombre de processus à retourner (par défaut 5)
+ * @returns {Promise<Array>} - Liste des processus triés par consommation CPU
+ */
+async function getTopProcesses(limit = 5) {
+  try {
+    // Essayer d'abord avec la commande ps (plus fiable et donne directement les %)
+    const processesFromPS = await getTopProcessesFromPS(limit);
+    if (processesFromPS && processesFromPS.length > 0) {
+      return processesFromPS;
+    }
+    
+    // Fallback sur systeminformation
+    console.warn('💡 Utilisation de systeminformation comme fallback pour les processus');
+    return await getTopProcessesFromSI(limit);
   } catch (error) {
     console.error('❌ Erreur processus :', error.message);
     console.warn('💡 Pour activer la surveillance des processus :');
