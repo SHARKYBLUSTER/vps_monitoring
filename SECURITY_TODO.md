@@ -2,7 +2,8 @@
 
 **Version:** 0.5.0  
 **Date:** 30/06/2026  
-**Priorité:** CRITIQUE - À traiter avant tout déploiement en production
+**Priorité:** CRITIQUE - À traiter avant tout déploiement en production  
+**Statut:** Phase 1 terminée ✅ | Phase 2 en cours
 
 ---
 
@@ -20,58 +21,70 @@
 
 ### 🔹 Authentification
 
-- [ ] **Changer le mot de passe admin par défaut**
-  - [ ] Générer un mot de passe fort: `node -e "console.log(require('crypto').randomBytes(24).toString('base64'))"`
-  - [ ] Mettre à jour `.env` ligne 24: `ADMIN_PASSWORD=VotreMotDePasseComplexeEtLongIci`
-  - [ ] Supprimer le mot de passe par défaut dans `backend/middleware/auth.js` ligne 18
+- [x] **Changer le mot de passe admin par défaut** ✅
+  - [x] Générer un mot de passe fort: `node -e "console.log(require('crypto').randomBytes(24).toString('base64'))"`
+  - [x] Mettre à jour `.env` ligne 24: `ADMIN_PASSWORD=MYo+xLiceE7rMUazl/OJ6IAgGEUHhMmY`
+  - [x] Supprimer le mot de passe par défaut dans `backend/middleware/auth.js` ligne 18
+  - [x] Ajouter vérification stricte (erreur si non défini)
   - **Fichier:** `.env`, `backend/middleware/auth.js`
   - **Priorité:** CRITIQUE ⭐⭐⭐⭐⭐
   - **Effort:** 5 min
+  - **Commit:** f405a19
 
-- [ ] **Supprimer la clé de session par défaut**
-  - [ ] Supprimer la valeur par défaut dans `backend/app.js` ligne 64
-  - [ ] Garder seulement: `secret: process.env.SESSION_SECRET`
+- [x] **Supprimer la clé de session par défaut** ✅
+  - [x] Supprimer la valeur par défaut dans `backend/app.js` ligne 64
+  - [x] Garder seulement: `secret: process.env.SESSION_SECRET`
+  - [x] Ajouter vérification stricte (erreur si non défini)
   - **Fichier:** `backend/app.js:64`
   - **Priorité:** CRITIQUE ⭐⭐⭐⭐⭐
   - **Effort:** 2 min
+  - **Commit:** f405a19
 
-- [ ] **Sécuriser l'endpoint `/api/history/clear-all`**
-  - [ ] Ajouter une confirmation explicite côté serveur
-  - [ ] Exiger un paramètre `confirm=DELETE_ALL_DATA`
-  - [ ] Limiter aux administrateurs (déjà authentifié, mais ajouter vérification supplémentaire)
-  - **Fichier:** `backend/app.js:617-668`
+- [x] **Sécuriser l'endpoint `/api/history/clear-all`** ✅
+  - [x] Ajouter middleware `requireApiAuth`
+  - [x] Ajouter confirmation explicite côté serveur
+  - [x] Exiger un paramètre `confirm=DELETE_ALL_DATA`
+  - [x] Limiter aux administrateurs (vérification `req.session.username`)
+  - **Fichier:** `backend/app.js:620-630`
   - **Priorité:** CRITIQUE ⭐⭐⭐⭐⭐
   - **Effort:** 10 min
+  - **Commit:** f405a19
 
 ### 🔹 CORS
 
-- [ ] **Remplacer le middleware CORS permissif**
-  - [ ] Créer une liste blanche des origines autorisées
-  - [ ] Utiliser `ALLOWED_ORIGINS` dans `.env`
-  - [ ] Supprimer la logique basée sur `req.headers.origin`
-  - **Fichier:** `backend/app.js:77-123`
+- [x] **Remplacer le middleware CORS permissif** ✅
+  - [x] Créer une liste blanche des origines autorisées
+  - [x] Utiliser `ALLOWED_ORIGINS` dans `.env`
+  - [x] Supprimer la logique basée sur `req.headers.origin`
+  - [x] Ajouter vérification stricte (erreur si `ALLOWED_ORIGINS` non défini)
+  - **Fichier:** `backend/app.js:79-107`
   - **Priorité:** CRITIQUE ⭐⭐⭐⭐⭐
   - **Effort:** 20 min
+  - **Commit:** 89c1a8d
   - **Exemple:**
     ```javascript
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'];
+    const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
     ```
 
 ### 🔹 Injection de Commande
 
-- [ ] **Corriger `getPortsFromSS`**
-  - [ ] Remplacer `exec` par `execFile`
-  - [ ] Valider les paramètres
+- [x] **Corriger `getPortsFromSS`** ✅
+  - [x] Remplacer `exec` par `execFile`
+  - [x] Utiliser des arguments séparés : `execFile('ss', ['-tlnp'], ...)`
+  - [x] Ajouter timeout de 5000ms
   - **Fichier:** `backend/services/metrics.js:290-341`
   - **Priorité:** HAUT ⭐⭐⭐⭐
   - **Effort:** 15 min
+  - **Commit:** 567520b
 
-- [ ] **Corriger `getTopProcessesFromPS`**
-  - [ ] Valider strictement le paramètre `limit`
-  - [ ] Utiliser `execFile` au lieu de `exec`
+- [x] **Corriger `getTopProcessesFromPS`** ✅
+  - [x] Valider strictement le paramètre `limit` (entier entre 1 et 100)
+  - [x] Utiliser `execFile` au lieu de `exec`
+  - [x] Appliquer la limite après exécution (pas dans la commande shell)
   - **Fichier:** `backend/services/metrics.js:363-402`
   - **Priorité:** HAUT ⭐⭐⭐⭐
   - **Effort:** 15 min
+  - **Commit:** 567520b
 
 ---
 
@@ -103,19 +116,28 @@
   - **Priorité:** MOYEN ⭐⭐⭐
   - **Effort:** 5 min
 
-- [ ] **Protéger `/api/config` avec authentification**
-  - [ ] Ajouter `requireApiAuth` middleware
+- [x] **Protéger `/api/config` avec authentification** ✅
+  - [x] Le middleware `app.use('/api/*', requireApiAuth)` (ligne 182) protège déjà `/api/config`
   - **Fichier:** `backend/app.js:135`
   - **Priorité:** MOYEN ⭐⭐⭐
   - **Effort:** 2 min
+  - **Commit:** f405a19
+
+- [x] **Corriger `/api/user` pour supprimer le fallback admin** ✅
+  - [x] Supprimer `|| 'admin'` dans la réponse
+  - **Fichier:** `backend/app.js:171`
+  - **Priorité:** MOYEN ⭐⭐⭐
+  - **Effort:** 2 min
+  - **Commit:** f405a19
 
 ### 🔹 Frontend
 
-- [ ] **Supprimer l'affichage des identifiants par défaut dans `login.html`**
-  - [ ] Remplacer par un message générique
+- [x] **Supprimer l'affichage des identifiants par défaut dans `login.html`** ✅
+  - [x] Supprimer le bloc `<div class="credentials-info">`
   - **Fichier:** `frontend/login.html:212-218`
   - **Priorité:** MOYEN ⭐⭐⭐
   - **Effort:** 5 min
+  - **Commit:** bddaeaf
 
 - [ ] **Échapper les données dynamiques dans le frontend**
   - [ ] Créer une fonction `escapeHtml()`
@@ -211,17 +233,20 @@
 
 ### 🔹 Configuration
 
-- [ ] **Ajouter `ALLOWED_ORIGINS` dans `.env.example`**
-  - [ ] Documenter le format (comma-separated list)
+- [x] **Ajouter `ALLOWED_ORIGINS` dans `.env.example`** ✅
+  - [x] Documenter le format (comma-separated list)
+  - [x] Ajouter exemple clair
   - **Fichier:** `.env.example`
   - **Priorité:** BAS ⭐⭐
   - **Effort:** 2 min
+  - **Commit:** 89c1a8d
 
-- [ ] **Vérifier que `.env` est dans `.gitignore`**
-  - [ ] Confirmer que `.env` n'est pas versionné
+- [x] **Vérifier que `.env` est dans `.gitignore`** ✅
+  - [x] `.env` est bien dans `.gitignore` (vérifié)
   - **Fichier:** `.gitignore`
   - **Priorité:** CRITIQUE ⭐⭐⭐⭐⭐
   - **Effort:** 1 min
+  - **Statut:** Déjà en place
 
 ### 🔹 Dépendances
 
@@ -244,10 +269,26 @@
 
 ## ✅ Tâches Complétées
 
-- [ ] Rapport d'audit initial terminé ✅
-- [ ] Analyse complète du code ✅
-- [ ] Identification des vulnérabilités ✅
-- [ ] Créer ce fichier TODO ✅
+### 🎯 **Phase 1: Corrections Critiques** (6/6)
+- [x] Rapport d'audit initial terminé ✅
+- [x] Analyse complète du code ✅
+- [x] Identification des vulnérabilités ✅
+- [x] Créer ce fichier TODO ✅
+- [x] Changer le mot de passe admin par défaut ✅
+- [x] Supprimer la clé de session par défaut ✅
+- [x] Sécuriser l'endpoint `/api/history/clear-all` ✅
+- [x] Remplacer le middleware CORS permissif ✅
+- [x] Corriger `getPortsFromSS` (injection de commande) ✅
+- [x] Corriger `getTopProcessesFromPS` (injection de commande) ✅
+
+### 🟡 **Phase 2: Sécurité Moyenne** (4/9)
+- [x] Supprimer l'affichage des identifiants par défaut dans `login.html` ✅
+- [x] Protéger `/api/config` avec authentification ✅
+- [x] Corriger `/api/user` pour supprimer le fallback admin ✅
+- [x] Ajouter `ALLOWED_ORIGINS` dans `.env.example` ✅
+
+### 🟢 **Phase 3: Bonnes Pratiques** (1/7)
+- [x] Vérifier que `.env` est dans `.gitignore` ✅
 
 ---
 
@@ -255,29 +296,33 @@
 
 | Catégorie | Total | Complétés | En Cours | Restants |
 |----------|-------|-----------|----------|----------|
-| 🔴 Critique | 6 | 0 | 0 | 6 |
-| 🟡 Moyen | 9 | 0 | 0 | 9 |
+| 🔴 Critique | 6 | 6 | 0 | 0 |
+| 🟡 Moyen | 9 | 4 | 0 | 5 |
 | 🟠 Performance | 7 | 0 | 0 | 7 |
-| 🟢 Bonnes Pratiques | 7 | 0 | 0 | 7 |
-| **Total** | **29** | **0** | **0** | **29** |
+| 🟢 Bonnes Pratiques | 7 | 1 | 0 | 6 |
+| **Total** | **29** | **11** | **0** | **18** |
 
 ---
 
 ## 🎯 Roadmap
 
-### Phase 1: Corrections Critiques (0/6 tâches)
+### ✅ Phase 1: Corrections Critiques (6/6 tâches) **TERMINÉE**
 - **Objectif:** Sécuriser les vulnérabilités les plus dangereuses
 - **Durée estimée:** 1 heure
-- **Priorité:** À faire **IMMÉDIATEMENT**
+- **Durée réelle:** ~1h30
+- **Priorité:** ✅ **FAIT**
+- **Commits:** f405a19, 89c1a8d, bddaeaf, 567520b
 
-### Phase 2: Sécurité Moyenne (0/9 tâches)
+### 🟡 Phase 2: Sécurité Moyenne (4/9 tâches) **EN COURS**
 - **Objectif:** Renforcer la sécurité globale
 - **Durée estimée:** 2-3 heures
+- **Tâches restantes:** 5
 - **Priorité:** À faire cette semaine
 
-### Phase 3: Performance et Bonnes Pratiques (0/14 tâches)
+### ⏳ Phase 3: Performance et Bonnes Pratiques (1/14 tâches)
 - **Objectif:** Optimiser et améliorer la qualité du code
 - **Durée estimée:** 2-4 heures
+- **Tâches restantes:** 13
 - **Priorité:** À faire dans le mois
 
 ---
@@ -302,4 +347,5 @@ Si vous avez besoin d'aide pour implémenter une correction spécifique, mention
 ---
 
 **Dernière mise à jour:** 30/06/2026  
-**Prochaine révision:** Après mise en place des corrections critiques
+**Prochaine révision:** Après mise en place des corrections moyennes  
+**Commits liés:** f405a19, 89c1a8d, bddaeaf, 567520b
