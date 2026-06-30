@@ -13,7 +13,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## ✅ **État Actuel (v0.4.0)**
 - **Fonctionnalités implémentées** :
   - Surveillance en temps réel (CPU, RAM, disque, réseau, processus).
-  - API REST avec 17+ endpoints (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/processes`, `/api/ports`, `/api/config`, etc.).
+  - API REST avec 19+ endpoints (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/processes`, `/api/ports`, `/api/config`, `/api/docker-simple`, `/api/docker-detailed`, etc.).
   - Alertes configurables (seuils CPU/RAM/disque).
   - Historique des métriques (stockage **SQLite**).
   - Surveillance des ports ouverts et classification des services (25+ ports connus).
@@ -21,12 +21,14 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
   - **Authentification complète** : Page de login, gestion des sessions, protection de toutes les routes.
   - **Mode sombre** : Thème alternatif avec persistance via localStorage, appliqué de manière cohérente sur toutes les pages.
   - **Graphiques interactifs** : 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période, affichage complet des 24h.
-  - **Surveillance Docker** : Statut Docker Engine, liste des conteneurs, stats par conteneur.
+  - **Surveillance Docker** : Statut Docker Engine, liste des conteneurs avec détails (nom, ID, image, état, ports, date), stats par conteneur.
+  - **Surveillance des images Docker** : Liste complète avec nom:tag, ID, taille, date de création, compteur d'images sans tag (untagged).
   - **Menu de configuration** : Interface complète pour paramétrer l'application.
   - **Gestion des données** : Paramétrage de l'intervalle de collecte, de la rétention (1-24 mois), et bouton d'effacement total.
   - **Décalage horaire** : Paramétrage du décalage UTC pour ajuster l'affichage des graphiques historiques.
   - **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard.
   - **Support multi-langues** : Système i18n complet avec Français et Anglais, sélecteur de langue dans le header.
+  - **Favicon personnalisé** : Loupe avec centre bleu et manche noir sur toutes les pages.
 
 - **Stack technique** :
   - Backend : Node.js + Express
@@ -128,9 +130,9 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📊 **Métriques de Succès**
 | Métrique | Objectif | Statut |
 |----------|----------|--------|
-| **Endpoints API** | 10+ | ✅ **17+/17** (avec authentification + config) |
+| **Endpoints API** | 10+ | ✅ **19+/19** (avec authentification + config + Docker détaillé) |
 | **Stockage historique** | Fonctionnel | ✅ **SQLite** (remplace JSON) |
-| **Surveillance Docker** | Implémentée | ✅ **Partielle** (Docker Engine + conteneurs) |
+| **Surveillance Docker** | Implémentée | ✅ **Complète** (Docker Engine + conteneurs + images + détails étendus) |
 | **Authentification** | Complète | ✅ **100%** (sessions + middleware) |
 | **Graphiques** | 4 graphiques | ✅ **100%** (CPU, RAM, Disque, Réseau) |
 | **Mode sombre** | Implémenté | ✅ **100%** (intégré dans menu config) |
@@ -146,7 +148,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📝 Changelog des Versions
 
 ### Version 0.4.0 - 30 juin 2026
-**Menu de configuration, gestion des données, décalage horaire, visibilité Docker, support multi-langues, support Docker complet, configuration des seuils d'alerte et notifications Telegram**
+**Menu de configuration, gestion des données, décalage horaire, visibilité Docker, support multi-langues, support Docker complet, configuration des seuils d'alerte, notifications Telegram, détails Docker avancés, favicon personnalisé**
 - ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
 - ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
 - ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
@@ -155,20 +157,23 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - ✅ **Style unifié** : Cohérence des boutons (logout, configuration) et ajout d'icônes
 - ✅ **Rechargement automatique** : La page se recharge après effacement pour afficher les changements
 - ✅ **Corrections de bugs** : Résolution des problèmes d'affichage des processus et ports
-- ✅ **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau
-- ✅ **Thème cohérent** : Suppression du bouton de basculement de la page login, application automatique du thème depuis la configuration globale
+- ✅ **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour, agrégation par 30 minutes avec 48 points, format HH:MM
+- ✅ **Thème cohérent** : Application automatique du thème sur toutes les pages (dashboard, login, config)
 - ✅ **Décalage horaire** : Ajout du paramètre UTC Heure locale pour ajuster les abscisses des graphiques historiques
 - ✅ **Visibilité Docker Engine** : Bouton pour afficher/masquer la carte Docker Engine avec rechargement automatique
 - ✅ **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections
-- ✅ **Suppression des emojis** : Retrait des emojis (🔧,🕐,🌙,⏰,💾,✕) de la modale de configuration pour une interface plus épurée
-- ✅ **Labels graphiques nettoyés** : Suppression des mots "Heure" et "Jour" sous les abscisses des graphiques historiques
-- ✅ **Support Docker complet** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé avec accès aux métriques système globales (mode host + privileged)
-- ✅ **Correction Docker Engine sous Docker** : Remplacement de child_process par dockerode pour la détection Docker dans les containers, permettant l'affichage de la carte Docker Engine sous Docker
-- ✅ **Correction Top 5 Processes** : Utilisation de `ps aux` au lieu de systeminformation.processes() pour obtenir directement les pourcentages CPU/MEM, ajout de procps au Dockerfile pour Alpine
-- ✅ **Configuration des seuils d'alerte** : Ajout des champs CPU/RAM/Disque dans la modale de configuration, avec validation et application immédiate
-- ✅ **Notifications Telegram** : Intégration d'un bot Telegram pour recevoir les alertes en temps réel, avec cooldown et notification de résolution
-- ✅ **Configuration Telegram via UI** : Paramétrage complet du bot Telegram (token, chat ID, cooldown, notification de résolution) directement depuis la modale de configuration
-- ✅ **Bouton de test Telegram** : Bouton intégré dans la modale pour envoyer un message test et vérifier la configuration
+- ✅ **Suppression des emojis** : Retrait des emojis de la modale de configuration pour une interface plus épurée
+- ✅ **Labels graphiques nettoyés** : Suppression des mots "Heure" et "Jour" sous les abscisses
+- ✅ **Support Docker complet** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé
+- ✅ **Correction Docker Engine sous Docker** : Remplacement de child_process par dockerode pour la détection Docker dans les containers
+- ✅ **Correction Top 5 Processes** : Utilisation de `ps aux` pour les pourcentages CPU/MEM, ajout de procps au Dockerfile
+- ✅ **Configuration des seuils d'alerte** : Ajout des champs CPU/RAM/Disque dans la modale, validation et application immédiate
+- ✅ **Notifications Telegram** : Intégration d'un bot Telegram pour les alertes en temps réel, avec cooldown et notification de résolution
+- ✅ **Configuration Telegram via UI** : Paramétrage complet (token, chat ID, cooldown, notification de résolution) depuis la modale
+- ✅ **Bouton de test Telegram** : Bouton intégré pour envoyer un message test et vérifier la configuration
+- ✅ **Détails Docker avancés** : **Nouveau** : Endpoint `/api/docker-detailed` pour récupérer conteneurs (nom, ID, image, état, ports, date, commande) et images (nom:tag, ID, taille, date). Stats étendues : conteneurs (running/stopped/paused/total) et images (total/taille/untagged). Bouton toggle pour afficher/masquer les tableaux détaillés.
+- ✅ **Favicon personnalisé** : Ajout d'une loupe avec centre bleu (#3A86FF) et manche noir comme favicon sur toutes les pages (dashboard, login)
+- ✅ **Corrections Docker** : Fix des tailles (Size au lieu de VirtualSize), fix des timestamps (secondes → millisecondes), fix des ports (gestion des formats array/object), affichage des ports exposés (ExposedPorts) quand les ports publiés sont vides
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -204,4 +209,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte et notifications Telegram via la modale**, **bouton de test Telegram intégré**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte et notifications Telegram via la modale**, **bouton de test Telegram intégré**, **détails Docker avancés avec conteneurs et images**, **favicon personnalisé**, **corrections des ports et dates Docker**).*
