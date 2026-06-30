@@ -149,8 +149,8 @@ app.get('/api/config', (req, res) => {
         alerts: config.alerts,
         telegram: {
           enabled: config.telegram.enabled,
-          botToken: config.telegram.botToken || '',
-          chatId: config.telegram.chatId || '',
+          botToken: config.telegram.botToken ? '***REDACTED***' : '',
+          chatId: config.telegram.chatId ? '***REDACTED***' : '',
           cooldownMinutes: config.telegram.cooldownMinutes,
           notifyResolution: config.telegram.notifyResolution
         }
@@ -414,8 +414,8 @@ app.post('/api/config', (req, res) => {
         },
         telegram: {
           enabled: config.telegram.enabled,
-          botToken: config.telegram.botToken ? '***' : '',
-          chatId: config.telegram.chatId ? '***' : '',
+          botToken: config.telegram.botToken ? '***REDACTED***' : '',
+          chatId: config.telegram.chatId ? '***REDACTED***' : '',
           cooldownMinutes: config.telegram.cooldownMinutes,
           notifyResolution: config.telegram.notifyResolution
         }
