@@ -49,6 +49,7 @@
 - **Visibilité Docker Engine** : Option pour afficher ou masquer la section Docker du dashboard
 - **Multi-langues** : Sélecteur de langue (Français/Anglais) avec persistance via localStorage
 - **Seuils d'alerte** : Configuration des seuils CPU/RAM/Disque directement depuis la modale de configuration
+- **Notifications Telegram** : Configuration complète (token, chat ID, cooldown) avec bouton de test intégré dans la modale
 
 ### 🔍 **Surveillance avancée**
 - **Top 5 processus** : Identification des processus les plus gourmands
@@ -612,4 +613,4 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 
 ---
 
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte via la modale**, **notifications Telegram**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte et notifications Telegram via la modale**, **bouton de test Telegram intégré**).*

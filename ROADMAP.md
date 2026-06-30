@@ -137,6 +137,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | **Menu de configuration** | Fonctionnel | ✅ **100%** (v0.4.0) |
 | **Gestion des données** | Complète | ✅ **100%** (rétention + effacement) |
 | **Multi-langues** | Français/Anglais | ✅ **100%** (i18n complet) |
+| **Notifications Telegram** | Fonctionnelle | ✅ **100%** (via modale avec bouton de test) |
 | **Couverture des tests** | > 80% | ❌ 0% |
 | **Temps de réponse API** | < 200ms | ❌ Non mesuré |
 
@@ -166,6 +167,8 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - ✅ **Correction Top 5 Processes** : Utilisation de `ps aux` au lieu de systeminformation.processes() pour obtenir directement les pourcentages CPU/MEM, ajout de procps au Dockerfile pour Alpine
 - ✅ **Configuration des seuils d'alerte** : Ajout des champs CPU/RAM/Disque dans la modale de configuration, avec validation et application immédiate
 - ✅ **Notifications Telegram** : Intégration d'un bot Telegram pour recevoir les alertes en temps réel, avec cooldown et notification de résolution
+- ✅ **Configuration Telegram via UI** : Paramétrage complet du bot Telegram (token, chat ID, cooldown, notification de résolution) directement depuis la modale de configuration
+- ✅ **Bouton de test Telegram** : Bouton intégré dans la modale pour envoyer un message test et vérifier la configuration
 
 ### Version 0.3.0 - 27 juin 2026
 **Mode sombre + Graphiques améliorés**
@@ -201,4 +204,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte via la modale**, **notifications Telegram**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte et notifications Telegram via la modale**, **bouton de test Telegram intégré**).*
