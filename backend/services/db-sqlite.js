@@ -469,19 +469,19 @@ function getNetworkHistory(options = {}) {
 
   let query, groupBy;
   
-  // Pour la période 'day', on regroupe par heure pour plus de détails
+  // Pour la période 'day', on regroupe par tranches de 30 minutes
   if (period === 'day') {
-    groupBy = "strftime('%Y-%m-%d %H:00', timestamp)";
     query = `
       SELECT 
-        ${groupBy} as date,
+        datetime(CAST(strftime('%s', timestamp) / 1800 AS INTEGER) * 1800, 'unixepoch') as date,
         AVG(network_download) as download,
         AVG(network_upload) as upload,
         COUNT(*) as count
       FROM metrics
       WHERE timestamp >= datetime(?, 'utc')
-      GROUP BY ${groupBy}
+      GROUP BY CAST(strftime('%s', timestamp) / 1800 AS INTEGER)
       ORDER BY date
+      LIMIT 48
     `;
   } else {
     // Pour les autres périodes, on regroupe par jour
