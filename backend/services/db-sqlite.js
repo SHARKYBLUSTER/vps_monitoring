@@ -237,17 +237,20 @@ function getMetricChartData(metric, options = {}) {
 
   const startDateStr = formatDateForSQLite(startDate);
 
-  // Pour le filtre "jour", on retourne toutes les données brutes
+  // Pour le filtre "jour", on agrège par tranches de 30 minutes avec MAX (48 points = 24h)
   // Pour semaine/mois, on agrège par jour avec la valeur MAX
   if (period === 'day') {
     const query = `
-      SELECT timestamp, ${columnMap[metric]} as value
+      SELECT 
+        datetime(CAST(strftime('%s', timestamp) / 1800 AS INTEGER) * 1800, 'unixepoch') as timestamp,
+        MAX(${columnMap[metric]}) as value
       FROM metrics
       WHERE timestamp >= datetime(?, 'utc')
+      GROUP BY CAST(strftime('%s', timestamp) / 1800 AS INTEGER)
       ORDER BY timestamp
       LIMIT ?
     `;
-    return db.prepare(query).all(startDateStr, limit);
+    return db.prepare(query).all(startDateStr, 48);
   } else {
     // Pour semaine/mois : regrouper par jour et prendre le MAX
     const groupFormat = "strftime('%Y-%m-%d', timestamp)";
