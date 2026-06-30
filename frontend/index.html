@@ -1208,6 +1208,150 @@
     .dark-mode #language-select option:checked {
       background: #212529;
     }
+
+    /* ==================== STYLES DOCKER DETAILS ==================== */
+    /* Bouton toggle pour les détails Docker */
+    .toggle-details-btn {
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      color: var(--card-text);
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      width: 100%;
+    }
+
+    .toggle-details-btn:hover {
+      background: var(--table-hover);
+      transform: scale(1.02);
+    }
+
+    .dark-mode .toggle-details-btn {
+      background: var(--table-header-bg);
+      border-color: var(--table-border);
+      color: var(--text-primary);
+    }
+
+    .dark-mode .toggle-details-btn:hover {
+      background: var(--table-hover);
+    }
+
+    /* Sections de détails Docker */
+    .docker-details-section {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px var(--shadow-color);
+    }
+
+    .docker-details-section h3 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      color: var(--card-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Tableaux Docker */
+    .docker-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .docker-table th,
+    .docker-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--table-border);
+    }
+
+    .docker-table th {
+      background: var(--table-header-bg);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--card-text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .docker-table tr:hover {
+      background: var(--table-hover);
+    }
+
+    .docker-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .dark-mode .docker-table th {
+      background: var(--table-header-bg);
+      color: var(--text-primary);
+    }
+
+    .dark-mode .docker-table td {
+      border-bottom-color: var(--table-border);
+    }
+
+    .dark-mode .docker-table tr:hover {
+      background: var(--table-hover);
+    }
+
+    /* Badges d'état pour les conteneurs */
+    .state-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .state-badge.running {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .state-badge.stopped {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .state-badge.paused {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .state-badge.restarting {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .dark-mode .state-badge.running {
+      background: #1d3a2e;
+      color: #a3e6b2;
+    }
+
+    .dark-mode .state-badge.stopped {
+      background: #491d25;
+      color: #f5a9b8;
+    }
+
+    .dark-mode .state-badge.paused {
+      background: #4a3c1a;
+      color: #ffeaa7;
+    }
+
+    .dark-mode .state-badge.restarting {
+      background: #1d2c33;
+      color: #89cff0;
+    }
     </style>
   <!-- Font Awesome CDN pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
@@ -1441,6 +1585,70 @@
           <i class="fas fa-cubes" style="font-size: 2rem; margin-bottom: 10px;"></i>
           <div class="stat-value" id="docker-total" style="font-size: 2rem; font-weight: bold;">0</div>
           <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="sections.total"></div>
+        </div>
+      </div>
+      <!-- Stats Images Docker -->
+      <div class="stats-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+        <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <i class="fas fa-layer-group" style="font-size: 2rem; margin-bottom: 10px;"></i>
+          <div class="stat-value" id="docker-images-total" style="font-size: 2rem; font-weight: bold;">0</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="docker.total_images"></div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <i class="fas fa-database" style="font-size: 2rem; margin-bottom: 10px;"></i>
+          <div class="stat-value" id="docker-images-size" style="font-size: 2rem; font-weight: bold;">0</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="docker.total_size"></div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <i class="fas fa-trash-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+          <div class="stat-value" id="docker-images-dangling" style="font-size: 2rem; font-weight: bold;">0</div>
+          <div class="stat-label" style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;" data-i18n="docker.dangling_images"></div>
+        </div>
+      </div>
+      <!-- Bouton pour afficher/masquer les détails -->
+      <button id="toggle-docker-details" class="toggle-details-btn" style="margin-top: 15px; width: 100%;">
+        <i class="fas fa-chevron-down"></i> <span data-i18n="docker.show_details"></span>
+      </button>
+      
+      <!-- Section détails conteneurs (masquée par défaut) -->
+      <div class="docker-details-section" id="docker-containers-details" style="display: none; margin-top: 15px;">
+        <h3><i class="fas fa-box-open"></i> <span data-i18n="docker.containers_list"></span></h3>
+        <div class="table-container" style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
+          <table class="docker-table">
+            <thead>
+              <tr>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.container_name"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.container_id"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.image"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.state"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.ports"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.created"></th>
+              </tr>
+            </thead>
+            <tbody id="containers-list">
+              <tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-secondary);" data-i18n="common.loading"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Section détails images (masquée par défaut) -->
+      <div class="docker-details-section" id="docker-images-details" style="display: none; margin-top: 15px;">
+        <h3><i class="fas fa-layer-group"></i> <span data-i18n="docker.images_list"></span></h3>
+        <div class="table-container" style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
+          <table class="docker-table">
+            <thead>
+              <tr>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.image_name"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.image_id"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.image_size"></th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--table-border);" data-i18n="docker.created"></th>
+              </tr>
+            </thead>
+            <tbody id="images-list">
+              <tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-secondary);" data-i18n="common.loading"></td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -2109,13 +2317,26 @@
     // Fonction pour mettre à jour les infos Docker
     async function updateDockerInfo() {
       try {
-        const response = await fetch('/api/docker-simple', { credentials: 'include' });
+        const response = await fetch('/api/docker-detailed', { credentials: 'include' });
         const data = await response.json();
         if (data.success && data.data) {
           const info = data.data;
-          document.getElementById('docker-running').textContent = info.running || 0;
-          document.getElementById('docker-stopped').textContent = info.stopped || 0;
-          document.getElementById('docker-total').textContent = info.total || 0;
+          
+          // Mettre à jour les stats conteneurs existantes
+          document.getElementById('docker-running').textContent = info.containers.running || 0;
+          document.getElementById('docker-stopped').textContent = info.containers.stopped || 0;
+          document.getElementById('docker-total').textContent = info.containers.total || 0;
+          
+          // NOUVEAU : Mettre à jour les stats images
+          if (info.images) {
+            document.getElementById('docker-images-total').textContent = info.images.total || 0;
+            document.getElementById('docker-images-dangling').textContent = info.images.dangling || 0;
+            
+            // Formater la taille totale (convertir en GB/MB/KB)
+            const totalSize = info.images.totalSize || 0;
+            document.getElementById('docker-images-size').textContent = formatBytesDocker(totalSize);
+          }
+          
           if (!info.available) {
             document.getElementById('docker-section').style.display = 'none';
           }
@@ -2124,6 +2345,109 @@
         }
       } catch (error) {
         document.getElementById('docker-section').style.display = 'none';
+      }
+    }
+
+    // Fonction spécifique pour formater les bytes pour Docker (plus lisible)
+    function formatBytesDocker(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // NOUVEAU : Stocker les données Docker détaillées pour les tableaux
+    let dockerDetailedData = null;
+
+    // NOUVEAU : Rendre le tableau des conteneurs
+    function renderContainersTable(containers) {
+      const tbody = document.getElementById('containers-list');
+      if (!tbody) return;
+
+      if (!containers || containers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-secondary);" data-i18n="docker.no_containers"></td></tr>`;
+        return;
+      }
+
+      // Limiter à 50 conteneurs pour éviter de surcharger l'interface
+      const limitedContainers = containers.slice(0, 50);
+      
+      tbody.innerHTML = limitedContainers.map(container => {
+        const stateClass = container.state.toLowerCase();
+        const stateText = window.i18n ? window.i18n.t(`docker.${stateClass}_state`) || container.state : container.state;
+        const createdDate = container.created ? new Date(container.created).toLocaleString() : '-';
+        
+        return `
+          <tr>
+            <td><strong>${escapeHtml(container.name)}</strong></td>
+            <td><code>${container.id}</code></td>
+            <td>${escapeHtml(container.image)}</td>
+            <td><span class="state-badge ${stateClass}">${stateText}</span></td>
+            <td>${escapeHtml(container.ports) || '-'}</td>
+            <td>${createdDate}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // NOUVEAU : Rendre le tableau des images
+    function renderImagesTable(images) {
+      const tbody = document.getElementById('images-list');
+      if (!tbody) return;
+
+      if (!images || images.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-secondary);" data-i18n="docker.no_images"></td></tr>`;
+        return;
+      }
+
+      // Limiter à 50 images pour éviter de surcharger l'interface
+      const limitedImages = images.slice(0, 50);
+      
+      tbody.innerHTML = limitedImages.map(image => {
+        const name = image.repoTags && image.repoTags.length > 0 ? image.repoTags.join(', ') : '<none>';
+        const size = formatBytesDocker(image.size || 0);
+        const createdDate = image.created ? new Date(image.created).toLocaleString() : '-';
+        
+        return `
+          <tr>
+            <td><strong>${escapeHtml(name)}</strong></td>
+            <td><code>${image.id}</code></td>
+            <td>${size}</td>
+            <td>${createdDate}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // NOUVEAU : Fonction pour échapper le HTML
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // NOUVEAU : Mettre à jour les détails Docker complets (avec stockage des données)
+    async function updateDockerDetailedData() {
+      try {
+        const response = await fetch('/api/docker-detailed', { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          dockerDetailedData = data.data;
+          
+          // Rendre les tableaux avec les données détaillées
+          if (dockerDetailedData.containers && dockerDetailedData.containers.details) {
+            renderContainersTable(dockerDetailedData.containers.details);
+          }
+          
+          if (dockerDetailedData.images && dockerDetailedData.images.details) {
+            renderImagesTable(dockerDetailedData.images.details);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des détails Docker:', error);
       }
     }
 
@@ -3354,6 +3678,42 @@
 
     // Initialiser le sélecteur de langue quand la page est chargée
     document.addEventListener('DOMContentLoaded', initializeLanguageSelector);
+
+    // NOUVEAU : Gestion du bouton toggle pour les détails Docker
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('toggle-docker-details');
+      const containersSection = document.getElementById('docker-containers-details');
+      const imagesSection = document.getElementById('docker-images-details');
+
+      if (toggleBtn && containersSection && imagesSection) {
+        let detailsVisible = false;
+        
+        toggleBtn.addEventListener('click', () => {
+          detailsVisible = !detailsVisible;
+          containersSection.style.display = detailsVisible ? 'block' : 'none';
+          imagesSection.style.display = detailsVisible ? 'block' : 'none';
+          
+          // Mettre à jour l'icône et le texte
+          const icon = toggleBtn.querySelector('i');
+          const textSpan = toggleBtn.querySelector('span');
+          
+          if (icon) {
+            icon.className = detailsVisible ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+          }
+          
+          if (textSpan && window.i18n) {
+            textSpan.textContent = detailsVisible 
+              ? window.i18n.t('docker.hide_details') 
+              : window.i18n.t('docker.show_details');
+          }
+          
+          // Charger les détails si on les affiche et qu'ils ne sont pas déjà chargés
+          if (detailsVisible && !dockerDetailedData) {
+            updateDockerDetailedData();
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
