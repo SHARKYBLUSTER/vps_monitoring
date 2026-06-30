@@ -458,20 +458,21 @@ vps_monitoring/
 
 | Version | Date | Modifications |
 |---------|------|---------------|
-| **0.4.0** | **30 juin 2026** | **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections (Open Ports, Alerts, Metrics, Configuration, etc.). |
-| **0.4.0** | **30 juin 2026** | **UI nettoyée** : Suppression des emojis (🔧,🕐,🌙,⏰,💾,✕) de la modale de configuration et des labels "Heure"/"Jour" sous les graphiques. |
-| **0.4.0** | **30 juin 2026** | **Décalage horaire** : Ajout du paramètre UTC Heure locale dans le menu configuration pour ajuster l'affichage des abscisses des graphiques historiques (CPU, RAM, Disque, Réseau). |
-| **0.4.0** | **30 juin 2026** | **Visibilité Docker Engine** : Ajout d'un bouton dans le menu configuration pour afficher ou masquer la carte Docker Engine sur la page index.html, avec rechargement automatique. |
-| **0.4.0** | **29 juin 2026** | **Menu de configuration complet** : Interface pour modifier l'intervalle de collecte, la rétention des données (1-24 mois), bouton d'effacement total, intégration du mode sombre, style unifié des boutons, icônes ajoutées. |
-| **0.4.0** | **29 juin 2026** | **Effacement des données** : Bouton pour supprimer toutes les données historiques (SQLite + JSON), avec VACUUM pour réduire la taille du fichier, rechargement automatique de la page. |
-| **0.4.0** | **30 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |
-| **0.4.0** | **30 juin 2026** | **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau. |
-| **0.4.0** | **30 juin 2026** | **Thème cohérent** : Suppression du bouton de basculement mode sombre de la page login, application automatique du thème depuis la configuration globale (persistance localStorage). |
-| **0.4.0** | **30 juin 2026** | **Support Docker complet** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé avec accès aux métriques système globales (mode host + privileged). |
-| **0.4.0** | **30 juin 2026** | **Correction Docker Engine sous Docker** : Remplacement de child_process par dockerode pour la détection Docker dans les containers. |
-| **0.4.0** | **30 juin 2026** | **Correction Top 5 Processes** : Utilisation de `ps aux` au lieu de systeminformation.processes() pour obtenir directement les pourcentages CPU/MEM, ajout de procps au Dockerfile. |
-| **0.4.0** | **30 juin 2026** | **Détails Docker avancés** : **Nouveau** : Affichage des conteneurs avec nom, ID, image, état, ports publiés/exposés, date de création, commande. Stats conteneurs (running/stopped/paused/total) et images (total/taille/untagged). Bouton toggle pour afficher/masquer les détails. |
-| **0.4.0** | **30 juin 2026** | **Favicon personnalisé** : Ajout d'une loupe avec centre bleu et manche noir comme favicon pour toutes les pages (dashboard, login). |
+| **0.5.0** | **30 juin 2026** | **Audit de sécurité** : Audit complet du code, identification et documentation des vulnérabilités de sécurité (authentification, CORS, injection de commande, XSS, etc.). |
+| **0.5.0** | **30 juin 2026** | **Support multi-langues** : Implémentation complète du système i18n avec fichiers JSON pour Français et Anglais, traduction de toutes les sections (Open Ports, Alerts, Metrics, Configuration, etc.). |
+| **0.5.0** | **30 juin 2026** | **UI nettoyée** : Suppression des emojis (🔧,🕐,🌙,⏰,💾,✕) de la modale de configuration et des labels "Heure"/"Jour" sous les graphiques. |
+| **0.5.0** | **30 juin 2026** | **Décalage horaire** : Ajout du paramètre UTC Heure locale dans le menu configuration pour ajuster l'affichage des abscisses des graphiques historiques (CPU, RAM, Disque, Réseau). |
+| **0.5.0** | **30 juin 2026** | **Visibilité Docker Engine** : Ajout d'un bouton dans le menu configuration pour afficher ou masquer la carte Docker Engine sur la page index.html, avec rechargement automatique. |
+| **0.5.0** | **29 juin 2026** | **Menu de configuration complet** : Interface pour modifier l'intervalle de collecte, la rétention des données (1-24 mois), bouton d'effacement total, intégration du mode sombre, style unifié des boutons, icônes ajoutées. |
+| **0.5.0** | **29 juin 2026** | **Effacement des données** : Bouton pour supprimer toutes les données historiques (SQLite + JSON), avec VACUUM pour réduire la taille du fichier, rechargement automatique de la page. |
+| **0.5.0** | **30 juin 2026** | **Corrections de bugs** : Analyse cohérente des processus, affichage correct des ports, gestion des erreurs améliorée, résolution du problème de paramètres SQLite. |
+| **0.5.0** | **30 juin 2026** | **Graphiques corrigés** : Affichage complet des 24h pour le filtre jour (au lieu de 41 minutes), agrégation par 30 minutes avec 48 points, format HH:MM pour les labels du réseau. |
+| **0.5.0** | **30 juin 2026** | **Thème cohérent** : Suppression du bouton de basculement mode sombre de la page login, application automatique du thème depuis la configuration globale (persistance localStorage). |
+| **0.5.0** | **30 juin 2026** | **Support Docker complet** : Ajout de Dockerfile et docker-compose.yml pour déploiement conteneurisé avec accès aux métriques système globales (mode host + privileged). |
+| **0.5.0** | **30 juin 2026** | **Correction Docker Engine sous Docker** : Remplacement de child_process par dockerode pour la détection Docker dans les containers. |
+| **0.5.0** | **30 juin 2026** | **Correction Top 5 Processes** : Utilisation de `ps aux` au lieu de systeminformation.processes() pour obtenir directement les pourcentages CPU/MEM, ajout de procps au Dockerfile. |
+| **0.5.0** | **30 juin 2026** | **Détails Docker avancés** : **Nouveau** : Affichage des conteneurs avec nom, ID, image, état, ports publiés/exposés, date de création, commande. Stats conteneurs (running/stopped/paused/total) et images (total/taille/untagged). Bouton toggle pour afficher/masquer les détails. |
+| **0.5.0** | **30 juin 2026** | **Favicon personnalisé** : Ajout d'une loupe avec centre bleu et manche noir comme favicon pour toutes les pages (dashboard, login). |
 | 0.3.0 | 27 juin 2026 | **Mode sombre** : Ajout d'un thème sombre avec toggle, persistance localStorage, adaptation de toutes les couleurs (cartes, graphiques, tableaux, alertes). |
 | 0.3.0 | 24 juin 2026 | **Graphiques interactifs** : Ajout de 4 graphiques (CPU, RAM, Disque, Réseau) avec Chart.js, filtres par période indépendants, mise à jour automatique. |
 | 0.2.6 | 24 juin 2026 | **Surveillance Docker complète** : Intégration de dockerode pour surveiller les conteneurs Docker (stats CPU/RAM/Réseau/Disque, alertes, contrôles start/stop/restart, historique SQLite, graphiques par conteneur). |
@@ -621,4 +622,4 @@ Ce projet est sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus de détail
 
 ---
 
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Support multi-langues, corrections de traduction, améliorations UI, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte et notifications Telegram via la modale**, **bouton de test Telegram intégré**, **détails Docker avancés avec conteneurs et images**, **favicon personnalisé**, **corrections des ports et dates Docker**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, correction des vulnérabilités, mise à jour des versions).*

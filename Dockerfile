@@ -1,5 +1,5 @@
 # Dockerfile pour VPS Monitoring Dashboard
-# Version: 0.4.0
+# Version: 0.5.0
 # Auteur: SHARKYBLUSTER
 
 # Utiliser une image Node.js légère (Alpine)

@@ -1,6 +1,6 @@
 {
   "name": "vps_monitoring",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Tableau de bord de surveillance pour VPS (CPU, RAM, Disk, Réseau, Docker)",
   "main": "backend/app.js",
   "scripts": {

@@ -550,7 +550,7 @@ app.get('/api/health', (req, res) => {
     success: true,
     status: 'OK',
     timestamp: new Date().toISOString(),
-    version: '0.4.0',
+    version: '0.5.0',
   });
 });
 

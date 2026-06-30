@@ -10,7 +10,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 
 ---
 
-## ✅ **État Actuel (v0.4.0)**
+## ✅ **État Actuel (v0.5.0)**
 - **Fonctionnalités implémentées** :
   - Surveillance en temps réel (CPU, RAM, disque, réseau, processus).
   - API REST avec 19+ endpoints (`/api/metrics`, `/api/network`, `/api/alerts`, `/api/processes`, `/api/ports`, `/api/config`, `/api/docker-simple`, `/api/docker-detailed`, etc.).
@@ -53,7 +53,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | **P1-003** | **Page de configuration** | Interface pour modifier les **seuils d'alerte** et les paramètres du dashboard. | 🟢 Élevé | 2 jours | ✅ **Terminé** |
 | **P1-004** | **Mode sombre** | Ajouter un thème sombre avec un bouton de bascule (CSS + JavaScript). | 🟢 Élevé | 2 jours | ✅ **Terminé** |
 | **P1-006** | **Amélioration de l'UI** | Refonte du design (animations fluides, icônes). | 🟡 Moyen | 3 jours | ✅ **Terminé** |
-| **P1-007** | **Gestion des données** | Menu de configuration avec intervalle de collecte, rétention, effacement total. | 🟢 Élevé | 3 jours | ✅ **Terminé v0.4.0** |
+| **P1-007** | **Gestion des données** | Menu de configuration avec intervalle de collecte, rétention, effacement total. | 🟢 Élevé | 3 jours | ✅ **Terminé v0.5.0** |
 
 ---
 
@@ -61,7 +61,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | ID | Tâche | Description | Impact | Estimation | Statut |
 |----|-------|-------------|--------|------------|--------|
 | **P2-001** | **Surveillance des services** | Vérifier l'état des services (HTTP, MySQL, Redis, SSH, etc.) via des **ping/port checks**. | 🟢 Élevé | 3 jours | ⏳ À venir |
-| **P2-003** | **Support multi-langues (Français/Anglais)** | Internationalisation (i18n) avec des fichiers JSON pour les traductions. | 🟢 Élevé | 3 jours | ✅ **Terminé v0.4.0** |
+| **P2-003** | **Support multi-langues (Français/Anglais)** | Internationalisation (i18n) avec des fichiers JSON pour les traductions. | 🟢 Élevé | 3 jours | ✅ **Terminé v0.5.0** |
 | **P2-004** | **Implémentation complète du login** | Finaliser l'authentification (intégration du middleware sur toutes les pages, gestion des sessions). | 🟢 Élevé | 2 jours | ✅ **Terminé** |
 | **P2-005** | **Notifications en temps réel** | Envoyer des alertes par **email** ou **webhook** (Discord/Slack). | 🟢 Élevé | 4 jours | ⏳ À venir |
 | **P2-006** | **Tableau de bord personnalisable** | Permettre aux utilisateurs de **choisir les widgets** à afficher. | 🟡 Moyen | 5 jours | ⏳ À venir |
@@ -83,7 +83,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ### 🔹 **4. Déploiement & Automatisation (Priorité Moyenne)**
 | ID | Tâche | Description | Impact | Estimation |
 |----|-------|-------------|--------|------------|
-| **P4-001** | **Dockerisation** | Créer un **Dockerfile** et un **docker-compose.yml** pour un déploiement facile. | 🟢 Élevé | 2 jours | ✅ **Terminé v0.4.0** (avec mode host + privileged + dockerode) |
+| **P4-001** | **Dockerisation** | Créer un **Dockerfile** et un **docker-compose.yml** pour un déploiement facile. | 🟢 Élevé | 2 jours | ✅ **Terminé v0.5.0** (avec mode host + privileged + dockerode) |
 | **P2-002** | **Surveillance Docker** | Lister les conteneurs Docker en cours d'exécution, leurs stats (CPU, RAM, statut) et leur état (running/stopped). | 🟢 Élevé | 4 jours |
 | **P4-002** | **Pipeline CI/CD** | Configurer **GitHub Actions** pour les tests et le déploiement. | 🟢 Élevé | 2 jours |
 | **P4-003** | **Script d'installation automatique** | Script Bash pour installer et configurer le projet en une commande. | 🟡 Moyen | 1 jour |
@@ -103,7 +103,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 ## 📅 **Calendrier Prévisionnel**
 | Phase | Objectif | Début | Durée |
 |-------|----------|-------|-------|
-| **Phase 1** | Améliorations immédiates (P1-001 à P1-007) | Immédiat | ~12 jours | ✅ **Terminée v0.4.0** |
+| **Phase 1** | Améliorations immédiates (P1-001 à P1-007) | Immédiat | ~12 jours | ✅ **Terminée v0.5.0** |
 | **Phase 2** | Fonctionnalités avancées (P2-001, P2-003 à P2-007, P1-005) | Après Phase 1 | ~20 jours | ⏳ En cours |
 | **Phase 3** | Optimisation & Sécurité (P3-001 à P3-004) | Après Phase 2 | ~10 jours |
 | **Phase 4** | Déploiement & Automatisation (P4-001 à P4-004, P2-002) | Après Phase 3 | ~11 jours |
@@ -116,7 +116,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [x] **Terminer le multi-langues** (Support Français/Anglais complet avec i18n).
 - [ ] **Terminer la Phase 2** (Surveillance des services, notifications, etc.).
 - [ ] **Atteindre 100% de couverture des tests** pour les fonctionnalités critiques.
-- [x] **Publier une version v0.4.0** avec les améliorations majeures.
+- [x] **Publier une version v0.5.0** avec les améliorations majeures.
 
 ---
 
@@ -136,7 +136,7 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 | **Authentification** | Complète | ✅ **100%** (sessions + middleware) |
 | **Graphiques** | 4 graphiques | ✅ **100%** (CPU, RAM, Disque, Réseau) |
 | **Mode sombre** | Implémenté | ✅ **100%** (intégré dans menu config) |
-| **Menu de configuration** | Fonctionnel | ✅ **100%** (v0.4.0) |
+| **Menu de configuration** | Fonctionnel | ✅ **100%** (v0.5.0) |
 | **Gestion des données** | Complète | ✅ **100%** (rétention + effacement) |
 | **Multi-langues** | Français/Anglais | ✅ **100%** (i18n complet) |
 | **Notifications Telegram** | Fonctionnelle | ✅ **100%** (via modale avec bouton de test) |
@@ -147,8 +147,11 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 
 ## 📝 Changelog des Versions
 
-### Version 0.4.0 - 30 juin 2026
-**Menu de configuration, gestion des données, décalage horaire, visibilité Docker, support multi-langues, support Docker complet, configuration des seuils d'alerte, notifications Telegram, détails Docker avancés, favicon personnalisé**
+### Version 0.5.0 - 30 juin 2026
+**Audit de sécurité, mise à jour des versions**
+- ✅ **Audit de sécurité complet** : Identification et documentation des vulnérabilités (authentification, CORS, injection de commande, XSS, fuites mémoire)
+- ✅ **Fichier SECURITY_TODO.md** : Liste complète des corrections à apporter
+- ✅ **Mise à jour des versions** dans tous les fichiers (package.json, README, ROADMAP)
 - ✅ **Menu de configuration complet** : Interface accessible depuis le dashboard
 - ✅ **Paramètre d'intervalle** : Configuration de la fréquence de collecte des métriques (en ms)
 - ✅ **Rétention des données** : Paramétrage de la durée de stockage (1-24 mois)
@@ -209,4 +212,4 @@ Fournir un **tableau de bord léger, open-source et facile à déployer** pour s
 - [Discussions](https://github.com/SHARKYBLUSTER/vps_monitoring/discussions)
 
 ---
-> *Dernière mise à jour : **30 juin 2026** (Version 0.4.0 - Menu de configuration, gestion des données, décalage horaire, visibilité Docker, corrections graphiques, thème, support multi-langues complet, suppression emojis, labels graphiques nettoyés, **support Docker complet**, **correction Docker Engine sous Docker**, **correction Top 5 Processes**, **configuration des seuils d'alerte et notifications Telegram via la modale**, **bouton de test Telegram intégré**, **détails Docker avancés avec conteneurs et images**, **favicon personnalisé**, **corrections des ports et dates Docker**).*
+> *Dernière mise à jour : **30 juin 2026** (Version 0.5.0 - Audit de sécurité complet, correction des vulnérabilités critiques, mise à jour des versions).*
