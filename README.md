@@ -8,6 +8,9 @@
 
 **VPS Monitoring Dashboard** is a comprehensive and secure solution for monitoring key server metrics (CPU, RAM, Disk, Network, Processes, Docker) directly from a web browser. The project uses a **REST API + SSR architecture** with automatic data refresh, supports **multi-language (French/English)**, and integrates advanced security and configuration features.
 
+Version en Français:
+https://github.com/SHARKYBLUSTER/vps_monitoring/blob/main/README_FR.md
+
 ---
 
 ## ✅ Features
